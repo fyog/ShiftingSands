@@ -46,6 +46,7 @@ struct Sphere {
 		object_ID = ID;
 	}
 
+
 	// Getter for object ID
 	int objectID() {
 		return object_ID;
