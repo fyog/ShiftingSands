@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.15.0)
-project(453-skeleton)
+project(589-689-3D-skeleton)
 
 set(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/modules/" ${CMAKE_MODULE_PATH})
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
@@ -16,8 +16,9 @@ set(OpenGL_GL_PREFERENCE GLVND)
 include_directories(SYSTEM thirdparty/argh-1.3.1/)
 
 #-------------------------------------------------------------------------------
-# http://glew.sourceforge.net/
-include_directories(SYSTEM thirdparty/glew-2.1.0/include)
+# https://glad.dav1d.de/
+add_subdirectory(thirdparty/glad)
+set(LIBRARIES ${LIBRARIES} glad)
 
 #-------------------------------------------------------------------------------
 # https://www.glfw.org/
@@ -48,17 +49,19 @@ set(LIBRARIES ${LIBRARIES} fmt::fmt)
 include_directories(SYSTEM thirdparty/fmt-7.0.3/include)
 
 include_directories(SYSTEM thirdparty/stb-2.26)
-include_directories(SYSTEM thirdparty/imgui-1.78)
+include_directories(SYSTEM thirdparty/imgui-1.89.2)
+
+include_directories(thirdparty/tinyobjloader-2.0.0rc10)
 
 find_package(OpenGL REQUIRED)
 set(LIBRARIES ${LIBRARIES} ${OPENGL_gl_LIBRARY})
 
 
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
-	list(APPEND _453_CMAKE_CXX_FLAGS ${_453_CMAKE_CXX_FLAGS} "-Wall" "-pedantic")
+	list(APPEND _589_689_CMAKE_CXX_FLAGS ${_589_689_CMAKE_CXX_FLAGS} "-Wall" "-pedantic")
 elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
 	# using GCC
-	list(APPEND _453_CMAKE_CXX_FLAGS ${_453_CMAKE_CXX_FLAGS} "-fdiagnostics-color=always" "-Wall" "-pedantic")
+	list(APPEND _589_689_CMAKE_CXX_FLAGS ${_589_689_CMAKE_CXX_FLAGS} "-fdiagnostics-color=always" "-Wall" "-pedantic" "-Wconversion")
 elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Intel")
 	# using Intel C++
 elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
@@ -71,47 +74,59 @@ elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
 	 # Turn those off: https://docs.microsoft.com/en-us/cpp/error-messages/compiler-warnings/c5105?view=vs-2019
 	add_compile_options("/wd5105")
 
-	set(_453_CMAKE_CXX_FLAGS ${_453_CMAKE_CXX_FLAGS} /W3)
+	set(_589_689_CMAKE_CXX_FLAGS ${_589_689_CMAKE_CXX_FLAGS} /W3)
 
 endif()
 
 if(APPLE)
-	set(LIBRARIES ${LIBRARIES} pthread dl)
+    set(LIBRARIES ${LIBRARIES} pthread dl)
 elseif(UNIX)
-	set(LIBRARIES ${LIBRARIES} pthread GL dl)
+    set(LIBRARIES ${LIBRARIES} pthread GL dl)
 elseif(WIN32)
 endif()
 
 
-# add_definitions(-DIMGUI_IMPL_OPENGL_LOADER_GLAD=ON)
+add_definitions(-DIMGUI_IMPL_OPENGL_LOADER_GLAD=ON)
 # include_directories(SYSTEM thirdparty/imgui thirdparty/imgui/examples)
 # include_directories(src)
 
 
 # Compile our main application
 file(GLOB SOURCES
-    453-skeleton/*
-    thirdparty/glew-2.1.0/src/glew.c
-	thirdparty/imgui-1.78/imgui/*.cpp
+    589-689-skeleton/*
+	thirdparty/imgui-1.89.2/*.cpp
 )
 set(INCLUDES ${INCLUDES} src)
 
-set(APP_NAME "453-skeleton")
+set(APP_NAME "589-689-3D-skeleton")
 
 
-# Copy all the shaders and tell the build system to re-run CMAKE if one of them changes
-file(GLOB files 453-skeleton/shaders/*)
-
+# Copy all the shaders and tell the build system to re-run CMAKE if one of them changes.
+# We use GLOB_RECURSE so that the "shaders" directory can have subfolders.
+file(GLOB_RECURSE files 589-689-skeleton/shaders/*)
 foreach(file ${files})
-	get_filename_component(name ${file} NAME)
-	configure_file(${file} shaders/${name})
+	# We need to extract the relative path of each file for when we copy it over.
+	file(RELATIVE_PATH fileName ${CMAKE_CURRENT_SOURCE_DIR}/589-689-skeleton/shaders/ ${file})
+	configure_file(${file} shaders/${fileName} COPYONLY)
 endforeach()
 
-#configure_file(textures/1.jpg textures/1.jpg COPYONLY)
+# Do the same for textures.
+file(GLOB_RECURSE files_t textures/*)
+foreach(file ${files_t})
+	file(RELATIVE_PATH fileName ${CMAKE_CURRENT_SOURCE_DIR}/textures/ ${file})
+	configure_file(${file} textures/${fileName} COPYONLY)
+endforeach()
 
-add_executable(${APP_NAME} ${SOURCES} "453-skeleton/Geometry.cpp" "453-skeleton/Geometry.h")
+# Do the same for 3D model files.
+file(GLOB_RECURSE files_m models/*)
+foreach(file ${files_m})
+	file(RELATIVE_PATH fileName ${CMAKE_CURRENT_SOURCE_DIR}/models/ ${file})
+	configure_file(${file} models/${fileName} COPYONLY)
+endforeach()
+
+add_executable(${APP_NAME} ${SOURCES})
 target_include_directories(${APP_NAME} PRIVATE ${INCLUDES})
 target_link_libraries(${APP_NAME} ${LIBRARIES})
 target_compile_definitions(${APP_NAME} PRIVATE ${DEFINITIONS})
-target_compile_options(${APP_NAME} PRIVATE ${_453_CMAKE_CXX_FLAGS})
+target_compile_options(${APP_NAME} PRIVATE ${_589_689_CMAKE_CXX_FLAGS})
 set_target_properties(${APP_NAME} PROPERTIES INSTALL_RPATH "./" BUILD_RPATH "./")
