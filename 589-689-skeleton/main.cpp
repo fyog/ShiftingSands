@@ -16,6 +16,7 @@
 #include "Shader.h"
 #include "Texture.h"
 #include "Camera.h"
+#include "BSpline.h"
 
 #include "GeomLoaderForOBJ.h"
 
@@ -243,12 +244,22 @@ int main() {
 	// Set the initial, default values of the shading uniforms.
 	shader.use();
 	cb->updateShadingUniforms(lightPos, lightCol, diffuseCol, ambientStrength, texExistence);
+	
+	CPU_Geometry control;
+	control.verts.push_back(glm::vec3((-0.5),(-0.5),0.f));
+	control.verts.push_back(glm::vec3(0.f, 0.5f, 0.f));
+	control.verts.push_back(glm::vec3(0.5, (-0.5), 0.f));
+	
+	CPU_Geometry splineob;
+	GPU_Geometry goodGPU;
 
+	bspline(3, &control, 0.05, &splineob);
+	goodGPU.setVerts(splineob.verts);
 
 	// RENDER LOOP
 	while (!window.shouldClose()) {
 		glfwPollEvents();
-
+		
 
 		// Three functions that must be called each new frame.
 		ImGui_ImplOpenGL3_NewFrame();
@@ -330,7 +341,9 @@ int main() {
 		ImGui::Text("Average %.1f ms/frame (%.1f fps)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
 		ImGui::End();
 		ImGui::Render();
-
+		
+		goodGPU.bind();
+		
 		glEnable(GL_LINE_SMOOTH);
 		glEnable(GL_FRAMEBUFFER_SRGB);
 		glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
@@ -346,8 +359,9 @@ int main() {
 			cb->updateShadingUniforms(lightPos, lightCol, diffuseCol, ambientStrength, texExistence);
 		}
 		cb->viewPipeline();
+		glDrawArrays(GL_LINE_STRIP, 0, GLsizei(splineob.verts.size()));
 
-		glDrawArrays(GL_TRIANGLES, 0, GLsizei(models.at(selectedModelName).numVerts()));
+		//glDrawArrays(GL_TRIANGLES, 0, GLsizei(models.at(selectedModelName).numVerts()));
 
 		glDisable(GL_FRAMEBUFFER_SRGB); // disable sRGB for things like imgui
 
