@@ -244,17 +244,23 @@ int main() {
 	// Set the initial, default values of the shading uniforms.
 	shader.use();
 	cb->updateShadingUniforms(lightPos, lightCol, diffuseCol, ambientStrength, texExistence);
-	
+
+	//Test of b-spline curve below
 	CPU_Geometry control;
-	control.verts.push_back(glm::vec3((-0.5),(-0.5),0.f));
+	control.verts.push_back(glm::vec3((-0.75),(-0.5),0.f));
+	control.verts.push_back(glm::vec3((-0.5), (-0.5), 0.f));
+	control.verts.push_back(glm::vec3((-0.25), (-0.25), 0.f));
 	control.verts.push_back(glm::vec3(0.f, 0.5f, 0.f));
-	control.verts.push_back(glm::vec3(0.5, (-0.5), 0.f));
+	control.verts.push_back(glm::vec3((0.25), (-0.5), 0.f));
+	control.verts.push_back(glm::vec3(0.5, (-0.25), 0.f));
+	control.verts.push_back(glm::vec3((0.75), 0.f, 0.f)); //in the end, 7 control points are placed for this example curve
 	
 	CPU_Geometry splineob;
 	GPU_Geometry goodGPU;
 
-	bspline(3, &control, 0.05, &splineob);
-	goodGPU.setVerts(splineob.verts);
+	bspline(4, &control, 0.01, &splineob); //See BSpline.cpp for definition of bspline. this will make a curve of order 4, with the control vertices in control (dereferenced here to be passed into a pointer),
+	//and it will have 0.01 set as the u-step value, meaning u will step forward a 100 times then find a point on the curve 
+	goodGPU.setVerts(splineob.verts); // it would probably be better to set the vertices of the GPU object in the rendering loop, this is just here for testing.
 
 	// RENDER LOOP
 	while (!window.shouldClose()) {
@@ -359,9 +365,9 @@ int main() {
 			cb->updateShadingUniforms(lightPos, lightCol, diffuseCol, ambientStrength, texExistence);
 		}
 		cb->viewPipeline();
-		glDrawArrays(GL_LINE_STRIP, 0, GLsizei(splineob.verts.size()));
+		glDrawArrays(GL_LINE_STRIP, 0, GLsizei(splineob.verts.size()));  
 
-		//glDrawArrays(GL_TRIANGLES, 0, GLsizei(models.at(selectedModelName).numVerts()));
+		//glDrawArrays(GL_TRIANGLES, 0, GLsizei(models.at(selectedModelName).numVerts())); //Commented this out to test b-spline -Reid
 
 		glDisable(GL_FRAMEBUFFER_SRGB); // disable sRGB for things like imgui
 
