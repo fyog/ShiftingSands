@@ -15,7 +15,7 @@ float randNumber(float _min, float _max) {
 	return random_number;
 }
 
-void createCells(int _length, int _width, CPU_Geometry &cpuGeom) {
+void createCells(int _length, int _height, CPU_Geometry &cpuGeom) {
 	// Test value for adhesion
 	int _adhesion = 10.f;
 
@@ -26,14 +26,40 @@ void createCells(int _length, int _width, CPU_Geometry &cpuGeom) {
 	// vector array. These vector arrays are index aligned, so the data should be
 	// tied to a particular point (might be better as a struct)
 	for (int j = 0; j < _length; j++) {
-		for (int i = 0; i < _width; i++) {
-			heights.push_back(randNumber(-5.f,5.f));
+		for (int i = 0; i < _height; i++) {
+			//heights.push_back(randNumber(-2.5f,2.5f));
+			heights.push_back(0.f);
 			adhesions.push_back(_adhesion);
 			cpuGeom.verts.push_back(glm::vec3(j, heights.back(), i));
 			// TODO: push back vertices, and change the y value based on the height value passed
 		}
 	}
+}
 
+void renderCells(CPU_Geometry &input_cpu, CPU_Geometry &output_cpu, GPU_Geometry &output_gpu, int _width, int _height) {
+	for (int j = 0; j < _height; j++) {
+		for (int i = 0; i < _width; i++) {
+			output_cpu.verts.push_back(input_cpu.verts.at(i));
+		}
+		output_gpu.setVerts(output_cpu.verts);
+		output_gpu.bind();
+		glDrawArrays(GL_LINE_STRIP, 0, GLsizei(output_cpu.verts.size()));
+		output_cpu.verts.clear();
+	}
+
+	for (int i = 0; i < _width; i++) {
+		int index = i;
+		for (int j = 0; j < _height; j++) {
+			output_cpu.verts.push_back(input_cpu.verts.at(index));
+			index += _width;
+		}
+		output_gpu.setVerts(output_cpu.verts);
+		output_gpu.bind();
+		glDrawArrays(GL_LINE_STRIP, 0, GLsizei(output_cpu.verts.size()));
+		output_cpu.verts.clear();
+	}
+
+	output_cpu.verts.clear();
 
 }
 

@@ -254,8 +254,10 @@ int main() {
 
 	CPU_Geometry cells_cpu;
 	GPU_Geometry cells_gpu;
+	CPU_Geometry cells_patch_cpu;
+	GPU_Geometry cells_patch_gpu;
 
-	createCells(10, 10, cells_cpu);
+	createCells(5, 4, cells_cpu);
 	cells_gpu.setVerts(cells_cpu.verts);
 
 	// RENDER LOOP
@@ -344,7 +346,7 @@ int main() {
 		ImGui::End();
 		ImGui::Render();
 
-		cells_gpu.bind();
+		//cells_gpu.bind();
 
 		glEnable(GL_LINE_SMOOTH);
 		glEnable(GL_FRAMEBUFFER_SRGB);
@@ -362,6 +364,7 @@ int main() {
 		}
 		cb->viewPipeline();
 
+		renderCells(cells_cpu, cells_patch_cpu, cells_patch_gpu, 5, 4);
 		
 		glDrawArrays(GL_LINE_STRIP, 0, GLsizei(cells_cpu.verts.size()));
 
