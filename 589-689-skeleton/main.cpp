@@ -22,6 +22,8 @@
 #include "glm/glm.hpp"
 #include "glm/gtc/type_ptr.hpp"
 
+#include "SandCell.h"
+
 // EXAMPLE CALLBACKS
 class Callbacks3D : public CallbackInterface {
 
@@ -244,6 +246,11 @@ int main() {
 	shader.use();
 	cb->updateShadingUniforms(lightPos, lightCol, diffuseCol, ambientStrength, texExistence);
 
+	CPU_Geometry cells_cpu;
+	GPU_Geometry cells_gpu;
+
+	createCells(10, 10, cells_cpu);
+	cells_gpu.setVerts(cells_cpu.verts);
 
 	// RENDER LOOP
 	while (!window.shouldClose()) {
@@ -346,6 +353,9 @@ int main() {
 			cb->updateShadingUniforms(lightPos, lightCol, diffuseCol, ambientStrength, texExistence);
 		}
 		cb->viewPipeline();
+
+		cells_gpu.bind();
+		glDrawArrays(GL_LINE_STRIP, 0, GLsizei(cells_cpu.verts.size()));
 
 		glDrawArrays(GL_TRIANGLES, 0, GLsizei(models.at(selectedModelName).numVerts()));
 
