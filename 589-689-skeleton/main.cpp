@@ -184,6 +184,12 @@ private:
 	GPU_Geometry gpuGeom;
 };
 
+void printCPUVerts(CPU_Geometry cpu) {
+	for (int i = 0; i < cpu.verts.size(); i++) {
+		std::cout << cpu.verts.at(i).x << ", " << cpu.verts.at(i).y << ", " << cpu.verts.at(i).z << ", " << std::endl;
+	}
+}
+
 
 int main() {
 	Log::debug("Starting main");
@@ -338,6 +344,8 @@ int main() {
 		ImGui::End();
 		ImGui::Render();
 
+		cells_gpu.bind();
+
 		glEnable(GL_LINE_SMOOTH);
 		glEnable(GL_FRAMEBUFFER_SRGB);
 		glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
@@ -354,10 +362,10 @@ int main() {
 		}
 		cb->viewPipeline();
 
-		cells_gpu.bind();
+		
 		glDrawArrays(GL_LINE_STRIP, 0, GLsizei(cells_cpu.verts.size()));
 
-		glDrawArrays(GL_TRIANGLES, 0, GLsizei(models.at(selectedModelName).numVerts()));
+		//glDrawArrays(GL_TRIANGLES, 0, GLsizei(models.at(selectedModelName).numVerts()));
 
 		glDisable(GL_FRAMEBUFFER_SRGB); // disable sRGB for things like imgui
 

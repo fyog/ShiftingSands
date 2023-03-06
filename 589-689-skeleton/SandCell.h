@@ -3,6 +3,7 @@
 #define SANDCELL_H
 
 #include <vector>
+#include <random>
 #include "Geometry.h"
 
 
@@ -15,6 +16,7 @@ extern std::vector<float> heights;
 extern std::vector<float> adhesions;
 extern std::vector<CPU_Geometry> locations;
 
-void createCells(int _length, int _width, CPU_Geometry cpuGeom);
+float randNumber(float _min, float _max);
+void createCells(int _length, int _width, CPU_Geometry &cpuGeom);
 
 #endif
