@@ -22,6 +22,8 @@
 #include "glm/glm.hpp"
 #include "glm/gtc/type_ptr.hpp"
 
+#include "SandCell.h"
+
 // EXAMPLE CALLBACKS
 class Callbacks3D : public CallbackInterface {
 
@@ -182,6 +184,12 @@ private:
 	GPU_Geometry gpuGeom;
 };
 
+void printCPUVerts(CPU_Geometry cpu) {
+	for (int i = 0; i < cpu.verts.size(); i++) {
+		std::cout << cpu.verts.at(i).x << ", " << cpu.verts.at(i).y << ", " << cpu.verts.at(i).z << ", " << std::endl;
+	}
+}
+
 
 int main() {
 	Log::debug("Starting main");
@@ -244,6 +252,13 @@ int main() {
 	shader.use();
 	cb->updateShadingUniforms(lightPos, lightCol, diffuseCol, ambientStrength, texExistence);
 
+	CPU_Geometry cells_cpu;
+	GPU_Geometry cells_gpu;
+	CPU_Geometry cells_patch_cpu;
+	GPU_Geometry cells_patch_gpu;
+
+	createCells(cells_cpu);
+	cells_gpu.setVerts(cells_cpu.verts);
 
 	// RENDER LOOP
 	while (!window.shouldClose()) {
@@ -329,7 +344,13 @@ int main() {
 		// Framerate display, in case you need to debug performance.
 		ImGui::Text("Average %.1f ms/frame (%.1f fps)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
 		ImGui::End();
+
+		// ImGui to control sand cell data structure
+		sandCellImGui(cells_cpu);
+	
+
 		ImGui::Render();
+
 
 		glEnable(GL_LINE_SMOOTH);
 		glEnable(GL_FRAMEBUFFER_SRGB);
@@ -347,7 +368,11 @@ int main() {
 		}
 		cb->viewPipeline();
 
-		glDrawArrays(GL_TRIANGLES, 0, GLsizei(models.at(selectedModelName).numVerts()));
+		// Toggle to render LERP cells of the data structure
+		if (getShowCells()) {
+			renderCells(cells_cpu, cells_patch_cpu, cells_patch_gpu);
+		}
+		
 
 		glDisable(GL_FRAMEBUFFER_SRGB); // disable sRGB for things like imgui
 
