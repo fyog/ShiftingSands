@@ -365,10 +365,6 @@ int main() {
 		cb->viewPipeline();
 
 		renderCells(cells_cpu, cells_patch_cpu, cells_patch_gpu, 5, 4);
-		
-		glDrawArrays(GL_LINE_STRIP, 0, GLsizei(cells_cpu.verts.size()));
-
-		//glDrawArrays(GL_TRIANGLES, 0, GLsizei(models.at(selectedModelName).numVerts()));
 
 		glDisable(GL_FRAMEBUFFER_SRGB); // disable sRGB for things like imgui
 

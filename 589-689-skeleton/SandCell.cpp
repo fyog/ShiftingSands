@@ -15,7 +15,7 @@ float randNumber(float _min, float _max) {
 	return random_number;
 }
 
-void createCells(int _length, int _height, CPU_Geometry &cpuGeom) {
+void createCells(int _width, int _height, CPU_Geometry &cpuGeom) {
 	// Test value for adhesion
 	int _adhesion = 10.f;
 
@@ -25,8 +25,8 @@ void createCells(int _length, int _height, CPU_Geometry &cpuGeom) {
 	// The idea is that each data type we want to track for each cell is pushed to a
 	// vector array. These vector arrays are index aligned, so the data should be
 	// tied to a particular point (might be better as a struct)
-	for (int j = 0; j < _length; j++) {
-		for (int i = 0; i < _height; i++) {
+	for (int j = 0; j < _height; j++) {
+		for (int i = 0; i < _width; i++) {
 			//heights.push_back(randNumber(-2.5f,2.5f));
 			heights.push_back(0.f);
 			adhesions.push_back(_adhesion);
@@ -37,9 +37,11 @@ void createCells(int _length, int _height, CPU_Geometry &cpuGeom) {
 }
 
 void renderCells(CPU_Geometry &input_cpu, CPU_Geometry &output_cpu, GPU_Geometry &output_gpu, int _width, int _height) {
+	int index = 0;
 	for (int j = 0; j < _height; j++) {
 		for (int i = 0; i < _width; i++) {
-			output_cpu.verts.push_back(input_cpu.verts.at(i));
+			output_cpu.verts.push_back(input_cpu.verts.at(index));
+			index++;
 		}
 		output_gpu.setVerts(output_cpu.verts);
 		output_gpu.bind();
@@ -48,7 +50,7 @@ void renderCells(CPU_Geometry &input_cpu, CPU_Geometry &output_cpu, GPU_Geometry
 	}
 
 	for (int i = 0; i < _width; i++) {
-		int index = i;
+		index = i;
 		for (int j = 0; j < _height; j++) {
 			output_cpu.verts.push_back(input_cpu.verts.at(index));
 			index += _width;
