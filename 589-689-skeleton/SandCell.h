@@ -17,6 +17,8 @@ extern int _length;
 extern float _height;
 extern float _adhesion;
 
+extern bool randomHeights;
+
 extern std::vector<float> heights;
 extern std::vector<float> adhesions;
 

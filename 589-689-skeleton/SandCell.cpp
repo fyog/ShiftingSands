@@ -3,6 +3,8 @@
 int _width = 4;
 int _length = 4;
 
+bool randomHeights = false;
+
 std::vector<float> heights;
 std::vector<float> adhesions;
 
@@ -17,9 +19,17 @@ std::vector<float> getHeightsVector() {
 void sandCellImGui(CPU_Geometry &cpuGeom) {
 	ImGui::Begin("Sand Cell Tuning");
 
-	if (ImGui::InputInt("Length (X): ", &_width) || ImGui::InputInt("Width  (Z): ", &_length)) {
+	bool change = false;
+
+	change |= ImGui::InputInt("Length (X): ", &_width);
+	change |= ImGui::InputInt("Width  (Z): ", &_length);
+	change |= ImGui::Checkbox("Random Heights", &randomHeights);
+
+
+	if (change) {
 		createCells(cpuGeom);
 	}
+	
 
 	ImGui::End();
 }
@@ -50,8 +60,15 @@ void createCells(CPU_Geometry& cpuGeom) {
 	// tied to a particular point (might be better as a struct)
 	for (int j = 0; j < _length; j++) {
 		for (int i = 0; i < _width; i++) {
-			//heights.push_back(randNumber(-2.5f,2.5f));
-			heights.push_back(0.f);
+
+			if (randomHeights) {
+				// Random heights test
+				heights.push_back(randNumber(-2.5f, 2.5f));
+			}
+			else {
+				heights.push_back(0.f);
+			}
+			
 			adhesions.push_back(_adhesion);
 			cpuGeom.verts.push_back(glm::vec3(j, heights.back(), i));
 			// TODO: push back vertices, and change the y value based on the height value passed
