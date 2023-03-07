@@ -257,7 +257,7 @@ int main() {
 	CPU_Geometry cells_patch_cpu;
 	GPU_Geometry cells_patch_gpu;
 
-	createCells(5, 4, cells_cpu);
+	createCells(cells_cpu);
 	cells_gpu.setVerts(cells_cpu.verts);
 
 	// RENDER LOOP
@@ -344,6 +344,9 @@ int main() {
 		// Framerate display, in case you need to debug performance.
 		ImGui::Text("Average %.1f ms/frame (%.1f fps)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
 		ImGui::End();
+
+		sandCellImGui(cells_cpu);
+
 		ImGui::Render();
 
 		//cells_gpu.bind();
@@ -364,7 +367,7 @@ int main() {
 		}
 		cb->viewPipeline();
 
-		renderCells(cells_cpu, cells_patch_cpu, cells_patch_gpu, 5, 4);
+		renderCells(cells_cpu, cells_patch_cpu, cells_patch_gpu);
 
 		glDisable(GL_FRAMEBUFFER_SRGB); // disable sRGB for things like imgui
 

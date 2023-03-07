@@ -1,5 +1,29 @@
 #include "SandCell.h"
 
+int _width = 4;
+int _length = 4;
+
+std::vector<float> heights;
+std::vector<float> adhesions;
+
+std::vector<float> getAdhesionVector() {
+	return adhesions;
+}
+
+std::vector<float> getHeightsVector() {
+	return heights;
+}
+
+void sandCellImGui(CPU_Geometry &cpuGeom) {
+	ImGui::Begin("Sand Cell Tuning");
+
+	if (ImGui::InputInt("Length (X): ", &_width) || ImGui::InputInt("Width  (Z): ", &_length)) {
+		createCells(cpuGeom);
+	}
+
+	ImGui::End();
+}
+
 // Random number generator to test the structure 
 float randNumber(float _min, float _max) {
 	// Set up the random number generator
@@ -15,17 +39,16 @@ float randNumber(float _min, float _max) {
 	return random_number;
 }
 
-void createCells(int _width, int _height, CPU_Geometry &cpuGeom) {
-	// Test value for adhesion
+// Function to create cells that uses build in values
+void createCells(CPU_Geometry& cpuGeom) {
+	cpuGeom.verts.clear();
+	// Test value for adhesion, will need to be removed
 	int _adhesion = 10.f;
-
-	std::vector<float> heights;
-	std::vector<float> adhesions;
 
 	// The idea is that each data type we want to track for each cell is pushed to a
 	// vector array. These vector arrays are index aligned, so the data should be
 	// tied to a particular point (might be better as a struct)
-	for (int j = 0; j < _height; j++) {
+	for (int j = 0; j < _length; j++) {
 		for (int i = 0; i < _width; i++) {
 			//heights.push_back(randNumber(-2.5f,2.5f));
 			heights.push_back(0.f);
@@ -36,9 +59,18 @@ void createCells(int _width, int _height, CPU_Geometry &cpuGeom) {
 	}
 }
 
-void renderCells(CPU_Geometry &input_cpu, CPU_Geometry &output_cpu, GPU_Geometry &output_gpu, int _width, int _height) {
+// Function that creates cells can be passed values of X & Z
+void createCells(int _x, int _z, CPU_Geometry &cpuGeom) {
+	_width = _x;
+	_length = _z;
+
+	createCells(cpuGeom);
+}
+
+// LERP render of cell structure, uses built in values
+void renderCells(CPU_Geometry& input_cpu, CPU_Geometry& output_cpu, GPU_Geometry& output_gpu) {
 	int index = 0;
-	for (int j = 0; j < _height; j++) {
+	for (int j = 0; j < _length; j++) {
 		for (int i = 0; i < _width; i++) {
 			output_cpu.verts.push_back(input_cpu.verts.at(index));
 			index++;
@@ -51,7 +83,7 @@ void renderCells(CPU_Geometry &input_cpu, CPU_Geometry &output_cpu, GPU_Geometry
 
 	for (int i = 0; i < _width; i++) {
 		index = i;
-		for (int j = 0; j < _height; j++) {
+		for (int j = 0; j < _length; j++) {
 			output_cpu.verts.push_back(input_cpu.verts.at(index));
 			index += _width;
 		}
@@ -62,6 +94,14 @@ void renderCells(CPU_Geometry &input_cpu, CPU_Geometry &output_cpu, GPU_Geometry
 	}
 
 	output_cpu.verts.clear();
+
+}
+
+void renderCells(CPU_Geometry &input_cpu, CPU_Geometry &output_cpu, GPU_Geometry &output_gpu, int _x, int _z) {
+	_width = _x;
+	_length = _z;
+
+	renderCells(input_cpu, output_cpu, output_gpu);
 
 }
 
