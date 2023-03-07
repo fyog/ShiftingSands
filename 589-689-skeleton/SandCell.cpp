@@ -1,13 +1,19 @@
 #include "SandCell.h"
 
+// X and Z range of the cells
 int _width = 4;
 int _length = 4;
 
+// Toggle if you want to generate random heights
 bool randomHeights = false;
+// Toggle to render the cells
+bool showCells = true;
 
+// Collections of height and adhesion values
 std::vector<float> heights;
 std::vector<float> adhesions;
 
+// Return / get functions
 std::vector<float> getAdhesionVector() {
 	return adhesions;
 }
@@ -16,6 +22,11 @@ std::vector<float> getHeightsVector() {
 	return heights;
 }
 
+bool getShowCells() {
+	return showCells;
+}
+
+// ImGui panel to control the sand cells
 void sandCellImGui(CPU_Geometry &cpuGeom) {
 	ImGui::Begin("Sand Cell Tuning");
 
@@ -29,7 +40,8 @@ void sandCellImGui(CPU_Geometry &cpuGeom) {
 	if (change) {
 		createCells(cpuGeom);
 	}
-	
+
+	ImGui::Checkbox("Render Cells", &showCells);
 
 	ImGui::End();
 }
@@ -71,7 +83,6 @@ void createCells(CPU_Geometry& cpuGeom) {
 			
 			adhesions.push_back(_adhesion);
 			cpuGeom.verts.push_back(glm::vec3(j, heights.back(), i));
-			// TODO: push back vertices, and change the y value based on the height value passed
 		}
 	}
 }
@@ -85,6 +96,11 @@ void createCells(int _x, int _z, CPU_Geometry &cpuGeom) {
 }
 
 // LERP render of cell structure, uses built in values
+// Helpful for visualizing data structure
+// 
+// Currently doing one draw call per each X and Z value
+// This causes performance issues if values are above 100
+// TODO:: optimize into less draw calls
 void renderCells(CPU_Geometry& input_cpu, CPU_Geometry& output_cpu, GPU_Geometry& output_gpu) {
 	int index = 0;
 	for (int j = 0; j < _length; j++) {
@@ -114,6 +130,7 @@ void renderCells(CPU_Geometry& input_cpu, CPU_Geometry& output_cpu, GPU_Geometry
 
 }
 
+// Function to render cells, can be passed X & Z values instead of using ImGui
 void renderCells(CPU_Geometry &input_cpu, CPU_Geometry &output_cpu, GPU_Geometry &output_gpu, int _x, int _z) {
 	_width = _x;
 	_length = _z;

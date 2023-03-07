@@ -345,11 +345,12 @@ int main() {
 		ImGui::Text("Average %.1f ms/frame (%.1f fps)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
 		ImGui::End();
 
+		// ImGui to control sand cell data structure
 		sandCellImGui(cells_cpu);
+	
 
 		ImGui::Render();
 
-		//cells_gpu.bind();
 
 		glEnable(GL_LINE_SMOOTH);
 		glEnable(GL_FRAMEBUFFER_SRGB);
@@ -367,7 +368,11 @@ int main() {
 		}
 		cb->viewPipeline();
 
-		renderCells(cells_cpu, cells_patch_cpu, cells_patch_gpu);
+		// Toggle to render LERP cells of the data structure
+		if (getShowCells()) {
+			renderCells(cells_cpu, cells_patch_cpu, cells_patch_gpu);
+		}
+		
 
 		glDisable(GL_FRAMEBUFFER_SRGB); // disable sRGB for things like imgui
 

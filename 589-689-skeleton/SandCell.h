@@ -18,12 +18,14 @@ extern float _height;
 extern float _adhesion;
 
 extern bool randomHeights;
+extern bool showCells;
 
 extern std::vector<float> heights;
 extern std::vector<float> adhesions;
 
 std::vector<float> getAdhesionVector();
 std::vector<float> getHeightsVector();
+bool getShowCells();
 
 void sandCellImGui(CPU_Geometry& cpuGeom);
 
