@@ -236,7 +236,7 @@ void cubesRender(CPU_Geometry inputCPU) {
 		// P2
 		tempCPU.verts.push_back(glm::vec3(inputCPU.verts.at(i).x - 0.5f,
 											0.0f,
-											inputCPU.verts.at(i).z - 0.5f));
+											inputCPU.verts.at(i).z + 0.5f));
 		
 		// P3
 		tempCPU.verts.push_back(glm::vec3(inputCPU.verts.at(i).x + 0.5f,
@@ -286,6 +286,7 @@ void cubesRender(CPU_Geometry inputCPU) {
 		outputGPU.bind();
 		glDrawArrays(GL_LINE_STRIP, 0, GLsizei(outputCPU.verts.size()));
 		outputCPU.verts.clear();
+		tempCPU.verts.clear();
 
 	}
 }
