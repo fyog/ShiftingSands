@@ -23,6 +23,8 @@
 #include "glm/glm.hpp"
 #include "glm/gtc/type_ptr.hpp"
 
+#include "SandCell.h"
+
 // EXAMPLE CALLBACKS
 class Callbacks3D : public CallbackInterface {
 
@@ -183,6 +185,12 @@ private:
 	GPU_Geometry gpuGeom;
 };
 
+void printCPUVerts(CPU_Geometry cpu) {
+	for (int i = 0; i < cpu.verts.size(); i++) {
+		std::cout << cpu.verts.at(i).x << ", " << cpu.verts.at(i).y << ", " << cpu.verts.at(i).z << ", " << std::endl;
+	}
+}
+
 
 int main() {
 	Log::debug("Starting main");
@@ -245,6 +253,7 @@ int main() {
 	shader.use();
 	cb->updateShadingUniforms(lightPos, lightCol, diffuseCol, ambientStrength, texExistence);
 
+/*
 	//Test of b-spline curve below
 	CPU_Geometry control;
 	control.verts.push_back(glm::vec3((-0.75),(-0.5),0.f));
@@ -261,6 +270,16 @@ int main() {
 	bspline(4, &control, 0.01, &splineob); //See BSpline.cpp for definition of bspline. this will make a curve of order 4, with the control vertices in control (dereferenced here to be passed into a pointer),
 	//and it will have 0.01 set as the u-step value, meaning u will step forward a 100 times then find a point on the curve 
 	goodGPU.setVerts(splineob.verts); // it would probably be better to set the vertices of the GPU object in the rendering loop, this is just here for testing.
+*/
+
+	CPU_Geometry cells_cpu;
+	GPU_Geometry cells_gpu;
+	CPU_Geometry cells_patch_cpu;
+	GPU_Geometry cells_patch_gpu;
+
+	createCells(cells_cpu);
+	cells_gpu.setVerts(cells_cpu.verts);
+
 
 	// RENDER LOOP
 	while (!window.shouldClose()) {
@@ -346,10 +365,16 @@ int main() {
 		// Framerate display, in case you need to debug performance.
 		ImGui::Text("Average %.1f ms/frame (%.1f fps)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
 		ImGui::End();
+
+		// ImGui to control sand cell data structure
+		sandCellImGui(cells_cpu);
+	
+
 		ImGui::Render();
+
+		//goodGPU.bind();
 		
-		goodGPU.bind();
-		
+
 		glEnable(GL_LINE_SMOOTH);
 		glEnable(GL_FRAMEBUFFER_SRGB);
 		glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
@@ -365,9 +390,23 @@ int main() {
 			cb->updateShadingUniforms(lightPos, lightCol, diffuseCol, ambientStrength, texExistence);
 		}
 		cb->viewPipeline();
-		glDrawArrays(GL_LINE_STRIP, 0, GLsizei(splineob.verts.size()));  
+		//glDrawArrays(GL_LINE_STRIP, 0, GLsizei(splineob.verts.size())); 
+
 
 		//glDrawArrays(GL_TRIANGLES, 0, GLsizei(models.at(selectedModelName).numVerts())); //Commented this out to test b-spline -Reid
+
+		// Toggle to render LERP cells of the data structure
+		if (getShowCells()) {
+			if (getNumDrawCalls() == 0) {
+				renderCells(cells_cpu, cells_patch_cpu, cells_patch_gpu);
+			}
+			else if (getNumDrawCalls() == 1) {
+				renderCells2Calls(cells_cpu, cells_patch_cpu, cells_patch_gpu);
+			}
+			
+		}
+		
+
 
 		glDisable(GL_FRAMEBUFFER_SRGB); // disable sRGB for things like imgui
 

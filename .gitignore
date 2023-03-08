@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Own stuff here
 build
 compile_commands.json
@@ -302,3 +303,8 @@ __pycache__/
 # should be stored in the .pubxml.user file.
 
 # End of https://www.gitignore.io/api/visualstudio
+=======
+.vs/
+out/
+*.sqlite
+>>>>>>> 6c0861b601817d222a04123aa27a73987bbafc30

@@ -26,7 +26,7 @@ int getdelta(float* knots, int n, float u, int delta)
 	}
 	if (i < (n - 1)) return i; //if (i >= (n - 1), then the entire loop iterated through without finding delta, otherwise, return delta
 
-	return (-1); //Error value. make sure you either check for the error value 
+	return (-1); //Error value. either check for the error value or just don't make errors.
 }
 
 void standardknots(float* knots, int k, int m)
@@ -76,7 +76,7 @@ void standardknots(float* knots, int k, int m)
 glm::vec3 onesplinecalc(float omega, CPU_Geometry* rangecopy, int poindex)
 {
 	glm::vec3 returner = glm::vec3(0.f, 0.f, 0.f); 
-	returner = (omega * (rangecopy->verts[poindex])) + ((1.f - omega) * (rangecopy->verts[poindex + 1])); // find some point 1/omegath between the two points
+	returner = (omega * (rangecopy->verts[poindex])) + ((1.f - omega) * (rangecopy->verts[poindex + 1])); // find some point at omega between the two points
 	return returner;
 }
 
@@ -161,7 +161,7 @@ bool checkpointcount(int k, CPU_Geometry* control)
 	if (control->verts.size() >= k) return true;
 	//there are m + 1 control points, so to satisfy the condition we'd need:
 	//(m + k + 1) >= 2 * k -> m + 1 >= (2 * k) - k -> (m + 1) >= k
-	std::cout << "Please place more control points. You need at least " << k << "\n";
+	//std::cout << "Please place more control points. You need at least " << k << "\n";
 	return false;
 }
 
