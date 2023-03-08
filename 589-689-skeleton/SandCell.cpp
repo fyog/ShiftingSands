@@ -6,6 +6,7 @@ int _length = 4;
 
 // Toggle if you want to generate random heights
 bool randomHeights = false;
+float pillarHeight = 0.f;
 // Toggle to render the cells
 bool showCells = true;
 int renderMode = 0;
@@ -39,13 +40,15 @@ void sandCellImGui(CPU_Geometry& cpuGeom) {
 	// Names of render modes to be displayed in slider
 	const char* renderModeNames[] = { "Multi-Call", "Two-Call", "Cubes"};
 
-
 	bool change = false;
 
 	change |= ImGui::InputInt("Length (X): ", &_width);
 	change |= ImGui::InputInt("Width  (Z): ", &_length);
 	change |= ImGui::Checkbox("Random Heights", &randomHeights);
-
+	if (!randomHeights) {
+		change |= ImGui::InputFloat("Height of Pillar", &pillarHeight, 0.1f, 1.f);
+		pillarSetup(cpuGeom, pillarHeight);
+	}
 
 	if (change) {
 		createCells(cpuGeom);
@@ -215,7 +218,7 @@ void renderCells(CPU_Geometry &input_cpu, CPU_Geometry &output_cpu, GPU_Geometry
 
 }
 
-void cubesRender(CPU_Geometry inputCPU) {
+void cubesRender(CPU_Geometry &inputCPU) {
 	CPU_Geometry tempCPU;
 	CPU_Geometry outputCPU;
 	GPU_Geometry outputGPU;
@@ -288,4 +291,15 @@ void cubesRender(CPU_Geometry inputCPU) {
 		tempCPU.verts.clear();
 
 	}
+}
+
+void pillarSetup(CPU_Geometry& inputCPU, float _height) {
+	//int halfX = _width / 2;
+	//int halfZ = _length / 2;
+
+	int halfway = inputCPU.verts.size() / 2;	
+
+	inputCPU.verts.at(halfway) = (glm::vec3(inputCPU.verts.at(halfway).x,
+											_height,
+											inputCPU.verts.at(halfway).z));
 }

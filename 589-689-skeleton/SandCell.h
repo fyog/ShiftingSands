@@ -14,10 +14,11 @@
 // sim_size x sim_size
 extern int _width;
 extern int _length;
-extern float _height;
 extern float _adhesion;
 
 extern bool randomHeights;
+extern float pillarHeight;
+
 extern bool showCells;
 extern int renderMode;
 
@@ -37,6 +38,7 @@ void createCells(int _width, int _height, CPU_Geometry &cpuGeom);
 void renderCells(CPU_Geometry& input_cpu, CPU_Geometry& output_cpu, GPU_Geometry& output_gpu);
 void renderCells(CPU_Geometry &input_cpu, CPU_Geometry &output_cpu, GPU_Geometry &output_gpu, int _width, int _height);
 void renderCells2Calls(CPU_Geometry& input_cpu, CPU_Geometry& output_cpu, GPU_Geometry& output_gpu);
-void cubesRender(CPU_Geometry inputCPU);
+void cubesRender(CPU_Geometry &inputCPU);
+void pillarSetup(CPU_Geometry& inputCPU, float _height);
 
 #endif
