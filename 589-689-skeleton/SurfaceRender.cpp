@@ -185,10 +185,11 @@ void zigzagdraw(CPU_Geometry obj, CPU_Geometry* newobj, int width, int length) /
 	}
 }
 
-void rendertest(CPU_Geometry lineobj, GPU_Geometry* output_gpu)
+void rendertest(CPU_Geometry lineobj)
 {
-	output_gpu->setVerts(lineobj.verts);
-	output_gpu->bind();
+	GPU_Geometry output_gpu;
+	output_gpu.setVerts(lineobj.verts);
+	output_gpu.bind();
 	glDrawArrays(GL_LINE_STRIP, 0, GLsizei(lineobj.verts.size()));
 	//output_cpu.verts.clear();
 }

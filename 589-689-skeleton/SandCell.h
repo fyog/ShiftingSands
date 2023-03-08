@@ -19,6 +19,7 @@ extern float _adhesion;
 extern bool randomHeights;
 extern float pillarHeight;
 
+extern bool cellChange;
 extern bool showCells;
 extern int renderMode;
 
@@ -27,6 +28,9 @@ extern std::vector<float> adhesions;
 
 std::vector<float> getAdhesionVector();
 std::vector<float> getHeightsVector();
+int getWidth();
+int getLength();
+bool getCellChange();
 bool getShowCells();
 int getRenderMode();
 
@@ -35,9 +39,9 @@ void sandCellImGui(CPU_Geometry& cpuGeom);
 float randNumber(float _min, float _max);
 void createCells(CPU_Geometry& cpuGeom);
 void createCells(int _width, int _height, CPU_Geometry &cpuGeom);
-void renderCells(CPU_Geometry& input_cpu, CPU_Geometry& output_cpu, GPU_Geometry& output_gpu);
-void renderCells(CPU_Geometry &input_cpu, CPU_Geometry &output_cpu, GPU_Geometry &output_gpu, int _width, int _height);
-void renderCells2Calls(CPU_Geometry& input_cpu, CPU_Geometry& output_cpu, GPU_Geometry& output_gpu);
+void renderCells(CPU_Geometry &input_cpu);
+void renderCells(CPU_Geometry &input_cpu, int _width, int _height);
+void renderCells2Calls(CPU_Geometry& input_cpu);
 void cubesRender(CPU_Geometry &inputCPU);
 void pillarSetup(CPU_Geometry& inputCPU, float _height);
 

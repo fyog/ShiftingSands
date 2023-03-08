@@ -1,4 +1,5 @@
 #include "SandCell.h"
+#include "SurfaceRender.h"
 
 // X and Z range of the cells
 int _width = 4;
@@ -8,6 +9,7 @@ int _length = 4;
 bool randomHeights = false;
 float pillarHeight = 0.f;
 // Toggle to render the cells
+bool cellChange = false;
 bool showCells = true;
 int renderMode = 0;
 
@@ -24,6 +26,20 @@ std::vector<float> getHeightsVector() {
 	return heights;
 }
 
+int getWidth() {
+	return _width;
+}
+
+int getLength() {
+	return _length;
+}
+
+// Returns if the control points
+// of the cell were changed
+bool getCellChange() {
+	return cellChange;
+}
+
 bool getShowCells() {
 	return showCells;
 }
@@ -38,19 +54,21 @@ void sandCellImGui(CPU_Geometry& cpuGeom) {
 
 
 	// Names of render modes to be displayed in slider
-	const char* renderModeNames[] = { "Multi-Call", "Two-Call", "Cubes"};
+	const char* renderModeNames[] = { "LERP", "Cubes", "Smooth" };
 
-	bool change = false;
-
-	change |= ImGui::InputInt("Length (X): ", &_width);
-	change |= ImGui::InputInt("Width  (Z): ", &_length);
-	change |= ImGui::Checkbox("Random Heights", &randomHeights);
+	cellChange |= ImGui::InputInt("Length (X): ", &_width);
+	cellChange |= ImGui::InputInt("Width  (Z): ", &_length);
+	cellChange |= ImGui::Checkbox("Random Heights", &randomHeights);
 	if (!randomHeights) {
-		change |= ImGui::InputFloat("Height of Pillar", &pillarHeight, 0.1f, 1.f);
-		pillarSetup(cpuGeom, pillarHeight);
+		if (ImGui::InputFloat("Height of Pillar", &pillarHeight, 0.1f, 1.f)) {
+			pillarSetup(cpuGeom, pillarHeight);
+		}
+		
+
 	}
 
-	if (change) {
+	if (cellChange) {
+		// Recreate cells
 		createCells(cpuGeom);
 	}
 
@@ -100,7 +118,8 @@ void createCells(CPU_Geometry& cpuGeom) {
 			}
 			
 			adhesions.push_back(_adhesion);
-			cpuGeom.verts.push_back(glm::vec3(i, heights.back(), j)); //So, 
+			// Pushes row by row
+			cpuGeom.verts.push_back(glm::vec3(i, heights.back(), j)); 
 		}
 	}
 }
@@ -119,8 +138,12 @@ void createCells(int _x, int _z, CPU_Geometry &cpuGeom) {
 // Currently doing one draw call per each X and Z value
 // This causes performance issues if values are above 100
 // TODO:: optimize into less draw calls
-void renderCells(CPU_Geometry& input_cpu, CPU_Geometry& output_cpu, GPU_Geometry& output_gpu) {
+void renderCells(CPU_Geometry& input_cpu) {
+	CPU_Geometry output_cpu;
+	GPU_Geometry output_gpu;
+
 	int index = 0;
+	// Draws all the rows first
 	for (int j = 0; j < _length; j++) {
 		for (int i = 0; i < _width; i++) {
 			output_cpu.verts.push_back(input_cpu.verts.at(index));
@@ -132,6 +155,7 @@ void renderCells(CPU_Geometry& input_cpu, CPU_Geometry& output_cpu, GPU_Geometry
 		output_cpu.verts.clear();
 	}
 
+	// Then draws all the columns
 	for (int i = 0; i < _width; i++) {
 		index = i;
 		for (int j = 0; j < _length; j++) {
@@ -148,9 +172,21 @@ void renderCells(CPU_Geometry& input_cpu, CPU_Geometry& output_cpu, GPU_Geometry
 
 }
 
-// Cell render with only two draw calls
+// Function to render cells, can be passed X & Z values instead of using ImGui
+void renderCells(CPU_Geometry& input_cpu, int _x, int _z) {
+	_width = _x;
+	_length = _z;
+
+	renderCells(input_cpu);
+
+}
+
+// Cell render with only two draw calls (2 zig zag patterns overlayed)
 // I thought this would increase frame rate - it does not
-void renderCells2Calls(CPU_Geometry& input_cpu, CPU_Geometry& output_cpu, GPU_Geometry& output_gpu) {
+void renderCells2Calls(CPU_Geometry& input_cpu) {
+	CPU_Geometry output_cpu;
+	GPU_Geometry output_gpu;
+
 	int index = 0;
 
 	for (int j = 0; j < _length; j++) {
@@ -206,15 +242,6 @@ void renderCells2Calls(CPU_Geometry& input_cpu, CPU_Geometry& output_cpu, GPU_Ge
 	output_gpu.bind();
 	glDrawArrays(GL_LINE_STRIP, 0, GLsizei(output_cpu.verts.size()));
 	output_cpu.verts.clear();
-
-}
-
-// Function to render cells, can be passed X & Z values instead of using ImGui
-void renderCells(CPU_Geometry &input_cpu, CPU_Geometry &output_cpu, GPU_Geometry &output_gpu, int _x, int _z) {
-	_width = _x;
-	_length = _z;
-
-	renderCells(input_cpu, output_cpu, output_gpu);
 
 }
 
