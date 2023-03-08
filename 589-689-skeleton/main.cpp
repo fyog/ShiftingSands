@@ -420,16 +420,21 @@ int main() {
 		// Toggle to render LERP cells of the data structure
 		/*
 		if (getShowCells()) {
-			if (getNumDrawCalls() == 0) {
+
+			if (getRenderMode() == 0) {
 				renderCells(cells_cpu, cells_patch_cpu, cells_patch_gpu);
 			}
-			else if (getNumDrawCalls() == 1) {
+			else if (getRenderMode() == 1) {
 				renderCells2Calls(cells_cpu, cells_patch_cpu, cells_patch_gpu);
 			}
-			
+			else if (getRenderMode() == 2) {
+				cubesRender(cells_cpu);
+			}
 		}
 		*/
 		rendertest(zigcpu, &ziggpu);
+	
+
 
 
 		glDisable(GL_FRAMEBUFFER_SRGB); // disable sRGB for things like imgui
