@@ -8,6 +8,7 @@ int _length = 4;
 bool randomHeights = false;
 // Toggle to render the cells
 bool showCells = true;
+int renderMode = 0;
 
 // Collections of height and adhesion values
 std::vector<float> heights;
@@ -26,9 +27,16 @@ bool getShowCells() {
 	return showCells;
 }
 
+int getNumDrawCalls() {
+	return renderMode;
+}
+
 // ImGui panel to control the sand cells
-void sandCellImGui(CPU_Geometry &cpuGeom) {
+void sandCellImGui(CPU_Geometry& cpuGeom) {
 	ImGui::Begin("Sand Cell Tuning");
+
+	// Names of render modes to be displayed in slider
+	const char* renderModeNames[] = { "Multi-Call", "Two-Call" };
 
 	bool change = false;
 
@@ -42,6 +50,10 @@ void sandCellImGui(CPU_Geometry &cpuGeom) {
 	}
 
 	ImGui::Checkbox("Render Cells", &showCells);
+	if (showCells) {
+		ImGui::Text("Number of Draw Calls:");
+		ImGui::SliderInt(renderModeNames[renderMode], &renderMode, 0, 1);
+	}
 
 	ImGui::End();
 }
@@ -82,7 +94,7 @@ void createCells(CPU_Geometry& cpuGeom) {
 			}
 			
 			adhesions.push_back(_adhesion);
-			cpuGeom.verts.push_back(glm::vec3(j, heights.back(), i));
+			cpuGeom.verts.push_back(glm::vec3(i, heights.back(), j));
 		}
 	}
 }
@@ -125,6 +137,69 @@ void renderCells(CPU_Geometry& input_cpu, CPU_Geometry& output_cpu, GPU_Geometry
 		glDrawArrays(GL_LINE_STRIP, 0, GLsizei(output_cpu.verts.size()));
 		output_cpu.verts.clear();
 	}
+
+	output_cpu.verts.clear();
+
+}
+
+// Cell render with only two draw calls
+// I thought this would increase frame rate - it does not
+void renderCells2Calls(CPU_Geometry& input_cpu, CPU_Geometry& output_cpu, GPU_Geometry& output_gpu) {
+	int index = 0;
+
+	for (int j = 0; j < _length; j++) {
+
+		if (j % 2 == 0) {
+			for (int i = 0; i < _width; i++) {
+				output_cpu.verts.push_back(input_cpu.verts.at(index));
+				index++;
+			}
+			index--;
+		}
+		
+		else {
+			index = index + _width;
+			for (int i = 0; i < _width; i++) {
+				output_cpu.verts.push_back(input_cpu.verts.at(index));
+				index--;
+			}
+			index++;
+			index = index + _width;
+		}
+
+		
+	}
+	output_gpu.setVerts(output_cpu.verts);
+	output_gpu.bind();
+	glDrawArrays(GL_LINE_STRIP, 0, GLsizei(output_cpu.verts.size()));
+	output_cpu.verts.clear();
+
+	index = 0;
+
+	for (int i = 0; i < _width; i++) {
+
+		if (i % 2 == 0) {
+			for (int j = 0; j < _length; j++) {
+				output_cpu.verts.push_back(input_cpu.verts.at(index));
+				index += _width;
+			}
+			index -= _width;
+			index++;
+		}
+		else {
+			for (int j = 0; j < _length; j++) {
+				output_cpu.verts.push_back(input_cpu.verts.at(index));
+				index -= _width;
+			}
+			index += _width;
+			index++;
+		}		
+
+	}
+	output_gpu.setVerts(output_cpu.verts);
+	output_gpu.bind();
+	glDrawArrays(GL_LINE_STRIP, 0, GLsizei(output_cpu.verts.size()));
+	output_cpu.verts.clear();
 
 	output_cpu.verts.clear();
 

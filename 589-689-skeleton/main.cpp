@@ -370,7 +370,13 @@ int main() {
 
 		// Toggle to render LERP cells of the data structure
 		if (getShowCells()) {
-			renderCells(cells_cpu, cells_patch_cpu, cells_patch_gpu);
+			if (getNumDrawCalls() == 0) {
+				renderCells(cells_cpu, cells_patch_cpu, cells_patch_gpu);
+			}
+			else if (getNumDrawCalls() == 1) {
+				renderCells2Calls(cells_cpu, cells_patch_cpu, cells_patch_gpu);
+			}
+			
 		}
 		
 
