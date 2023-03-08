@@ -54,14 +54,8 @@ void sandCellImGui(CPU_Geometry& cpuGeom) {
 	ImGui::Checkbox("Render Cells", &showCells);
 	if (showCells) {
 		ImGui::Text("Number of Draw Calls:");
-		ImGui::SliderInt(renderModeNames[renderMode], &renderMode, 0, 1);
-	}
-
-	if (showCells) {
-		ImGui::Text("Number of Draw Calls:");
 		ImGui::SliderInt(renderModeNames[renderMode], &renderMode, 0, 2);
 	}
-
 
 	ImGui::End();
 }
