@@ -30,6 +30,12 @@ bool getShowCells() {
 void sandCellImGui(CPU_Geometry &cpuGeom) {
 	ImGui::Begin("Sand Cell Tuning");
 
+<<<<<<< Updated upstream
+=======
+	// Names of render modes to be displayed in slider
+	const char* renderModeNames[] = { "Multi-Call", "Two-Call", "Cubes"};
+
+>>>>>>> Stashed changes
 	bool change = false;
 
 	change |= ImGui::InputInt("Length (X): ", &_width);
@@ -42,6 +48,13 @@ void sandCellImGui(CPU_Geometry &cpuGeom) {
 	}
 
 	ImGui::Checkbox("Render Cells", &showCells);
+<<<<<<< Updated upstream
+=======
+	if (showCells) {
+		ImGui::Text("Number of Draw Calls:");
+		ImGui::SliderInt(renderModeNames[renderMode], &renderMode, 0, 2);
+	}
+>>>>>>> Stashed changes
 
 	ImGui::End();
 }
@@ -75,7 +88,7 @@ void createCells(CPU_Geometry& cpuGeom) {
 
 			if (randomHeights) {
 				// Random heights test
-				heights.push_back(randNumber(-2.5f, 2.5f));
+				heights.push_back(randNumber(0.f, 2.5f));
 			}
 			else {
 				heights.push_back(0.f);
@@ -130,6 +143,71 @@ void renderCells(CPU_Geometry& input_cpu, CPU_Geometry& output_cpu, GPU_Geometry
 
 }
 
+<<<<<<< Updated upstream
+=======
+// Cell render with only two draw calls
+// I thought this would increase frame rate - it does not
+void renderCells2Calls(CPU_Geometry& input_cpu, CPU_Geometry& output_cpu, GPU_Geometry& output_gpu) {
+	int index = 0;
+
+	for (int j = 0; j < _length; j++) {
+
+		if (j % 2 == 0) {
+			for (int i = 0; i < _width; i++) {
+				output_cpu.verts.push_back(input_cpu.verts.at(index));
+				index++;
+			}
+			index--;
+		}
+		
+		else {
+			index = index + _width;
+			for (int i = 0; i < _width; i++) {
+				output_cpu.verts.push_back(input_cpu.verts.at(index));
+				index--;
+			}
+			index++;
+			index = index + _width;
+		}
+
+		
+	}
+	output_gpu.setVerts(output_cpu.verts);
+	output_gpu.bind();
+	glDrawArrays(GL_LINE_STRIP, 0, GLsizei(output_cpu.verts.size()));
+	output_cpu.verts.clear();
+
+	index = 0;
+
+	for (int i = 0; i < _width; i++) {
+
+		if (i % 2 == 0) {
+			for (int j = 0; j < _length; j++) {
+				output_cpu.verts.push_back(input_cpu.verts.at(index));
+				index += _width;
+			}
+			index -= _width;
+			index++;
+		}
+		else {
+			for (int j = 0; j < _length; j++) {
+				output_cpu.verts.push_back(input_cpu.verts.at(index));
+				index -= _width;
+			}
+			index += _width;
+			index++;
+		}		
+
+	}
+	output_gpu.setVerts(output_cpu.verts);
+	output_gpu.bind();
+	glDrawArrays(GL_LINE_STRIP, 0, GLsizei(output_cpu.verts.size()));
+	output_cpu.verts.clear();
+
+
+}
+
+>>>>>>> Stashed changes
 // Function to render cells, can be passed X & Z values instead of using ImGui
 void renderCells(CPU_Geometry &input_cpu, CPU_Geometry &output_cpu, GPU_Geometry &output_gpu, int _x, int _z) {
 	_width = _x;
@@ -139,3 +217,76 @@ void renderCells(CPU_Geometry &input_cpu, CPU_Geometry &output_cpu, GPU_Geometry
 
 }
 
+void cubesRender(CPU_Geometry inputCPU) {
+	CPU_Geometry tempCPU;
+	CPU_Geometry outputCPU;
+	GPU_Geometry outputGPU;
+
+	for (int i = 0; i < inputCPU.verts.size(); i++) {
+		// Makes the eight vertices of a cube
+		// P0
+		tempCPU.verts.push_back(glm::vec3(inputCPU.verts.at(i).x - 0.5f,
+											0.0f,
+											inputCPU.verts.at(i).z - 0.5f));
+		
+		// P1
+		tempCPU.verts.push_back(glm::vec3(inputCPU.verts.at(i).x + 0.5f,
+											0.0f,
+											inputCPU.verts.at(i).z - 0.5f));
+		
+		// P2
+		tempCPU.verts.push_back(glm::vec3(inputCPU.verts.at(i).x - 0.5f,
+											0.0f,
+											inputCPU.verts.at(i).z - 0.5f));
+		
+		// P3
+		tempCPU.verts.push_back(glm::vec3(inputCPU.verts.at(i).x + 0.5f,
+											0.0f,
+											inputCPU.verts.at(i).z + 0.5f));
+		
+		// P4
+		tempCPU.verts.push_back(glm::vec3(inputCPU.verts.at(i).x - 0.5f,
+											inputCPU.verts.at(i).y,
+											inputCPU.verts.at(i).z - 0.5f));
+		
+		// P5
+		tempCPU.verts.push_back(glm::vec3(inputCPU.verts.at(i).x + 0.5f,
+											inputCPU.verts.at(i).y,
+											inputCPU.verts.at(i).z - 0.5f));
+		
+		// P6
+		tempCPU.verts.push_back(glm::vec3(inputCPU.verts.at(i).x - 0.5f,
+											inputCPU.verts.at(i).y,
+											inputCPU.verts.at(i).z + 0.5f));	
+		
+		// P7
+		tempCPU.verts.push_back(glm::vec3(inputCPU.verts.at(i).x + 0.5f,
+											inputCPU.verts.at(i).y,
+											inputCPU.verts.at(i).z + 0.5f));
+
+		// Traversal order for line strip in indices
+		std::vector<int> traversalOrder = { 0,2,6,4,0,1,5,7,6,4,5,7,3,2,0,1,3 };
+		
+		/*
+		       5 ------ 7
+			  /|       / |
+			 / |      /  |
+			4 ------ 6   |
+			|  1 ----|-- 3
+			| /      |  /
+			|/       | /
+			0 ------ 2
+		*/
+
+		// Push back the cube verts in a particular order to draw lines on every edge
+		for (int i = 0; i < traversalOrder.size(); i++) {
+			outputCPU.verts.push_back(tempCPU.verts.at(traversalOrder[i]));
+		}
+
+		outputGPU.setVerts(outputCPU.verts);
+		outputGPU.bind();
+		glDrawArrays(GL_LINE_STRIP, 0, GLsizei(outputCPU.verts.size()));
+		outputCPU.verts.clear();
+
+	}
+}
