@@ -32,7 +32,7 @@ int getRenderMode() {
 }
 
 // ImGui panel to control the sand cells
-void sandCellImGui(CPU_Geometry &cpuGeom) {
+void sandCellImGui(CPU_Geometry& cpuGeom) {
 	ImGui::Begin("Sand Cell Tuning");
 
 
@@ -52,6 +52,10 @@ void sandCellImGui(CPU_Geometry &cpuGeom) {
 	}
 
 	ImGui::Checkbox("Render Cells", &showCells);
+	if (showCells) {
+		ImGui::Text("Number of Draw Calls:");
+		ImGui::SliderInt(renderModeNames[renderMode], &renderMode, 0, 1);
+	}
 
 	if (showCells) {
 		ImGui::Text("Number of Draw Calls:");
@@ -86,6 +90,7 @@ void createCells(CPU_Geometry& cpuGeom) {
 	// The idea is that each data type we want to track for each cell is pushed to a
 	// vector array. These vector arrays are index aligned, so the data should be
 	// tied to a particular point (might be better as a struct)
+
 	for (int j = 0; j < _length; j++) {
 		for (int i = 0; i < _width; i++) {
 
@@ -98,7 +103,7 @@ void createCells(CPU_Geometry& cpuGeom) {
 			}
 			
 			adhesions.push_back(_adhesion);
-			cpuGeom.verts.push_back(glm::vec3(j, heights.back(), i));
+			cpuGeom.verts.push_back(glm::vec3(i, heights.back(), j));
 		}
 	}
 }
