@@ -19,6 +19,7 @@ extern float _adhesion;
 
 extern bool randomHeights;
 extern bool showCells;
+extern int renderMode;
 
 extern std::vector<float> heights;
 extern std::vector<float> adhesions;
@@ -26,6 +27,7 @@ extern std::vector<float> adhesions;
 std::vector<float> getAdhesionVector();
 std::vector<float> getHeightsVector();
 bool getShowCells();
+int getRenderMode();
 
 void sandCellImGui(CPU_Geometry& cpuGeom);
 
@@ -34,10 +36,7 @@ void createCells(CPU_Geometry& cpuGeom);
 void createCells(int _width, int _height, CPU_Geometry &cpuGeom);
 void renderCells(CPU_Geometry& input_cpu, CPU_Geometry& output_cpu, GPU_Geometry& output_gpu);
 void renderCells(CPU_Geometry &input_cpu, CPU_Geometry &output_cpu, GPU_Geometry &output_gpu, int _width, int _height);
-<<<<<<< Updated upstream
-=======
 void renderCells2Calls(CPU_Geometry& input_cpu, CPU_Geometry& output_cpu, GPU_Geometry& output_gpu);
 void cubesRender(CPU_Geometry inputCPU);
->>>>>>> Stashed changes
 
 #endif

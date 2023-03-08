@@ -8,6 +8,7 @@ int _length = 4;
 bool randomHeights = false;
 // Toggle to render the cells
 bool showCells = true;
+int renderMode = 0;
 
 // Collections of height and adhesion values
 std::vector<float> heights;
@@ -26,16 +27,19 @@ bool getShowCells() {
 	return showCells;
 }
 
+int getRenderMode() {
+	return renderMode;
+}
+
 // ImGui panel to control the sand cells
 void sandCellImGui(CPU_Geometry &cpuGeom) {
 	ImGui::Begin("Sand Cell Tuning");
 
-<<<<<<< Updated upstream
-=======
+
 	// Names of render modes to be displayed in slider
 	const char* renderModeNames[] = { "Multi-Call", "Two-Call", "Cubes"};
 
->>>>>>> Stashed changes
+
 	bool change = false;
 
 	change |= ImGui::InputInt("Length (X): ", &_width);
@@ -48,13 +52,12 @@ void sandCellImGui(CPU_Geometry &cpuGeom) {
 	}
 
 	ImGui::Checkbox("Render Cells", &showCells);
-<<<<<<< Updated upstream
-=======
+
 	if (showCells) {
 		ImGui::Text("Number of Draw Calls:");
 		ImGui::SliderInt(renderModeNames[renderMode], &renderMode, 0, 2);
 	}
->>>>>>> Stashed changes
+
 
 	ImGui::End();
 }
@@ -143,8 +146,6 @@ void renderCells(CPU_Geometry& input_cpu, CPU_Geometry& output_cpu, GPU_Geometry
 
 }
 
-<<<<<<< Updated upstream
-=======
 // Cell render with only two draw calls
 // I thought this would increase frame rate - it does not
 void renderCells2Calls(CPU_Geometry& input_cpu, CPU_Geometry& output_cpu, GPU_Geometry& output_gpu) {
@@ -204,10 +205,8 @@ void renderCells2Calls(CPU_Geometry& input_cpu, CPU_Geometry& output_cpu, GPU_Ge
 	glDrawArrays(GL_LINE_STRIP, 0, GLsizei(output_cpu.verts.size()));
 	output_cpu.verts.clear();
 
-
 }
 
->>>>>>> Stashed changes
 // Function to render cells, can be passed X & Z values instead of using ImGui
 void renderCells(CPU_Geometry &input_cpu, CPU_Geometry &output_cpu, GPU_Geometry &output_gpu, int _x, int _z) {
 	_width = _x;
