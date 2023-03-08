@@ -52,6 +52,7 @@ int getRenderMode() {
 void sandCellImGui(CPU_Geometry& cpuGeom) {
 	ImGui::Begin("Sand Cell Tuning");
 
+	cellChange = false;
 
 	// Names of render modes to be displayed in slider
 	const char* renderModeNames[] = { "LERP", "Cubes", "Smooth" };
@@ -60,11 +61,8 @@ void sandCellImGui(CPU_Geometry& cpuGeom) {
 	cellChange |= ImGui::InputInt("Width  (Z): ", &_length);
 	cellChange |= ImGui::Checkbox("Random Heights", &randomHeights);
 	if (!randomHeights) {
-		if (ImGui::InputFloat("Height of Pillar", &pillarHeight, 0.1f, 1.f)) {
-			pillarSetup(cpuGeom, pillarHeight);
-		}
-		
-
+		cellChange |= ImGui::InputFloat("Height of Pillar", &pillarHeight, 0.1f, 1.f);
+		pillarSetup(cpuGeom, pillarHeight);
 	}
 
 	if (cellChange) {

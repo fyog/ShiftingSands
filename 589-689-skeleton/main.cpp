@@ -418,11 +418,11 @@ int main() {
 		//glDrawArrays(GL_TRIANGLES, 0, GLsizei(models.at(selectedModelName).numVerts())); //Commented this out to test b-spline -Reid
 
 
-		/*if (getCellChange())
+		if (getCellChange())
 		{
 			placesurfacevecs(cells_cpu, &splinesurf, knownwid, knownlen);
 			zigzagdraw(splinesurf, &zigcpu, 101, 101);
-		}*/
+		}
 
 		// Toggle to render LERP cells of the data structure
 		if (getShowCells()) {
