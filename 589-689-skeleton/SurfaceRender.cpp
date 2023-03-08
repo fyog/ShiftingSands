@@ -76,7 +76,7 @@ glm::vec3 onesplinepoint(CPU_Geometry control, int width, int length, float u, f
 
 void placesurfacevecs(CPU_Geometry control, CPU_Geometry* surface, int width, int length)
 {
-	std::cout << "Entering placesurfacevecs()\n";
+	//std::cout << "Entering placesurfacevecs()\n";
 	float * uknots;
 	float * vknots;
 	int k = 4;
@@ -89,10 +89,10 @@ void placesurfacevecs(CPU_Geometry control, CPU_Geometry* surface, int width, in
 	uknots = (float*)malloc((m + k + 1) * sizeof(float));
 	m = length - 1;
 	vknots = (float*)malloc((m + k + 1) * sizeof(float));
-	std::cout << "Creating standard knots\n";
+	//std::cout << "Creating standard knots\n";
 	standardknots(uknots, k, (width - 1));
 	standardknots(vknots, k, (length - 1));
-	std::cout << "standard knots created\n";
+	//std::cout << "standard knots created\n";
 
 	float step = 0.01f;
 	float u, v; //
