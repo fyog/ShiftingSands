@@ -407,15 +407,18 @@ int main() {
 
 
 
-		// Toggle to render LERP cells of the data structure
+		// Toggle Render
 		if (getShowCells()) {
 
+			// LERP Render mode
 			if (getRenderMode() == 0) {
 				renderCells(cells_cpu);
 			}
+			// Cubes Render
 			else if (getRenderMode() == 1) {
 				cubesRender(cells_cpu);
 			}
+			// Smooth Render
 			else if (getRenderMode() == 2) {
 				if (getCellChange())
 				{

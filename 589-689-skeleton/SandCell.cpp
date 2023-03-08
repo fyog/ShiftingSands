@@ -62,12 +62,15 @@ void sandCellImGui(CPU_Geometry& cpuGeom) {
 	cellChange |= ImGui::Checkbox("Random Heights", &randomHeights);
 	if (!randomHeights) {
 		cellChange |= ImGui::InputFloat("Height of Pillar", &pillarHeight, 0.1f, 1.f);
-		pillarSetup(cpuGeom, pillarHeight);
 	}
 
 	if (cellChange) {
 		// Recreate cells
 		createCells(cpuGeom);
+		if (!randomHeights) {
+			pillarSetup(cpuGeom, pillarHeight);
+		}
+		
 	}
 
 	ImGui::Checkbox("Render Cells", &showCells);
@@ -322,8 +325,11 @@ void pillarSetup(CPU_Geometry& inputCPU, float _height) {
 	//int halfX = _width / 2;
 	//int halfZ = _length / 2;
 
+	// This is a quick way to find the halfway point of the vertices
+	// Does not work for all sizes as it will often end up on the edge of the patch
 	int halfway = inputCPU.verts.size() / 2;	
 
+	// Changes the middle point's height value to create a pillar
 	inputCPU.verts.at(halfway) = (glm::vec3(inputCPU.verts.at(halfway).x,
 											_height,
 											inputCPU.verts.at(halfway).z));
