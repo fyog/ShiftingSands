@@ -276,20 +276,7 @@ int main() {
 	CPU_Geometry cells_cpu;
 	CPU_Geometry cells_patch_cpu;
 
-
-	//int knownwid = 4;
-	//int knownlen = 4;
-	//bool knownrandom = false;
-
 	createCells(cells_cpu);
-
-	// Used to check if the cells patch has changed
-	// this is to update the smooth surfaces
-	// there is a cleaner way to do this, but this is here for the
-	// time being
-	int knownwid = 4;
-	int knownlen = 4;
-	bool knownrandom = false;
 
 	CPU_Geometry splinesurf;
 	CPU_Geometry zigcpu;
@@ -418,11 +405,7 @@ int main() {
 		//glDrawArrays(GL_TRIANGLES, 0, GLsizei(models.at(selectedModelName).numVerts())); //Commented this out to test b-spline -Reid
 
 
-		if (getCellChange())
-		{
-			placesurfacevecs(cells_cpu, &splinesurf, knownwid, knownlen);
-			zigzagdraw(splinesurf, &zigcpu, 101, 101);
-		}
+
 
 		// Toggle to render LERP cells of the data structure
 		if (getShowCells()) {
@@ -434,6 +417,11 @@ int main() {
 				cubesRender(cells_cpu);
 			}
 			else if (getRenderMode() == 2) {
+				if (getCellChange())
+				{
+					placesurfacevecs(cells_cpu, &splinesurf, getWidth(), getLength());
+					zigzagdraw(splinesurf, &zigcpu, 101, 101);
+				}
 				rendertest(zigcpu);
 			}
 		}
