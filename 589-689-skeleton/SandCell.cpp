@@ -95,7 +95,7 @@ void createCells(CPU_Geometry& cpuGeom) {
 			}
 			
 			adhesions.push_back(_adhesion);
-			cpuGeom.verts.push_back(glm::vec3(i, heights.back(), j));
+			cpuGeom.verts.push_back(glm::vec3(i, heights.back(), j)); //So, 
 		}
 	}
 }

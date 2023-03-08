@@ -17,6 +17,7 @@
 #include "Texture.h"
 #include "Camera.h"
 #include "BSpline.h"
+#include "SurfaceRender.h"
 
 #include "GeomLoaderForOBJ.h"
 
@@ -199,7 +200,7 @@ int main() {
 	glfwInit();
 	Window window(800, 800, "CPSC 589/689"); // could set callbacks at construction if desired
 
-	GLDebug::enable();
+	//GLDebug::enable();
 
 	// SHADERS
 	ShaderProgram shader("shaders/test.vert", "shaders/test.frag");
@@ -277,9 +278,18 @@ int main() {
 	CPU_Geometry cells_patch_cpu;
 	GPU_Geometry cells_patch_gpu;
 
-	createCells(cells_cpu);
-	cells_gpu.setVerts(cells_cpu.verts);
+	CPU_Geometry splinesurf;
+	CPU_Geometry zigcpu;
+	GPU_Geometry ziggpu;
 
+	int knownwid = 4;
+	int knownlen = 4;
+	bool knownrandom = false;
+
+	createCells(cells_cpu); 
+	//cells_gpu.setVerts(cells_cpu.verts);
+	placesurfacevecs(cells_cpu, &splinesurf, knownwid, knownlen);
+	zigzagdraw(splinesurf, &zigcpu, 101, 101);
 
 	// RENDER LOOP
 	while (!window.shouldClose()) {
@@ -294,7 +304,7 @@ int main() {
 		ImGui::Begin("Sample window.");
 
 		bool change = false; // Whether any ImGui variable's changed.
-
+		/*  //These imgui definitions aren't really needed any more.
 		// A drop-down box for choosing the 3D model to render.
 		if (ImGui::BeginCombo("Model", selectedModelName.c_str()))
 		{
@@ -349,6 +359,7 @@ int main() {
 				change = true;
 			}
 		}
+		*/
 
 		// We'll only render with a texture if the model has UVs and a texture was chosen.
 		texExistence = (models.at(selectedModelName).hasUVs() && selectedTexName != noTexName);
@@ -356,11 +367,14 @@ int main() {
 		// If a texture is not in use, the user can pick the diffuse colour.
 		if (!texExistence) change |= ImGui::ColorEdit3("Diffuse colour", glm::value_ptr(diffuseCol));
 
+		/* //More boilerplate code that we aren't using right now, but may be useful later.
 		// The rest of our ImGui widgets.
 		change |= ImGui::DragFloat3("Light's position", glm::value_ptr(lightPos));
 		change |= ImGui::ColorEdit3("Light's colour", glm::value_ptr(lightCol));
 		change |= ImGui::SliderFloat("Ambient strength", &ambientStrength, 0.0f, 1.f);
 		change |= ImGui::Checkbox("Simple wireframe", &simpleWireframe);
+		*/
+
 
 		// Framerate display, in case you need to debug performance.
 		ImGui::Text("Average %.1f ms/frame (%.1f fps)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
@@ -368,7 +382,15 @@ int main() {
 
 		// ImGui to control sand cell data structure
 		sandCellImGui(cells_cpu);
-	
+
+		if (_width != knownwid || _length != knownlen || knownrandom != randomHeights)
+		{
+			knownwid = _width;
+			knownlen = _length;
+			knownrandom = randomHeights;
+			placesurfacevecs(cells_cpu, &splinesurf, knownwid, knownlen);
+			zigzagdraw(splinesurf, &zigcpu, 101, 101);
+		}
 
 		ImGui::Render();
 
@@ -396,6 +418,7 @@ int main() {
 		//glDrawArrays(GL_TRIANGLES, 0, GLsizei(models.at(selectedModelName).numVerts())); //Commented this out to test b-spline -Reid
 
 		// Toggle to render LERP cells of the data structure
+		/*
 		if (getShowCells()) {
 			if (getNumDrawCalls() == 0) {
 				renderCells(cells_cpu, cells_patch_cpu, cells_patch_gpu);
@@ -405,7 +428,8 @@ int main() {
 			}
 			
 		}
-		
+		*/
+		rendertest(zigcpu, &ziggpu);
 
 
 		glDisable(GL_FRAMEBUFFER_SRGB); // disable sRGB for things like imgui
