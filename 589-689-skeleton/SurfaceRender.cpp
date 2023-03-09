@@ -97,7 +97,7 @@ void placesurfacevecs(CPU_Geometry control, CPU_Geometry* surface, int width, in
 	CPU_Geometry ucontrol;
 	CPU_Geometry vcontrol;
 
-	if (checkpointcount(k, (width - 1)) || checkpointcount(k, (length - 1))) return; //if we don't have enough control points to generate a surface, return immediately without changing surface's vertex vector.
+	if (((width + k) < (2 * k)) || ((length + k) < (2 * k))) return; //if we don't have enough control points to generate a surface, return immediately without changing surface's vertex vector.
 
 	int m = width - 1;
 	uknots = (float*)malloc((m + k + 1) * sizeof(float)); //allocates space for (m + k + 1) floats, and allows us to treat uknots as an array of size (m + k + 1)

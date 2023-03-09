@@ -280,13 +280,15 @@ int main() {
 
 	CPU_Geometry splinesurf;
 	CPU_Geometry zigcpu;
-	bool debug = true;
+	bool debug = false;
 	if (debug) std::cout << "about to call placesurfacevecs() in main()\n";
 	
 	placesurfacevecs(cells_cpu, &splinesurf, getWidth(), getLength());
 	if (debug) std::cout << "placesurfacevecs() successful. now doing zigzagdraw()\n";
 	zigzagdraw(splinesurf, &zigcpu, 101, 101);
 	if (debug) std::cout << "zigzagdraw() successful\n";
+	int knownwid = 4;
+	int knownlen = 4;
 
 	// RENDER LOOP
 	while (!window.shouldClose()) {
@@ -407,9 +409,6 @@ int main() {
 
 
 		//glDrawArrays(GL_TRIANGLES, 0, GLsizei(models.at(selectedModelName).numVerts())); //Commented this out to test b-spline -Reid
-
-
-		if (debug) std::cout << "entering white cecelia\n";
 
 		// Toggle Render
 		if (getShowCells()) {

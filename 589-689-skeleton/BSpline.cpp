@@ -157,9 +157,9 @@ void bspline(int k, CPU_Geometry * control, float ustep, CPU_Geometry * curve)
 bool checkpointcount(int k, CPU_Geometry* control)
 {
 	//If there are enough control points to generate a b-spline of order k, then the function returns true, otherwise, it returns false
-	int m = control->verts.size() - 1;
+	//int m = control->verts.size() - 1;
 	if (control->verts.size() >= k) return true;
-	//there are m + 1 control points, so to satisfy the condition we'd need:
+	//there are m + 1 control points, and we want (m + k + 1) knots, and there has to be at least 2k knots. so to satisfy the condition we'd need:
 	//(m + k + 1) >= 2 * k -> m + 1 >= (2 * k) - k -> (m + 1) >= k
 	//std::cout << "Please place more control points. You need at least " << k << "\n";
 	return false;
