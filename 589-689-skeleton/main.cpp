@@ -274,9 +274,16 @@ int main() {
 	*/
 
 	CPU_Geometry cells_cpu;
-	CPU_Geometry cells_patch_cpu;
+	//CPU_Geometry cells_patch_cpu;
+	CPU_Geometry lerpline;
+	CPU_Geometry cubeobj;
+
+	GPU_Geometry gpu_obj;
 
 	createCells(cells_cpu);
+	preparecellsforrender(cells_cpu, &lerpline);
+
+	cubesRender(cells_cpu, &cubeobj);
 
 	CPU_Geometry splinesurf;
 	CPU_Geometry zigcpu;
@@ -385,7 +392,7 @@ int main() {
 
 		ImGui::Render();
 
-		//goodGPU.bind();
+		gpu_obj.bind();
 
 
 		glEnable(GL_LINE_SMOOTH);
@@ -410,25 +417,30 @@ int main() {
 
 		//glDrawArrays(GL_TRIANGLES, 0, GLsizei(models.at(selectedModelName).numVerts())); //Commented this out to test b-spline -Reid
 
+		if (getCellChange())
+		{
+			preparecellsforrender(cells_cpu, &lerpline);
+			cubesRender(cells_cpu, &cubeobj);
+			placesurfacevecs(cells_cpu, &splinesurf, getWidth(), getLength());
+			zigzagdraw(splinesurf, &zigcpu, 101, 101);
+		}
+
 		// Toggle Render
 		if (getShowCells()) {
 
 			// LERP Render mode
 			if (getRenderMode() == 0) {
-				renderCells(cells_cpu);
+				//renderCells(cells_cpu);
+				rendertest(lerpline, &gpu_obj);
 			}
 			// Cubes Render
 			else if (getRenderMode() == 1) {
-				cubesRender(cells_cpu);
+				//cubesRender(cells_cpu);
+				rendertest(cubeobj, &gpu_obj);
 			}
 			// Smooth Render
 			else if (getRenderMode() == 2) {
-				if (getCellChange())
-				{
-					placesurfacevecs(cells_cpu, &splinesurf, getWidth(), getLength());
-					zigzagdraw(splinesurf, &zigcpu, 101, 101);
-				}
-				rendertest(zigcpu);
+				rendertest(zigcpu, &gpu_obj);
 			}
 		}
 
