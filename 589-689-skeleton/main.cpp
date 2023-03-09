@@ -24,6 +24,7 @@
 #include "glm/gtc/type_ptr.hpp"
 
 #include "SandCell.h"
+#include "SurfaceRender.h"
 
 // EXAMPLE CALLBACKS
 class Callbacks3D : public CallbackInterface {
@@ -253,38 +254,40 @@ int main() {
 	shader.use();
 	cb->updateShadingUniforms(lightPos, lightCol, diffuseCol, ambientStrength, texExistence);
 
-/*
-	//Test of b-spline curve below
-	CPU_Geometry control;
-	control.verts.push_back(glm::vec3((-0.75),(-0.5),0.f));
-	control.verts.push_back(glm::vec3((-0.5), (-0.5), 0.f));
-	control.verts.push_back(glm::vec3((-0.25), (-0.25), 0.f));
-	control.verts.push_back(glm::vec3(0.f, 0.5f, 0.f));
-	control.verts.push_back(glm::vec3((0.25), (-0.5), 0.f));
-	control.verts.push_back(glm::vec3(0.5, (-0.25), 0.f));
-	control.verts.push_back(glm::vec3((0.75), 0.f, 0.f)); //in the end, 7 control points are placed for this example curve
-	
-	CPU_Geometry splineob;
-	GPU_Geometry goodGPU;
+	/*
+		//Test of b-spline curve below
+		CPU_Geometry control;
+		control.verts.push_back(glm::vec3((-0.75),(-0.5),0.f));
+		control.verts.push_back(glm::vec3((-0.5), (-0.5), 0.f));
+		control.verts.push_back(glm::vec3((-0.25), (-0.25), 0.f));
+		control.verts.push_back(glm::vec3(0.f, 0.5f, 0.f));
+		control.verts.push_back(glm::vec3((0.25), (-0.5), 0.f));
+		control.verts.push_back(glm::vec3(0.5, (-0.25), 0.f));
+		control.verts.push_back(glm::vec3((0.75), 0.f, 0.f)); //in the end, 7 control points are placed for this example curve
 
-	bspline(4, &control, 0.01, &splineob); //See BSpline.cpp for definition of bspline. this will make a curve of order 4, with the control vertices in control (dereferenced here to be passed into a pointer),
-	//and it will have 0.01 set as the u-step value, meaning u will step forward a 100 times then find a point on the curve 
-	goodGPU.setVerts(splineob.verts); // it would probably be better to set the vertices of the GPU object in the rendering loop, this is just here for testing.
-*/
+		CPU_Geometry splineob;
+		GPU_Geometry goodGPU;
+
+		bspline(4, &control, 0.01, &splineob); //See BSpline.cpp for definition of bspline. this will make a curve of order 4, with the control vertices in control (dereferenced here to be passed into a pointer),
+		//and it will have 0.01 set as the u-step value, meaning u will step forward a 100 times then find a point on the curve
+		goodGPU.setVerts(splineob.verts); // it would probably be better to set the vertices of the GPU object in the rendering loop, this is just here for testing.
+	*/
 
 	CPU_Geometry cells_cpu;
-	GPU_Geometry cells_gpu;
 	CPU_Geometry cells_patch_cpu;
-	GPU_Geometry cells_patch_gpu;
 
 	createCells(cells_cpu);
-	cells_gpu.setVerts(cells_cpu.verts);
 
+	CPU_Geometry splinesurf;
+	CPU_Geometry zigcpu;
+
+	placesurfacevecs(cells_cpu, &splinesurf, getWidth(), getLength());
+	zigzagdraw(splinesurf, &zigcpu, 101, 101);
 
 	// RENDER LOOP
 	while (!window.shouldClose()) {
 		glfwPollEvents();
-		
+
 
 		// Three functions that must be called each new frame.
 		ImGui_ImplOpenGL3_NewFrame();
@@ -295,6 +298,7 @@ int main() {
 
 		bool change = false; // Whether any ImGui variable's changed.
 
+		/* BOILERPLATE TO BE FACTORED OUT
 		// A drop-down box for choosing the 3D model to render.
 		if (ImGui::BeginCombo("Model", selectedModelName.c_str()))
 		{
@@ -349,6 +353,7 @@ int main() {
 				change = true;
 			}
 		}
+		*/
 
 		// We'll only render with a texture if the model has UVs and a texture was chosen.
 		texExistence = (models.at(selectedModelName).hasUVs() && selectedTexName != noTexName);
@@ -356,11 +361,13 @@ int main() {
 		// If a texture is not in use, the user can pick the diffuse colour.
 		if (!texExistence) change |= ImGui::ColorEdit3("Diffuse colour", glm::value_ptr(diffuseCol));
 
+		/* BOILERPLATE TO BE FACTORED OUT
 		// The rest of our ImGui widgets.
 		change |= ImGui::DragFloat3("Light's position", glm::value_ptr(lightPos));
 		change |= ImGui::ColorEdit3("Light's colour", glm::value_ptr(lightCol));
 		change |= ImGui::SliderFloat("Ambient strength", &ambientStrength, 0.0f, 1.f);
 		change |= ImGui::Checkbox("Simple wireframe", &simpleWireframe);
+		*/
 
 		// Framerate display, in case you need to debug performance.
 		ImGui::Text("Average %.1f ms/frame (%.1f fps)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
@@ -368,21 +375,23 @@ int main() {
 
 		// ImGui to control sand cell data structure
 		sandCellImGui(cells_cpu);
-	
+
 
 		ImGui::Render();
 
 		//goodGPU.bind();
-		
+
 
 		glEnable(GL_LINE_SMOOTH);
 		glEnable(GL_FRAMEBUFFER_SRGB);
 		glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		glEnable(GL_DEPTH_TEST);
-		glPolygonMode(GL_FRONT_AND_BACK, (simpleWireframe ? GL_LINE : GL_FILL) );
+		glPolygonMode(GL_FRONT_AND_BACK, (simpleWireframe ? GL_LINE : GL_FILL));
 
 		shader.use();
+
+		// Boilerplate change check -- may need to change name
 		if (change)
 		{
 			// If any of our shading values was updated, we need to update the
@@ -395,20 +404,30 @@ int main() {
 
 		//glDrawArrays(GL_TRIANGLES, 0, GLsizei(models.at(selectedModelName).numVerts())); //Commented this out to test b-spline -Reid
 
-		// Toggle to render LERP cells of the data structure
+
+
+
+		// Toggle Render
 		if (getShowCells()) {
 
+			// LERP Render mode
 			if (getRenderMode() == 0) {
-				renderCells(cells_cpu, cells_patch_cpu, cells_patch_gpu);
+				renderCells(cells_cpu);
 			}
+			// Cubes Render
 			else if (getRenderMode() == 1) {
-				renderCells2Calls(cells_cpu, cells_patch_cpu, cells_patch_gpu);
-			}
-			else if (getRenderMode() == 2) {
 				cubesRender(cells_cpu);
 			}
-			
-		}		
+			// Smooth Render
+			else if (getRenderMode() == 2) {
+				if (getCellChange())
+				{
+					placesurfacevecs(cells_cpu, &splinesurf, getWidth(), getLength());
+					zigzagdraw(splinesurf, &zigcpu, 101, 101);
+				}
+				rendertest(zigcpu);
+			}
+		}
 
 
 		glDisable(GL_FRAMEBUFFER_SRGB); // disable sRGB for things like imgui
