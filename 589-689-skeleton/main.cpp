@@ -419,8 +419,8 @@ int main() {
 
 		if (getCellChange())
 		{
-			preparecellsforrender(cells_cpu, &lerpline);
-			cubesRender(cells_cpu, &cubeobj);
+			preparecellsforrender(cells_cpu, &lerpline); //We only want to calculate the vertices for a draw call once (unless some parameter has changed)
+			cubesRender(cells_cpu, &cubeobj); //the cubes render function was slightly modified so it only places the vertices for the cube (it doesn't perform the gldrawarrays() call.)
 			placesurfacevecs(cells_cpu, &splinesurf, getWidth(), getLength());
 			zigzagdraw(splinesurf, &zigcpu, 101, 101);
 		}
@@ -431,7 +431,7 @@ int main() {
 			// LERP Render mode
 			if (getRenderMode() == 0) {
 				//renderCells(cells_cpu);
-				rendertest(lerpline, &gpu_obj);
+				rendertest(lerpline, &gpu_obj); 
 			}
 			// Cubes Render
 			else if (getRenderMode() == 1) {
