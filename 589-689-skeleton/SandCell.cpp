@@ -173,6 +173,7 @@ void renderCells(CPU_Geometry& input_cpu) {
 
 }
 
+
 // Function to render cells, can be passed X & Z values instead of using ImGui
 void renderCells(CPU_Geometry& input_cpu, int _x, int _z) {
 	_width = _x;
@@ -183,6 +184,16 @@ void renderCells(CPU_Geometry& input_cpu, int _x, int _z) {
 }
 
 // Cell render with only two draw calls (2 zig zag patterns overlayed)
+
+void preparecellsforrender(CPU_Geometry input_cpu, CPU_Geometry* output_cpu)
+{
+	output_cpu->verts.clear();
+	zigzagdraw(input_cpu, output_cpu, _width, _length);
+	zagzigdraw(input_cpu, output_cpu, _width, _length);
+}
+
+// Cell render with only two draw calls
+
 // I thought this would increase frame rate - it does not
 void renderCells2Calls(CPU_Geometry& input_cpu) {
 	CPU_Geometry output_cpu;
@@ -209,8 +220,6 @@ void renderCells2Calls(CPU_Geometry& input_cpu) {
 			index++;
 			index = index + _width;
 		}
-
-		
 	}
 	output_gpu.setVerts(output_cpu.verts);
 	output_gpu.bind();
@@ -246,10 +255,11 @@ void renderCells2Calls(CPU_Geometry& input_cpu) {
 
 }
 
-void cubesRender(CPU_Geometry &inputCPU) {
+void cubesRender(CPU_Geometry &inputCPU, CPU_Geometry * outputCPU) {
 	CPU_Geometry tempCPU;
-	CPU_Geometry outputCPU;
+	//CPU_Geometry outputCPU;
 	GPU_Geometry outputGPU;
+	outputCPU->verts.clear();
 
 	for (int i = 0; i < inputCPU.verts.size(); i++) {
 		// Makes the eight vertices of a cube
@@ -309,13 +319,13 @@ void cubesRender(CPU_Geometry &inputCPU) {
 
 		// Push back the cube verts in a particular order to draw lines on every edge
 		for (int i = 0; i < traversalOrder.size(); i++) {
-			outputCPU.verts.push_back(tempCPU.verts.at(traversalOrder[i]));
+			outputCPU->verts.push_back(tempCPU.verts.at(traversalOrder[i]));
 		}
 
-		outputGPU.setVerts(outputCPU.verts);
-		outputGPU.bind();
-		glDrawArrays(GL_LINE_STRIP, 0, GLsizei(outputCPU.verts.size()));
-		outputCPU.verts.clear();
+		//outputGPU.setVerts(outputCPU.verts);
+		//outputGPU.bind();
+		//glDrawArrays(GL_LINE_STRIP, 0, GLsizei(outputCPU->verts.size()));
+		//outputCPU->verts.clear();
 		tempCPU.verts.clear();
 
 	}

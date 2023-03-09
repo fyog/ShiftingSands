@@ -42,7 +42,8 @@ void createCells(int _width, int _height, CPU_Geometry &cpuGeom);
 void renderCells(CPU_Geometry &input_cpu);
 void renderCells(CPU_Geometry &input_cpu, int _width, int _height);
 void renderCells2Calls(CPU_Geometry& input_cpu);
-void cubesRender(CPU_Geometry &inputCPU);
+void cubesRender(CPU_Geometry& inputCPU, CPU_Geometry* outputCPU);
 void pillarSetup(CPU_Geometry& inputCPU, float _height);
+void preparecellsforrender(CPU_Geometry input_cpu, CPU_Geometry* output_cpu);
 
 #endif
