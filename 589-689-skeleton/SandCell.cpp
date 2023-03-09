@@ -151,8 +151,8 @@ void renderCells(CPU_Geometry& input_cpu, CPU_Geometry& output_cpu, GPU_Geometry
 
 void preparecellsforrender(CPU_Geometry input_cpu, CPU_Geometry* output_cpu)
 {
-	zigzagdraw(input_cpu, output_cpu);
-	zagzigdraw(input_cpu, output_cpu);
+	zigzagdraw(input_cpu, output_cpu, _width, _length);
+	zagzigdraw(input_cpu, output_cpu, _width, _length);
 }
 
 // Cell render with only two draw calls

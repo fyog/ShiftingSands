@@ -189,7 +189,7 @@ void zagzigdraw(CPU_Geometry obj, CPU_Geometry* newobj, int width, int length)
 {
 	int i, j;
 	glm::vec3 temp;
-	int checkval
+	int checkval;
 	//don't clear the vertices here, because you want to add onto a line strip that should have already had vertices placed
 	for (i = (width - 1); i >= 0; i--)
 	{
