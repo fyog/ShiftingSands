@@ -165,3 +165,9 @@ bool checkpointcount(int k, CPU_Geometry* control)
 	return false;
 }
 
+bool checkpointcount(int k, int m)
+{
+	if (m > k) return true;
+	return false;
+}
+
