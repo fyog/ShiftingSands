@@ -185,6 +185,34 @@ void zigzagdraw(CPU_Geometry obj, CPU_Geometry* newobj, int width, int length) /
 	}
 }
 
+void zagzigdraw(CPU_Geometry obj, CPU_Geometry* newobj, int width, int length)
+{
+	int i, j;
+	glm::vec3 temp;
+	int checkval
+	//don't clear the vertices here, because you want to add onto a line strip that should have already had vertices placed
+	for (i = (width - 1); i >= 0; i--)
+	{
+		checkval = (width - 1) - i; //as i get's smaller, this will get largeer
+		if (checkval % 2 == 0)
+		{
+			for (j = (length - 1); j >= 0; j--)
+			{
+				temp = point2dindex(obj, i, j, width);
+				newobj->verts.push_back(temp);
+			}
+		}
+		else
+		{
+			for (j = 0; j < length; j++)
+			{
+				temp = point2dindex(obj, i, j, width);
+				newobj->verts.push_back(temp);
+			}
+		}
+	}
+}
+
 void rendertest(CPU_Geometry lineobj, GPU_Geometry* output_gpu)
 {
 	output_gpu->setVerts(lineobj.verts);

@@ -1,4 +1,5 @@
 #include "SandCell.h"
+#include "SurfaceRender.h"
 
 // X and Z range of the cells
 int _width = 4;
@@ -148,6 +149,12 @@ void renderCells(CPU_Geometry& input_cpu, CPU_Geometry& output_cpu, GPU_Geometry
 
 }
 
+void preparecellsforrender(CPU_Geometry input_cpu, CPU_Geometry* output_cpu)
+{
+	zigzagdraw(input_cpu, output_cpu);
+	zagzigdraw(input_cpu, output_cpu);
+}
+
 // Cell render with only two draw calls
 // I thought this would increase frame rate - it does not
 void renderCells2Calls(CPU_Geometry& input_cpu, CPU_Geometry& output_cpu, GPU_Geometry& output_gpu) {
@@ -172,8 +179,6 @@ void renderCells2Calls(CPU_Geometry& input_cpu, CPU_Geometry& output_cpu, GPU_Ge
 			index++;
 			index = index + _width;
 		}
-
-		
 	}
 	output_gpu.setVerts(output_cpu.verts);
 	output_gpu.bind();
