@@ -192,6 +192,15 @@ void printCPUVerts(CPU_Geometry cpu) {
 	}
 }
 
+void setflagstrue(bool* flags)
+{
+	//we assume there will be three flags in the array, and we want to set them all true when we see some change.
+	for (int i = 0; i < 3; i++)
+	{
+		flags[i] = true;
+	}
+}
+
 
 int main() {
 	Log::debug("Starting main");
@@ -294,8 +303,13 @@ int main() {
 	if (debug) std::cout << "placesurfacevecs() successful. now doing zigzagdraw()\n";
 	zigzagdraw(splinesurf, &zigcpu, 101, 101);
 	if (debug) std::cout << "zigzagdraw() successful\n";
-	int knownwid = 4;
-	int knownlen = 4;
+	//int knownwid = 4;
+	//int knownlen = 4;
+	bool changecheck[3];
+	for (int i = 0; i < 3; i++)
+	{
+		changecheck[i] = false;
+	}
 
 	// RENDER LOOP
 	while (!window.shouldClose()) {
@@ -416,14 +430,13 @@ int main() {
 
 
 		//glDrawArrays(GL_TRIANGLES, 0, GLsizei(models.at(selectedModelName).numVerts())); //Commented this out to test b-spline -Reid
-
+		
 		if (getCellChange())
 		{
-			preparecellsforrender(cells_cpu, &lerpline); //We only want to calculate the vertices for a draw call once (unless some parameter has changed)
-			cubesRender(cells_cpu, &cubeobj); //the cubes render function was slightly modified so it only places the vertices for the cube (it doesn't perform the gldrawarrays() call.)
-			placesurfacevecs(cells_cpu, &splinesurf, getWidth(), getLength());
-			zigzagdraw(splinesurf, &zigcpu, 101, 101);
+			setflagstrue(changecheck); //All flags will be set to true when the control points are changed
+			//we use an array of flags to check if we should redraw the objects instead of a single flag since the b-spline surface wasn't redrawing correctly when we only checked getCellChange()
 		}
+
 
 		// Toggle Render
 		if (getShowCells()) {
@@ -431,15 +444,31 @@ int main() {
 			// LERP Render mode
 			if (getRenderMode() == 0) {
 				//renderCells(cells_cpu);
+				if (changecheck[0])
+				{
+					preparecellsforrender(cells_cpu, &lerpline);
+					changecheck[0] = false;
+				}
 				rendertest(lerpline, &gpu_obj); 
 			}
 			// Cubes Render
 			else if (getRenderMode() == 1) {
 				//cubesRender(cells_cpu);
+				if (changecheck[1])
+				{
+					cubesRender(cells_cpu, &cubeobj);
+					changecheck[1] = false;
+				}
 				rendertest(cubeobj, &gpu_obj);
 			}
 			// Smooth Render
 			else if (getRenderMode() == 2) {
+				if (changecheck[2])
+				{
+					placesurfacevecs(cells_cpu, &splinesurf, getWidth(), getLength());
+					zigzagdraw(splinesurf, &zigcpu, 101, 101);
+					changecheck[2] = false;
+				}
 				rendertest(zigcpu, &gpu_obj);
 			}
 		}
