@@ -198,6 +198,8 @@ void zigzagdraw(CPU_Geometry obj, CPU_Geometry* newobj, int width, int length) /
 			}
 		}
 	}
+	//depending on how many rows there are (ie, the value of length) we'll either put the final vertex at obj[width - 1][length - 1] if (length - 1) % 2 == 0, or, in other words, if length is odd. If length is
+	//even then it will end on obj[0][length - 1]. use this information when defining zagzigdraw().
 }
 
 
@@ -206,24 +208,52 @@ void zagzigdraw(CPU_Geometry obj, CPU_Geometry* newobj, int width, int length)
 	int i, j;
 	glm::vec3 temp;
 	int checkval;
-	//don't clear the vertices here, because you want to add onto a line strip that should have already had vertices placed
-	for (i = (width - 1); i >= 0; i--)
+	bool lengtheven = length % 2 == 0;
+	//if the length is even, then the final vertex placed by zigzagdraw() was at newobj[0][length - 1]
+
+	if (lengtheven)
 	{
-		checkval = (width - 1) - i; //as i get's smaller, this will get largeer
-		if (checkval % 2 == 0)
+		for (i = 0; i < width; i++) //In this case, we want to start at newobj[0][length - 1] and iterate upward through the width on the outer loop.
 		{
-			for (j = (length - 1); j >= 0; j--)
+			checkval = i % 2;
+			if (checkval == 0)
 			{
-				temp = point2dindex(obj, i, j, width);
-				newobj->verts.push_back(temp);
+				for (j = (length - 1); j >= 0; j--)
+				{
+					temp = point2dindex(obj, i, j, width);
+					newobj->verts.push_back(temp);
+				}
+			}
+			else
+			{
+				for (j = 0; j < length; j++)
+				{
+					temp = point2dindex(obj, i, j, width);
+					newobj->verts.push_back(temp);
+				}
 			}
 		}
-		else
+	}
+	else
+	{
+		for (i = (width - 1); i >= 0; i--)
 		{
-			for (j = 0; j < length; j++)
+			checkval = (width - 1) - i;
+			if (checkval % 2 == 0)
 			{
-				temp = point2dindex(obj, i, j, width);
-				newobj->verts.push_back(temp);
+				for (j = (length - 1); j >= 0; j--)
+				{
+					temp = point2dindex(obj, i, j, width);
+					newobj->verts.push_back(temp);
+				}
+			}
+			else
+			{
+				for (j = 0; j < length; j++)
+				{
+					temp = point2dindex(obj, i, j, width);
+					newobj->verts.push_back(temp);
+				}
 			}
 		}
 	}
