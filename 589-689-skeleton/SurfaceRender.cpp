@@ -1,7 +1,7 @@
 #include "BSpline.h"
 #include "Geometry.h"
 
-#define K_ORDER   4
+#define K_ORDER 4
 
 
 //When the the control points for the surface are generated, they will be passed to the surface generator as either a vector of glm::vec3 vertices, or else a CPU_Geometry object (which contains a vertex vector)
