@@ -33,6 +33,7 @@ int getLength();
 bool getCellChange();
 bool getShowCells();
 int getRenderMode();
+int getOrderK();
 
 void sandCellImGui(CPU_Geometry& cpuGeom);
 

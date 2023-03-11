@@ -299,7 +299,7 @@ int main() {
 	bool debug = false;
 	if (debug) std::cout << "about to call placesurfacevecs() in main()\n";
 	
-	placesurfacevecs(cells_cpu, &splinesurf, getWidth(), getLength());
+	placesurfacevecs(cells_cpu, &splinesurf, getWidth(), getLength(), getOrderK());
 	if (debug) std::cout << "placesurfacevecs() successful. now doing zigzagdraw()\n";
 	zigzagdraw(splinesurf, &zigcpu, 101, 101);
 	if (debug) std::cout << "zigzagdraw() successful\n";
@@ -465,7 +465,7 @@ int main() {
 			else if (getRenderMode() == 2) {
 				if (changecheck[2])
 				{
-					placesurfacevecs(cells_cpu, &splinesurf, getWidth(), getLength());
+					placesurfacevecs(cells_cpu, &splinesurf, getWidth(), getLength(), getOrderK());
 					zigzagdraw(splinesurf, &zigcpu, 101, 101);
 					changecheck[2] = false;
 				}

@@ -48,6 +48,12 @@ int getRenderMode() {
 	return renderMode;
 }
 
+int _order_k= 4;
+
+int getOrderK() {
+	return _order_k;
+}
+
 // ImGui panel to control the sand cells
 void sandCellImGui(CPU_Geometry& cpuGeom) {
 	ImGui::Begin("Sand Cell Tuning");
@@ -60,6 +66,7 @@ void sandCellImGui(CPU_Geometry& cpuGeom) {
 	cellChange |= ImGui::InputInt("Length (X): ", &_width);
 	cellChange |= ImGui::InputInt("Width  (Z): ", &_length);
 	cellChange |= ImGui::Checkbox("Random Heights", &randomHeights);
+	cellChange |= ImGui::InputInt("Order k of B-Spline Surface", &_order_k);
 	if (!randomHeights) {
 		cellChange |= ImGui::InputFloat("Height of Pillar", &pillarHeight, 0.1f, 1.f);
 	}

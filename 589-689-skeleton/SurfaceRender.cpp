@@ -1,7 +1,7 @@
 #include "BSpline.h"
 #include "Geometry.h"
 
-#define K_ORDER 4
+#define K_ORDER 3
 
 
 //When the the control points for the surface are generated, they will be passed to the surface generator as either a vector of glm::vec3 vertices, or else a CPU_Geometry object (which contains a vertex vector)
@@ -44,14 +44,14 @@ void getcontrolpoints(CPU_Geometry control, CPU_Geometry* copy, int index, int w
 	}
 }
 
-glm::vec3 onesplinepoint(CPU_Geometry control, int width, int length, float u, float v, float * uknots, float * vknots)
+glm::vec3 onesplinepoint(CPU_Geometry control, int width, int length, float u, float v, float * uknots, float * vknots, int k)
 {
 	//std::cout << "Entering onesplinepoint()\n";
 	//onesplinepoint() will use the quickspline() function to calculate one point on the b-spline surface.
 	//We assume that u is going along the width, and v is going along the length. 
 	CPU_Geometry ucontrol, vrange; //ucontrol will have the control points going in the u direction, vrange will be the control points in some relevant range in the v direction
 	int m = length - 1; //there are "length" control points going along and m for a b-spline calculation is the number of control points minus 1
-	int k = K_ORDER; //We'll assume all b-spline curves should be of order four (cubic). The constant is defined at teh top if you want to change it, though
+	//int k = K_ORDER; //We'll assume all b-spline curves should be of order four (cubic). The constant is defined at teh top if you want to change it, though
 	int vdelta = getdelta(vknots, (m + k + 1), v, 0); //As in the quickspline() algorithm, we need to get the delta knot to know what the relevant range to look at is.
 
 	m = width - 1; //The m for control points going along the width
@@ -86,12 +86,13 @@ glm::vec3 onesplinepoint(CPU_Geometry control, int width, int length, float u, f
 	return vrange.verts[0];
 }
 
-void placesurfacevecs(CPU_Geometry control, CPU_Geometry* surface, int width, int length)
+void placesurfacevecs(CPU_Geometry control, CPU_Geometry* surface, int width, int length, int k)
 {
 	//std::cout << "Entering placesurfacevecs()\n";
 	float * uknots;
 	float * vknots;
-	int k = K_ORDER;
+	if (k < 1) return; 
+	//int k = K_ORDER;
 	glm::vec3 temp;
 
 	CPU_Geometry ucontrol;
@@ -164,7 +165,7 @@ void placesurfacevecs(CPU_Geometry control, CPU_Geometry* surface, int width, in
 			}
 			else
 			{
-				temp = onesplinepoint(control, width, length, u, v, uknots, vknots);
+				temp = onesplinepoint(control, width, length, u, v, uknots, vknots, k);
 				surface->verts.push_back(temp);
 			}
 		}
