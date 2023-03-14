@@ -24,6 +24,7 @@
 #include "glm/gtc/type_ptr.hpp"
 
 #include "SandCell.h"
+#include "Surface.h"
 #include "SurfaceRender.h"
 
 // EXAMPLE CALLBACKS
@@ -186,11 +187,11 @@ private:
 	GPU_Geometry gpuGeom;
 };
 
-void printCPUVerts(CPU_Geometry cpu) {
-	for (int i = 0; i < cpu.verts.size(); i++) {
-		std::cout << cpu.verts.at(i).x << ", " << cpu.verts.at(i).y << ", " << cpu.verts.at(i).z << ", " << std::endl;
-	}
-}
+//void printCPUVerts(CPU_Geometry cpu) {
+//	for (int i = 0; i < cpu.verts.size(); i++) {
+//		std::cout << cpu.verts.at(i).x << ", " << cpu.verts.at(i).y << ", " << cpu.verts.at(i).z << ", " << std::endl;
+//	}
+//}
 
 void setflagstrue(bool* flags)
 {
@@ -289,17 +290,18 @@ int main() {
 
 	GPU_Geometry gpu_obj;
 
-	createCells(cells_cpu);
-	preparecellsforrender(cells_cpu, &lerpline);
-
-	cubesRender(cells_cpu, &cubeobj);
+	Surface terrain = Surface();
+	
+	terrain.createCells(cells_cpu);
+	terrain.prepareCellsForRender(cells_cpu, &lerpline);
+	//terrain.cubesRender(cells_cpu, &cubeobj);
 
 	CPU_Geometry splinesurf;
 	CPU_Geometry zigcpu;
 	bool debug = false;
 	if (debug) std::cout << "about to call placesurfacevecs() in main()\n";
 	
-	placesurfacevecs(cells_cpu, &splinesurf, getWidth(), getLength());
+	placesurfacevecs(cells_cpu, &splinesurf, terrain.getWidth(), terrain.getLength());
 	if (debug) std::cout << "placesurfacevecs() successful. now doing zigzagdraw()\n";
 	zigzagdraw(splinesurf, &zigcpu, 101, 101);
 	if (debug) std::cout << "zigzagdraw() successful\n";
@@ -315,7 +317,6 @@ int main() {
 	while (!window.shouldClose()) {
 		glfwPollEvents();
 
-
 		// Three functions that must be called each new frame.
 		ImGui_ImplOpenGL3_NewFrame();
 		ImGui_ImplGlfw_NewFrame();
@@ -324,63 +325,6 @@ int main() {
 		ImGui::Begin("Sample window.");
 
 		bool change = false; // Whether any ImGui variable's changed.
-
-		/* BOILERPLATE TO BE FACTORED OUT
-		// A drop-down box for choosing the 3D model to render.
-		if (ImGui::BeginCombo("Model", selectedModelName.c_str()))
-		{
-			// Iterate over our dictionary's key-val pairs.
-			for (auto& keyVal : models) {
-				// Check if this key (a model display name) was last selected.
-				const bool isSelected = (selectedModelName == keyVal.first);
-
-				// Now check if the user is currently selecting that model.
-				// The use of "isSelected" just changes the colour of the box.
-				if (ImGui::Selectable(keyVal.first.c_str(), isSelected))
-				{
-					selectedModelName = keyVal.first;
-					keyVal.second.bind(); // Bind the selected model.
-				}
-				// Sets the initial focus when the combo is opened
-				if (isSelected) ImGui::SetItemDefaultFocus();
-			}
-			ImGui::EndCombo();
-			change = true;
-		}
-
-		// Only display the texture dropdown if applicable.
-		if (models.at(selectedModelName).hasUVs())
-		{
-			// A drop-down box for choosing the texture to use.
-			if (ImGui::BeginCombo("Texture", selectedTexName.c_str()))
-			{
-				// First, display an option to select NO texture!
-				const bool noneSelected = selectedTexName == noTexName;
-				if (ImGui::Selectable(noTexName.c_str(), noneSelected))
-				{
-					selectedTexName = noTexName;
-				}
-				if (noneSelected) ImGui::SetItemDefaultFocus();
-
-				// Then, present our dictionary's contents as other texture options.
-				for (auto& keyVal : textures) {
-					// Check if this key (a model display name) was last selected.
-					const bool isSelected = (selectedTexName == keyVal.first);
-					// Now check if the user is currently selecting that texture.
-					// The use of "isSelected" just changes the colour of the box.
-					if (ImGui::Selectable(keyVal.first.c_str(), isSelected))
-					{
-						selectedTexName = keyVal.first;
-						keyVal.second.bind(); // Bind the selected texture.
-					}
-					// Sets the initial focus when the combo is opened
-					if (isSelected) ImGui::SetItemDefaultFocus();
-				}
-				ImGui::EndCombo();
-				change = true;
-			}
-		}
-		*/
 
 		// We'll only render with a texture if the model has UVs and a texture was chosen.
 		texExistence = (models.at(selectedModelName).hasUVs() && selectedTexName != noTexName);
@@ -401,13 +345,11 @@ int main() {
 		ImGui::End();
 
 		// ImGui to control sand cell data structure
-		sandCellImGui(cells_cpu);
-
+		terrain.surfaceImGui(cells_cpu);
 
 		ImGui::Render();
 
 		gpu_obj.bind();
-
 
 		glEnable(GL_LINE_SMOOTH);
 		glEnable(GL_FRAMEBUFFER_SRGB);
@@ -431,7 +373,7 @@ int main() {
 
 		//glDrawArrays(GL_TRIANGLES, 0, GLsizei(models.at(selectedModelName).numVerts())); //Commented this out to test b-spline -Reid
 		
-		if (getCellChange())
+		if (terrain.change())
 		{
 			setflagstrue(changecheck); //All flags will be set to true when the control points are changed
 			//we use an array of flags to check if we should redraw the objects instead of a single flag since the b-spline surface wasn't redrawing correctly when we only checked getCellChange()
@@ -439,40 +381,39 @@ int main() {
 
 
 		// Toggle Render
-		if (getShowCells()) {
+		if (terrain.show()) {
 
 			// LERP Render mode
-			if (getRenderMode() == 0) {
+			if (terrain.getMode() == 0) {
 				//renderCells(cells_cpu);
 				if (changecheck[0])
 				{
-					preparecellsforrender(cells_cpu, &lerpline);
+					terrain.prepareCellsForRender(cells_cpu, &lerpline);
 					changecheck[0] = false;
 				}
 				rendertest(lerpline, &gpu_obj); 
 			}
 			// Cubes Render
-			else if (getRenderMode() == 1) {
+			else if (terrain.getMode() == 1) {
 				//cubesRender(cells_cpu);
 				if (changecheck[1])
 				{
-					cubesRender(cells_cpu, &cubeobj);
+					//terrain.cubesRender(cells_cpu, &cubeobj);
 					changecheck[1] = false;
 				}
 				rendertest(cubeobj, &gpu_obj);
 			}
 			// Smooth Render
-			else if (getRenderMode() == 2) {
+			else if (terrain.getMode() == 2) {
 				if (changecheck[2])
 				{
-					placesurfacevecs(cells_cpu, &splinesurf, getWidth(), getLength());
+					placesurfacevecs(cells_cpu, &splinesurf, terrain.getWidth(), terrain.getLength());
 					zigzagdraw(splinesurf, &zigcpu, 101, 101);
 					changecheck[2] = false;
 				}
 				rendertest(zigcpu, &gpu_obj);
 			}
 		}
-
 
 		glDisable(GL_FRAMEBUFFER_SRGB); // disable sRGB for things like imgui
 
@@ -489,3 +430,59 @@ int main() {
 	glfwTerminate();
 	return 0;
 }
+/* BOILERPLATE TO BE FACTORED OUT
+	// A drop-down box for choosing the 3D model to render.
+	if (ImGui::BeginCombo("Model", selectedModelName.c_str()))
+	{
+		// Iterate over our dictionary's key-val pairs.
+		for (auto& keyVal : models) {
+			// Check if this key (a model display name) was last selected.
+			const bool isSelected = (selectedModelName == keyVal.first);
+
+			// Now check if the user is currently selecting that model.
+			// The use of "isSelected" just changes the colour of the box.
+			if (ImGui::Selectable(keyVal.first.c_str(), isSelected))
+			{
+				selectedModelName = keyVal.first;
+				keyVal.second.bind(); // Bind the selected model.
+			}
+			// Sets the initial focus when the combo is opened
+			if (isSelected) ImGui::SetItemDefaultFocus();
+		}
+		ImGui::EndCombo();
+		change = true;
+	}
+
+	// Only display the texture dropdown if applicable.
+	if (models.at(selectedModelName).hasUVs())
+	{
+		// A drop-down box for choosing the texture to use.
+		if (ImGui::BeginCombo("Texture", selectedTexName.c_str()))
+		{
+			// First, display an option to select NO texture!
+			const bool noneSelected = selectedTexName == noTexName;
+			if (ImGui::Selectable(noTexName.c_str(), noneSelected))
+			{
+				selectedTexName = noTexName;
+			}
+			if (noneSelected) ImGui::SetItemDefaultFocus();
+
+			// Then, present our dictionary's contents as other texture options.
+			for (auto& keyVal : textures) {
+				// Check if this key (a model display name) was last selected.
+				const bool isSelected = (selectedTexName == keyVal.first);
+				// Now check if the user is currently selecting that texture.
+				// The use of "isSelected" just changes the colour of the box.
+				if (ImGui::Selectable(keyVal.first.c_str(), isSelected))
+				{
+					selectedTexName = keyVal.first;
+					keyVal.second.bind(); // Bind the selected texture.
+				}
+				// Sets the initial focus when the combo is opened
+				if (isSelected) ImGui::SetItemDefaultFocus();
+			}
+			ImGui::EndCombo();
+			change = true;
+		}
+	}
+	*/
