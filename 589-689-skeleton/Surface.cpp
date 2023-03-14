@@ -194,6 +194,145 @@ void Surface::prepareCellsForRender(CPU_Geometry input_cpu, CPU_Geometry * outpu
 	zagzigdraw(input_cpu, output_cpu, Surface::width, Surface::length);
 }
 
+void Surface::cubesRender(CPU_Geometry& inputCPU, CPU_Geometry* outputCPU) {
+	CPU_Geometry tempCPU;
+	//CPU_Geometry outputCPU;
+	GPU_Geometry outputGPU;
+	outputCPU->verts.clear();
+
+	for (int i = 0; i < inputCPU.verts.size(); i++) {
+		// Makes the eight vertices of a cube
+		// P0
+		tempCPU.verts.push_back(glm::vec3(inputCPU.verts.at(i).x - 0.5f,
+			0.0f,
+			inputCPU.verts.at(i).z - 0.5f));
+
+		// P1
+		tempCPU.verts.push_back(glm::vec3(inputCPU.verts.at(i).x + 0.5f,
+			0.0f,
+			inputCPU.verts.at(i).z - 0.5f));
+
+		// P2
+		tempCPU.verts.push_back(glm::vec3(inputCPU.verts.at(i).x - 0.5f,
+			0.0f,
+			inputCPU.verts.at(i).z + 0.5f));
+
+		// P3
+		tempCPU.verts.push_back(glm::vec3(inputCPU.verts.at(i).x + 0.5f,
+			0.0f,
+			inputCPU.verts.at(i).z + 0.5f));
+
+		// P4
+		tempCPU.verts.push_back(glm::vec3(inputCPU.verts.at(i).x - 0.5f,
+			inputCPU.verts.at(i).y,
+			inputCPU.verts.at(i).z - 0.5f));
+
+		// P5
+		tempCPU.verts.push_back(glm::vec3(inputCPU.verts.at(i).x + 0.5f,
+			inputCPU.verts.at(i).y,
+			inputCPU.verts.at(i).z - 0.5f));
+
+		// P6
+		tempCPU.verts.push_back(glm::vec3(inputCPU.verts.at(i).x - 0.5f,
+			inputCPU.verts.at(i).y,
+			inputCPU.verts.at(i).z + 0.5f));
+
+		// P7
+		tempCPU.verts.push_back(glm::vec3(inputCPU.verts.at(i).x + 0.5f,
+			inputCPU.verts.at(i).y,
+			inputCPU.verts.at(i).z + 0.5f));
+
+		// Traversal order for line strip in indices
+		std::vector<int> traversalOrder = { 0,2,6,4,0,1,5,7,6,4,5,7,3,2,0,1,3 };
+
+		/*
+			   5 ------ 7
+			  /|       / |
+			 / |      /  |
+			4 ------ 6   |
+			|  1 ----|-- 3
+			| /      |  /
+			|/       | /
+			0 ------ 2
+		*/
+
+		// Push back the cube verts in a particular order to draw lines on every edge
+		for (int i = 0; i < traversalOrder.size(); i++) {
+			outputCPU->verts.push_back(tempCPU.verts.at(traversalOrder[i]));
+		}
+
+		//outputGPU.setVerts(outputCPU.verts);
+		//outputGPU.bind();
+		//glDrawArrays(GL_LINE_STRIP, 0, GLsizei(outputCPU->verts.size()));
+		//outputCPU->verts.clear();
+		//tempCPU.verts.clear();
+	}
+}
+
+void Surface::pillarSetup(CPU_Geometry& inputCPU, float _height) {
+	//int halfX = Surface::width / 2;
+	//int halfZ = Surface::length / 2;
+
+	// This is a quick way to find the halfway point of the vertices
+	// Does not work for all sizes as it will often end up on the edge of the patch
+	int halfway = inputCPU.verts.size() / 2;
+
+	// Changes the middle point's height value to create a pillar
+	inputCPU.verts.at(halfway) = (glm::vec3(inputCPU.verts.at(halfway).x,
+		_height,
+		inputCPU.verts.at(halfway).z));
+}
+
+// ImGui panel to control the sand cells
+void Surface::surfaceImGui(CPU_Geometry & cpuGeom) {
+	ImGui::Begin("Sand Cell Tuning");
+	//cellChange = false;
+
+	// Names of render modes to be displayed in slider
+	const char* renderModeNames[] = { "LERP", "Cubes", "Smooth" };
+
+	cellChange |= ImGui::InputInt("Length (X): ", &length);
+	cellChange |= ImGui::InputInt("Width (Z): ", &width);
+
+	cellChange |= ImGui::Checkbox("Random Heights", &randomHeights);
+	if (!randomHeights) {
+		cellChange |= ImGui::InputFloat("Height of Pillar: ", &pillarHeight, 0.1f, 1.f);
+	}
+
+	if (&change) {
+		// Recreate cells
+		createCells(cpuGeom);
+		if (!randomHeights) {
+			pillarSetup(cpuGeom, pillarHeight);
+		}
+
+	}
+
+	ImGui::Checkbox("Render Cells", &showCells);
+	if (show) {
+		ImGui::Text("Number of Draw Calls: ");
+		ImGui::SliderInt(renderModeNames[renderMode], &renderMode, 0, 2); // exception thrown
+	}
+
+	ImGui::End();
+}
+
+// Random number generator
+float Surface::randNumber(float min, float max) {
+
+	// Set up the random number generator
+	std::random_device rd;
+	std::mt19937 gen(rd());
+
+	// Define the range for the random number
+	std::uniform_int_distribution<> dis(min, max);
+
+	// Generate a random number and print it
+	float random_number = dis(gen);
+
+	return random_number;
+}
+
 // Cell render with only two draw calls
 // I thought this would increase frame rate - it does not
 //void Surface::renderCells2Calls(CPU_Geometry& input_cpu) {
@@ -255,148 +394,3 @@ void Surface::prepareCellsForRender(CPU_Geometry input_cpu, CPU_Geometry * outpu
 //	output_cpu.verts.clear();
 //
 //}
-
-//void Surface::cubesRender(CPU_Geometry& inputCPU, CPU_Geometry* outputCPU) {
-//	CPU_Geometry tempCPU;
-//	//CPU_Geometry outputCPU;
-//	GPU_Geometry outputGPU;
-//	outputCPU->verts.clear();
-//
-//	for (int i = 0; i < inputCPU.verts.size(); i++) {
-//		// Makes the eight vertices of a cube
-//		// P0
-//		tempCPU.verts.push_back(glm::vec3(inputCPU.verts.at(i).x - 0.5f,
-//			0.0f,
-//			inputCPU.verts.at(i).z - 0.5f));
-//
-//		// P1
-//		tempCPU.verts.push_back(glm::vec3(inputCPU.verts.at(i).x + 0.5f,
-//			0.0f,
-//			inputCPU.verts.at(i).z - 0.5f));
-//
-//		// P2
-//		tempCPU.verts.push_back(glm::vec3(inputCPU.verts.at(i).x - 0.5f,
-//			0.0f,
-//			inputCPU.verts.at(i).z + 0.5f));
-//
-//		// P3
-//		tempCPU.verts.push_back(glm::vec3(inputCPU.verts.at(i).x + 0.5f,
-//			0.0f,
-//			inputCPU.verts.at(i).z + 0.5f));
-//
-//		// P4
-//		tempCPU.verts.push_back(glm::vec3(inputCPU.verts.at(i).x - 0.5f,
-//			inputCPU.verts.at(i).y,
-//			inputCPU.verts.at(i).z - 0.5f));
-//
-//		// P5
-//		tempCPU.verts.push_back(glm::vec3(inputCPU.verts.at(i).x + 0.5f,
-//			inputCPU.verts.at(i).y,
-//			inputCPU.verts.at(i).z - 0.5f));
-//
-//		// P6
-//		tempCPU.verts.push_back(glm::vec3(inputCPU.verts.at(i).x - 0.5f,
-//			inputCPU.verts.at(i).y,
-//			inputCPU.verts.at(i).z + 0.5f));
-//
-//		// P7
-//		tempCPU.verts.push_back(glm::vec3(inputCPU.verts.at(i).x + 0.5f,
-//			inputCPU.verts.at(i).y,
-//			inputCPU.verts.at(i).z + 0.5f));
-//
-//		// Traversal order for line strip in indices
-//		std::vector<int> traversalOrder = { 0,2,6,4,0,1,5,7,6,4,5,7,3,2,0,1,3 };
-//
-//		/*
-//			   5 ------ 7
-//			  /|       / |
-//			 / |      /  |
-//			4 ------ 6   |
-//			|  1 ----|-- 3
-//			| /      |  /
-//			|/       | /
-//			0 ------ 2
-//		*/
-//
-//		// Push back the cube verts in a particular order to draw lines on every edge
-//		for (int i = 0; i < traversalOrder.size(); i++) {
-//			outputCPU->verts.push_back(tempCPU.verts.at(traversalOrder[i]));
-//		}
-//
-//		//outputGPU.setVerts(outputCPU.verts);
-//		//outputGPU.bind();
-//		//glDrawArrays(GL_LINE_STRIP, 0, GLsizei(outputCPU->verts.size()));
-//		//outputCPU->verts.clear();
-//		//tempCPU.verts.clear();
-//	}
-//}
-
-void Surface::pillarSetup(CPU_Geometry& inputCPU, float _height) {
-	//int halfX = Surface::width / 2;
-	//int halfZ = Surface::length / 2;
-
-	// This is a quick way to find the halfway point of the vertices
-	// Does not work for all sizes as it will often end up on the edge of the patch
-	int halfway = inputCPU.verts.size() / 2;
-
-	// Changes the middle point's height value to create a pillar
-	inputCPU.verts.at(halfway) = (glm::vec3(inputCPU.verts.at(halfway).x,
-		_height,
-		inputCPU.verts.at(halfway).z));
-}
-
-// ImGui panel to control the sand cells
-void Surface::surfaceImGui(CPU_Geometry & cpuGeom) {
-	ImGui::Begin("Sand Cell Tuning");
-	bool cellChange = Surface::change();
-	//cellChange = false;
-	bool show = Surface::show();
-
-	
-	int mode = Surface::renderMode;
-
-	
-	// Names of render modes to be displayed in slider
-	const char* renderModeNames[] = { "LERP", "Cubes", "Smooth" };
-
-	cellChange |= ImGui::InputInt("Length (X): ", &length);
-	cellChange |= ImGui::InputInt("Width  (Z): ", &width);
-
-	cellChange |= ImGui::Checkbox("Random Heights", &randomHeights);
-	if (!randomHeights) {
-		cellChange |= ImGui::InputFloat("Height of Pillar", &pillarHeight, 0.1f, 1.f);
-	}
-
-	if (cellChange) {
-		// Recreate cells
-		createCells(cpuGeom);
-		if (!randomHeights) {
-			pillarSetup(cpuGeom, pillarHeight);
-		}
-
-	}
-
-	ImGui::Checkbox("Render Cells", &showCells);
-	if (show) {
-		ImGui::Text("Number of Draw Calls:");
-		ImGui::SliderInt(renderModeNames[mode], &mode, 0, 2); // exception thrown
-	}
-
-	ImGui::End();
-}
-
-// Random number generator
-float Surface::randNumber(float min, float max) {
-
-	// Set up the random number generator
-	std::random_device rd;
-	std::mt19937 gen(rd());
-
-	// Define the range for the random number
-	std::uniform_int_distribution<> dis(min, max);
-
-	// Generate a random number and print it
-	float random_number = dis(gen);
-
-	return random_number;
-}

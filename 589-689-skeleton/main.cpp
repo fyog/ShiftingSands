@@ -187,12 +187,6 @@ private:
 	GPU_Geometry gpuGeom;
 };
 
-//void printCPUVerts(CPU_Geometry cpu) {
-//	for (int i = 0; i < cpu.verts.size(); i++) {
-//		std::cout << cpu.verts.at(i).x << ", " << cpu.verts.at(i).y << ", " << cpu.verts.at(i).z << ", " << std::endl;
-//	}
-//}
-
 void setflagstrue(bool* flags)
 {
 	//we assume there will be three flags in the array, and we want to set them all true when we see some change.
@@ -264,25 +258,6 @@ int main() {
 	shader.use();
 	cb->updateShadingUniforms(lightPos, lightCol, diffuseCol, ambientStrength, texExistence);
 
-	/*
-		//Test of b-spline curve below
-		CPU_Geometry control;
-		control.verts.push_back(glm::vec3((-0.75),(-0.5),0.f));
-		control.verts.push_back(glm::vec3((-0.5), (-0.5), 0.f));
-		control.verts.push_back(glm::vec3((-0.25), (-0.25), 0.f));
-		control.verts.push_back(glm::vec3(0.f, 0.5f, 0.f));
-		control.verts.push_back(glm::vec3((0.25), (-0.5), 0.f));
-		control.verts.push_back(glm::vec3(0.5, (-0.25), 0.f));
-		control.verts.push_back(glm::vec3((0.75), 0.f, 0.f)); //in the end, 7 control points are placed for this example curve
-
-		CPU_Geometry splineob;
-		GPU_Geometry goodGPU;
-
-		bspline(4, &control, 0.01, &splineob); //See BSpline.cpp for definition of bspline. this will make a curve of order 4, with the control vertices in control (dereferenced here to be passed into a pointer),
-		//and it will have 0.01 set as the u-step value, meaning u will step forward a 100 times then find a point on the curve
-		goodGPU.setVerts(splineob.verts); // it would probably be better to set the vertices of the GPU object in the rendering loop, this is just here for testing.
-	*/
-
 	CPU_Geometry cells_cpu;
 	//CPU_Geometry cells_patch_cpu;
 	CPU_Geometry lerpline;
@@ -331,14 +306,6 @@ int main() {
 
 		// If a texture is not in use, the user can pick the diffuse colour.
 		if (!texExistence) change |= ImGui::ColorEdit3("Diffuse colour", glm::value_ptr(diffuseCol));
-
-		/* BOILERPLATE TO BE FACTORED OUT
-		// The rest of our ImGui widgets.
-		change |= ImGui::DragFloat3("Light's position", glm::value_ptr(lightPos));
-		change |= ImGui::ColorEdit3("Light's colour", glm::value_ptr(lightCol));
-		change |= ImGui::SliderFloat("Ambient strength", &ambientStrength, 0.0f, 1.f);
-		change |= ImGui::Checkbox("Simple wireframe", &simpleWireframe);
-		*/
 
 		// Framerate display, in case you need to debug performance.
 		ImGui::Text("Average %.1f ms/frame (%.1f fps)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
@@ -486,3 +453,35 @@ int main() {
 		}
 	}
 	*/
+	/* BOILERPLATE TO BE FACTORED OUT
+			// The rest of our ImGui widgets.
+			change |= ImGui::DragFloat3("Light's position", glm::value_ptr(lightPos));
+			change |= ImGui::ColorEdit3("Light's colour", glm::value_ptr(lightCol));
+			change |= ImGui::SliderFloat("Ambient strength", &ambientStrength, 0.0f, 1.f);
+			change |= ImGui::Checkbox("Simple wireframe", &simpleWireframe);
+			*/
+
+			/*
+					//Test of b-spline curve below
+					CPU_Geometry control;
+					control.verts.push_back(glm::vec3((-0.75),(-0.5),0.f));
+					control.verts.push_back(glm::vec3((-0.5), (-0.5), 0.f));
+					control.verts.push_back(glm::vec3((-0.25), (-0.25), 0.f));
+					control.verts.push_back(glm::vec3(0.f, 0.5f, 0.f));
+					control.verts.push_back(glm::vec3((0.25), (-0.5), 0.f));
+					control.verts.push_back(glm::vec3(0.5, (-0.25), 0.f));
+					control.verts.push_back(glm::vec3((0.75), 0.f, 0.f)); //in the end, 7 control points are placed for this example curve
+
+					CPU_Geometry splineob;
+					GPU_Geometry goodGPU;
+
+					bspline(4, &control, 0.01, &splineob); //See BSpline.cpp for definition of bspline. this will make a curve of order 4, with the control vertices in control (dereferenced here to be passed into a pointer),
+					//and it will have 0.01 set as the u-step value, meaning u will step forward a 100 times then find a point on the curve
+					goodGPU.setVerts(splineob.verts); // it would probably be better to set the vertices of the GPU object in the rendering loop, this is just here for testing.
+				*/
+
+				//void printCPUVerts(CPU_Geometry cpu) {
+				//	for (int i = 0; i < cpu.verts.size(); i++) {
+				//		std::cout << cpu.verts.at(i).x << ", " << cpu.verts.at(i).y << ", " << cpu.verts.at(i).z << ", " << std::endl;
+				//	}
+				//}

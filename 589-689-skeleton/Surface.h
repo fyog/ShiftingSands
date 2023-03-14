@@ -9,8 +9,6 @@ class Surface {
 private:
 
 	std::vector <std::vector<SandCell>> discrete_surface;
-	/*std::vector<float> heights;
-	std::vector<float> adhesions; */
 	int length, width;
 	bool cellChange = false;
 	bool showCells = true;
@@ -38,9 +36,7 @@ public:
 	bool getRandomizedHeights();
 	bool change();
 	bool show();
-	/*std::vector<float> getAdhesionVector();
-	std:vector<float> getHeightsVector();*/
-
+	
 	// other misc. methods
 	float randNumber(float min, float max);
 	void createCells(CPU_Geometry& cpuGeom);
@@ -48,7 +44,7 @@ public:
 	void renderCells(CPU_Geometry& input_cpu);
 	void renderCells(CPU_Geometry& input_cpu, int _width, int _height);
 	//void renderCells2Calls(CPU_Geometry& input_cpu);
-	//void cubesRender(CPU_Geometry& inputCPU, CPU_Geometry* outputCPU);
+	void cubesRender(CPU_Geometry& inputCPU, CPU_Geometry* outputCPU);
 	void pillarSetup(CPU_Geometry& inputCPU, float _height);
 	void prepareCellsForRender(CPU_Geometry input_cpu, CPU_Geometry* output_cpu);
 	void surfaceImGui(CPU_Geometry& cpuGeom);

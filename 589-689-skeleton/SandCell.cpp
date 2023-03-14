@@ -1,8 +1,10 @@
 #include "SandCell.h"
+#include "Texture.h"
 
 SandCell::SandCell(int height, float adhesion) {
 	SandCell::height = height;
 	SandCell::adhesion = adhesion;
+	//SandCell::texture = texture;
 }
 
 // getters and setters
