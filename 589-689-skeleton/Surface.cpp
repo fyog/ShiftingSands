@@ -18,6 +18,7 @@ Surface::Surface() {
 	// rows
 	for (int i = 0; i < width; i++) {
 		std::vector <SandCell> tmp;
+
 		// columns
 		for (int j = 0; j < length; j++) {
 			tmp.push_back(SandCell(1, 1.f));
@@ -27,12 +28,19 @@ Surface::Surface() {
 }
 
 Surface::Surface(int width, int length) {
+
 	Surface::width = width;
 	Surface::length = length;
+
+	// rows
 	for (int i = 0; i < width; i++) {
+		std::vector <SandCell> tmp;
+
+		// columns
 		for (int j = 0; j < length; j++) {
-			Surface::discrete_surface[i][j] = SandCell(1, 1.f);
+			tmp.push_back(SandCell(1, 1.f));
 		}
+		discrete_surface.push_back(tmp);
 	}
 }
 
@@ -60,13 +68,6 @@ SandCell Surface::getCell(int x, int y) {
 void Surface::setCell(SandCell cell, int x, int y) {
 	Surface::discrete_surface[x][y] = cell;
 }
-//std::vector<float> Surface::getAdhesionVector() {
-//	return Surface::adhesions;
-//}
-//
-//std::vector<float> Surface::getHeightsVector() {
-//	return Surface::heights;
-//}
 
 bool Surface::show() {
 	return Surface::showCells;
@@ -93,51 +94,19 @@ float Surface::getPillarHeight() {
 // Currently doing one draw call per each X and Z value
 // This causes performance issues if values are above 100
 // TODO:: optimize into less draw calls
-
 void Surface::renderCells(CPU_Geometry& cpuGeom) {
-	//CPU_Geometry output_cpu;
-	//GPU_Geometry output_gpu;
-
-	//int index = 0;
-
-	//// Draws all the rows first
-	//for (int j = 0; j < length; j++) {
-	//	for (int i = 0; i < width; i++) {
-	//		output_cpu.verts.push_back(input_cpu.verts.at(index));
-	//		index++;
-	//	}
-	//	output_gpu.setVerts(output_cpu.verts);
-	//	output_gpu.bind();
-	//	glDrawArrays(GL_LINE_STRIP, 0, GLsizei(output_cpu.verts.size()));
-	//	output_cpu.verts.clear();
-	//}
-
-	//// Then draws all the columns
-	//for (int i = 0; i < width; i++) {
-	//	index = i;
-	//	for (int j = 0; j < length; j++) {
-	//		output_cpu.verts.push_back(input_cpu.verts.at(index));
-	//		index += width;
-	//	}
-	//	output_gpu.setVerts(output_cpu.verts);
-	//	output_gpu.bind();
-	//	glDrawArrays(GL_LINE_STRIP, 0, GLsizei(output_cpu.verts.size()));
-	//	output_cpu.verts.clear();
-	//}
-
-	//output_cpu.verts.clear();
-
+	
 	GPU_Geometry output_gpu;
 	output_gpu.setVerts(cpuGeom.verts);
 	output_gpu.bind();
 	glDrawArrays(GL_LINE_STRIP, 0, GLsizei(cpuGeom.verts.size()));
-
-
 }
 
 // Function to create cells that uses build in values
 void Surface::createCells(CPU_Geometry& cpuGeom) {
+
 	cpuGeom.verts.clear();
+
 	// Test value for adhesion, will need to be removed
 	int _adhesion = 10.f;
 
@@ -151,7 +120,6 @@ void Surface::createCells(CPU_Geometry& cpuGeom) {
 			// random heights toggled
 			if (Surface::randomHeights) {
 				Surface::discrete_surface[i][j] = SandCell(randNumber(0.f, 2.5f), _adhesion);
-				
 			}
 
 			else {
@@ -160,7 +128,6 @@ void Surface::createCells(CPU_Geometry& cpuGeom) {
 
 			//adhesions.push_back(_adhesion);
 			// Pushes row by row
-
 			cpuGeom.verts.push_back(glm::vec3(i, Surface::getCell(i,j).getHeight(), j));
 		}
 	}
@@ -170,7 +137,6 @@ void Surface::createCells(CPU_Geometry& cpuGeom) {
 void Surface::createCells(int width, int length, CPU_Geometry& cpuGeom) {
 	Surface::width = width;
 	Surface::length = length;
-
 	createCells(cpuGeom);
 }
 
@@ -196,7 +162,6 @@ void Surface::prepareCellsForRender(CPU_Geometry input_cpu, CPU_Geometry * outpu
 
 void Surface::cubesRender(CPU_Geometry& inputCPU, CPU_Geometry* outputCPU) {
 	CPU_Geometry tempCPU;
-	//CPU_Geometry outputCPU;
 	GPU_Geometry outputGPU;
 	outputCPU->verts.clear();
 
@@ -283,33 +248,32 @@ void Surface::pillarSetup(CPU_Geometry& inputCPU, float _height) {
 		inputCPU.verts.at(halfway).z));
 }
 
-// ImGui panel to control the sand cells
+// ImGui panel to control the surface properties
 void Surface::surfaceImGui(CPU_Geometry & cpuGeom) {
 	ImGui::Begin("Sand Cell Tuning");
-	//cellChange = false;
 
 	// Names of render modes to be displayed in slider
 	const char* renderModeNames[] = { "LERP", "Cubes", "Smooth" };
 
-	cellChange |= ImGui::InputInt("Length (X): ", &length);
-	cellChange |= ImGui::InputInt("Width (Z): ", &width);
-
+	cellChange |= ImGui::InputInt("Length (X): ", &length, 1, 100);
+	cellChange |= ImGui::InputInt("Width (Z): ", &width), 1, 100;
 	cellChange |= ImGui::Checkbox("Random Heights", &randomHeights);
+
 	if (!randomHeights) {
-		cellChange |= ImGui::InputFloat("Height of Pillar: ", &pillarHeight, 0.1f, 1.f);
+		cellChange |= ImGui::InputFloat("Height of Pillar: ", &pillarHeight, 0.f, 1.f);
 	}
-
-	if (&change) {
-		// Recreate cells
+	
+	// if there is a change to the surface, recreate it
+	if (cellChange) {
 		createCells(cpuGeom);
-		if (!randomHeights) {
+		/*if (!randomHeights) {
 			pillarSetup(cpuGeom, pillarHeight);
-		}
-
+		}*/
 	}
-
+	
+	// toggle drawing
 	ImGui::Checkbox("Render Cells", &showCells);
-	if (show) {
+	if (showCells) {
 		ImGui::Text("Number of Draw Calls: ");
 		ImGui::SliderInt(renderModeNames[renderMode], &renderMode, 0, 2); // exception thrown
 	}
@@ -332,6 +296,38 @@ float Surface::randNumber(float min, float max) {
 
 	return random_number;
 }
+
+//CPU_Geometry output_cpu;
+	//GPU_Geometry output_gpu;
+
+	//int index = 0;
+
+	//// Draws all the rows first
+	//for (int j = 0; j < length; j++) {
+	//	for (int i = 0; i < width; i++) {
+	//		output_cpu.verts.push_back(input_cpu.verts.at(index));
+	//		index++;
+	//	}
+	//	output_gpu.setVerts(output_cpu.verts);
+	//	output_gpu.bind();
+	//	glDrawArrays(GL_LINE_STRIP, 0, GLsizei(output_cpu.verts.size()));
+	//	output_cpu.verts.clear();
+	//}
+
+	//// Then draws all the columns
+	//for (int i = 0; i < width; i++) {
+	//	index = i;
+	//	for (int j = 0; j < length; j++) {
+	//		output_cpu.verts.push_back(input_cpu.verts.at(index));
+	//		index += width;
+	//	}
+	//	output_gpu.setVerts(output_cpu.verts);
+	//	output_gpu.bind();
+	//	glDrawArrays(GL_LINE_STRIP, 0, GLsizei(output_cpu.verts.size()));
+	//	output_cpu.verts.clear();
+	//}
+
+	//output_cpu.verts.clear();
 
 // Cell render with only two draw calls
 // I thought this would increase frame rate - it does not

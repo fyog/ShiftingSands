@@ -196,7 +196,6 @@ void setflagstrue(bool* flags)
 	}
 }
 
-
 int main() {
 	Log::debug("Starting main");
 
@@ -283,8 +282,7 @@ int main() {
 	//int knownwid = 4;
 	//int knownlen = 4;
 	bool changecheck[3];
-	for (int i = 0; i < 3; i++)
-	{
+	for (int i = 0; i < 3; i++) {
 		changecheck[i] = false;
 	}
 
@@ -335,45 +333,37 @@ int main() {
 			cb->updateShadingUniforms(lightPos, lightCol, diffuseCol, ambientStrength, texExistence);
 		}
 		cb->viewPipeline();
-		//glDrawArrays(GL_LINE_STRIP, 0, GLsizei(splineob.verts.size())); 
-
-
-		//glDrawArrays(GL_TRIANGLES, 0, GLsizei(models.at(selectedModelName).numVerts())); //Commented this out to test b-spline -Reid
-		
+	
 		if (terrain.change())
 		{
 			setflagstrue(changecheck); //All flags will be set to true when the control points are changed
 			//we use an array of flags to check if we should redraw the objects instead of a single flag since the b-spline surface wasn't redrawing correctly when we only checked getCellChange()
 		}
 
-
-		// Toggle Render
+		// toggle rendering
 		if (terrain.show()) {
 
 			// LERP Render mode
 			if (terrain.getMode() == 0) {
-				//renderCells(cells_cpu);
-				if (changecheck[0])
-				{
+				if (changecheck[0]) {	
 					terrain.prepareCellsForRender(cells_cpu, &lerpline);
 					changecheck[0] = false;
 				}
-				rendertest(lerpline, &gpu_obj); 
+				terrain.renderCells(lerpline);
 			}
-			// Cubes Render
+
+			// Cube rendering
 			else if (terrain.getMode() == 1) {
-				//cubesRender(cells_cpu);
-				if (changecheck[1])
-				{
-					//terrain.cubesRender(cells_cpu, &cubeobj);
+				if (changecheck[1]) {
+					terrain.cubesRender(cells_cpu, &cubeobj);
 					changecheck[1] = false;
 				}
 				rendertest(cubeobj, &gpu_obj);
 			}
-			// Smooth Render
+
+			// Smooth rendering
 			else if (terrain.getMode() == 2) {
-				if (changecheck[2])
-				{
+				if (changecheck[2]) {
 					placesurfacevecs(cells_cpu, &splinesurf, terrain.getWidth(), terrain.getLength());
 					zigzagdraw(splinesurf, &zigcpu, 101, 101);
 					changecheck[2] = false;

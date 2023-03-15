@@ -15,6 +15,7 @@ private:
 	int renderMode = 0;
 	bool randomHeights = false;
 	float pillarHeight = 1.0f;
+	//CPU_Geometry cpuGeom;
 
 public:
 
