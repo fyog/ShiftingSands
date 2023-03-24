@@ -52,6 +52,19 @@ public:
 			shader.recompile();
 			updateUniformLocations();
 		}
+
+		if (key == GLFW_KEY_UP && action == GLFW_PRESS) {
+			lookAtPoint.x += 1.f;
+		}
+		if (key == GLFW_KEY_DOWN && action == GLFW_PRESS) {
+			lookAtPoint.x -= 1.f;
+		}
+		if (key == GLFW_KEY_RIGHT && action == GLFW_PRESS) {
+			lookAtPoint.z += 1.f;
+		}
+		if (key == GLFW_KEY_LEFT && action == GLFW_PRESS) {
+			lookAtPoint.z -= 1.f;
+		}
 	}
 
 	virtual void mouseButtonCallback(int button, int action, int mods) {
