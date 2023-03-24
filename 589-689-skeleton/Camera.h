@@ -14,8 +14,8 @@ public:
 
 	Camera(float t, float p, float r);
 
-	glm::mat4 getView();
-	glm::vec3 getPos();
+	glm::mat4 getView(glm::vec3 center);
+	glm::vec3 getPos(glm::vec3 center);
 	void incrementTheta(float dt);
 	void incrementPhi(float dp);
 	void incrementR(float dr);

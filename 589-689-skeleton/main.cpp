@@ -87,7 +87,7 @@ public:
 
 	void viewPipeline() {
 		glm::mat4 M = glm::mat4(1.0);
-		glm::mat4 V = camera.getView();
+		glm::mat4 V = camera.getView(glm::vec3(0.f,0.f,0.f));
 		glm::mat4 P = glm::perspective(glm::radians(45.0f), aspect, 0.01f, 1000.f);
 		glUniformMatrix4fv(mLoc, 1, GL_FALSE, glm::value_ptr(M));
 		glUniformMatrix4fv(vLoc, 1, GL_FALSE, glm::value_ptr(V));
