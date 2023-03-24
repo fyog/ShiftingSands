@@ -23,7 +23,7 @@
 #include "glm/glm.hpp"
 #include "glm/gtc/type_ptr.hpp"
 
-#include "SandCell.h"
+#include "Surface.h"
 #include "SurfaceRender.h"
 
 // EXAMPLE CALLBACKS
@@ -289,17 +289,18 @@ int main() {
 
 	GPU_Geometry gpu_obj;
 
-	createCells(cells_cpu);
-	preparecellsforrender(cells_cpu, &lerpline);
-
-	cubesRender(cells_cpu, &cubeobj);
+	Surface terrain = Surface(10, 10, cells_cpu);
+	
+	terrain.createCells(cells_cpu);
+	terrain.prepareCellsForRender(cells_cpu, &lerpline);
+	terrain.cubesRender(cells_cpu, &cubeobj);
 
 	CPU_Geometry splinesurf;
 	CPU_Geometry zigcpu;
 	bool debug = false;
 	if (debug) std::cout << "about to call placesurfacevecs() in main()\n";
 	
-	placesurfacevecs(cells_cpu, &splinesurf, getWidth(), getLength());
+	placesurfacevecs(cells_cpu, &splinesurf, terrain.getWidth(), terrain.getLength());
 	if (debug) std::cout << "placesurfacevecs() successful. now doing zigzagdraw()\n";
 	zigzagdraw(splinesurf, &zigcpu, 101, 101);
 	if (debug) std::cout << "zigzagdraw() successful\n";
@@ -401,7 +402,7 @@ int main() {
 		ImGui::End();
 
 		// ImGui to control sand cell data structure
-		sandCellImGui(cells_cpu);
+		terrain.sandCellImGui(cells_cpu);
 
 
 		ImGui::Render();
@@ -431,7 +432,7 @@ int main() {
 
 		//glDrawArrays(GL_TRIANGLES, 0, GLsizei(models.at(selectedModelName).numVerts())); //Commented this out to test b-spline -Reid
 		
-		if (getCellChange())
+		if (change)
 		{
 			setflagstrue(changecheck); //All flags will be set to true when the control points are changed
 			//we use an array of flags to check if we should redraw the objects instead of a single flag since the b-spline surface wasn't redrawing correctly when we only checked getCellChange()
@@ -439,33 +440,33 @@ int main() {
 
 
 		// Toggle Render
-		if (getShowCells()) {
+		if (terrain.show()) {
 
 			// LERP Render mode
-			if (getRenderMode() == 0) {
+			if (terrain.getMode() == 0) {
 				//renderCells(cells_cpu);
 				if (changecheck[0])
 				{
-					preparecellsforrender(cells_cpu, &lerpline);
+					terrain.prepareCellsForRender(cells_cpu, &lerpline);
 					changecheck[0] = false;
 				}
 				rendertest(lerpline, &gpu_obj); 
 			}
 			// Cubes Render
-			else if (getRenderMode() == 1) {
+			else if (terrain.getMode() == 1) {
 				//cubesRender(cells_cpu);
 				if (changecheck[1])
 				{
-					cubesRender(cells_cpu, &cubeobj);
+					terrain.cubesRender(cells_cpu, &cubeobj);
 					changecheck[1] = false;
 				}
 				rendertest(cubeobj, &gpu_obj);
 			}
 			// Smooth Render
-			else if (getRenderMode() == 2) {
+			else if (terrain.getMode() == 2) {
 				if (changecheck[2])
 				{
-					placesurfacevecs(cells_cpu, &splinesurf, getWidth(), getLength());
+					placesurfacevecs(cells_cpu, &splinesurf, terrain.getWidth(), terrain.getLength());
 					zigzagdraw(splinesurf, &zigcpu, 101, 101);
 					changecheck[2] = false;
 				}
