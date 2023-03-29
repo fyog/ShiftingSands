@@ -26,6 +26,8 @@
 #include "SandCell.h"
 #include "SurfaceRender.h"
 
+glm::vec3 lookAtPoint = glm::vec3(0,0,0);
+
 // EXAMPLE CALLBACKS
 class Callbacks3D : public CallbackInterface {
 
@@ -49,6 +51,19 @@ public:
 		if (key == GLFW_KEY_R && action == GLFW_PRESS) {
 			shader.recompile();
 			updateUniformLocations();
+		}
+
+		if (key == GLFW_KEY_UP && action == GLFW_PRESS) {
+			lookAtPoint.x += 1.f;
+		}
+		if (key == GLFW_KEY_DOWN && action == GLFW_PRESS) {
+			lookAtPoint.x -= 1.f;
+		}
+		if (key == GLFW_KEY_RIGHT && action == GLFW_PRESS) {
+			lookAtPoint.z += 1.f;
+		}
+		if (key == GLFW_KEY_LEFT && action == GLFW_PRESS) {
+			lookAtPoint.z -= 1.f;
 		}
 	}
 
@@ -87,7 +102,7 @@ public:
 
 	void viewPipeline() {
 		glm::mat4 M = glm::mat4(1.0);
-		glm::mat4 V = camera.getView();
+		glm::mat4 V = camera.getView(lookAtPoint);
 		glm::mat4 P = glm::perspective(glm::radians(45.0f), aspect, 0.01f, 1000.f);
 		glUniformMatrix4fv(mLoc, 1, GL_FALSE, glm::value_ptr(M));
 		glUniformMatrix4fv(vLoc, 1, GL_FALSE, glm::value_ptr(V));
@@ -321,7 +336,7 @@ int main() {
 		ImGui_ImplGlfw_NewFrame();
 		ImGui::NewFrame();
 
-		ImGui::Begin("Sample window.");
+		ImGui::Begin("Render Info.");
 
 		bool change = false; // Whether any ImGui variable's changed.
 
@@ -398,6 +413,12 @@ int main() {
 
 		// Framerate display, in case you need to debug performance.
 		ImGui::Text("Average %.1f ms/frame (%.1f fps)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+
+		ImGui::Separator();
+		ImGui::Text("Camera Look At Point");
+		ImGui::InputFloat("x", &lookAtPoint.x);
+		ImGui::InputFloat("y", &lookAtPoint.y);
+		ImGui::InputFloat("z", &lookAtPoint.z);
 		ImGui::End();
 
 		// ImGui to control sand cell data structure
