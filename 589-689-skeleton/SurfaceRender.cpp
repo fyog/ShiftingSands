@@ -94,7 +94,6 @@ void placesurfacevecs(CPU_Geometry control, CPU_Geometry* surface, int width, in
 	if (k < 1) return; 
 	//int k = K_ORDER;
 	glm::vec3 temp;
-
 	CPU_Geometry ucontrol;
 	CPU_Geometry vcontrol;
 
@@ -109,14 +108,16 @@ void placesurfacevecs(CPU_Geometry control, CPU_Geometry* surface, int width, in
 	standardknots(vknots, k, (length - 1));
 	//std::cout << "standard knots created\n";
 
-	float step = 0.01f; //Setting the step to 0.01 means every surface generated will be 101 x 101 vertices.
+	//float step = 0.01f; //Setting the step to 0.01 means every surface generated will be 101 x 101 vertices.
+	float ustep = 0.01f;
+	float vstep = 0.01f;
 	float u, v;
 
 	surface->verts.clear();
 
-	for (v = 0.f; v <= 1.f; v += step) //The outer loop goes along the length of the surface
+	for (v = 0.f; v <= 1.f; v += vstep) //The outer loop goes along the length of the surface
 	{
-		for (u = 0.f; u <= 1.f; u += step) //The inner loop goes along the width.
+		for (u = 0.f; u <= 1.f; u += ustep) //The inner loop goes along the width.
 		{
 			//Several if statements will handle end-point interpolation
 			if (u == 0.f && v == 0.f)
