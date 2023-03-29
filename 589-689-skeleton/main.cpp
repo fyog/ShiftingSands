@@ -23,6 +23,7 @@
 #include "glm/glm.hpp"
 #include "glm/gtc/type_ptr.hpp"
 
+#include "Avalanche.h"
 #include "SandCell.h"
 #include "SurfaceRender.h"
 
