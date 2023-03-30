@@ -8,27 +8,21 @@ float slab_size = .5f;
 
 float threshold_height = 1.5f;
 
-float beta = .05f; // beta is the coefficient that is used to determine whether a sand slab sticks or bounces off of a given cell
+float beta = .15f; // beta is the coefficient that is used to determine whether a sand slab sticks or bounces when deposited
 
 int number_of_iterations_2 = 1;
 
-int random_number = 50; // placeholder - I was to lazy to implement RNG tonight
+int random_number = 50; // placeholder - I was too lazy to implement RNG tonight
 
 // TO ADD:
 //
-// - reptation
 // - movement of variable slab sizes, the size of which should be some function of wind strength and height
-
-//float getHeight(std::vector<float> heights, int width, int length, int x, int y) {
-//	return heights[width * (y - 1) + x];
-//}
 //
-//void setHeight(std::vector<float> heights, int width, int length, int x, int y, float height) {
-//	heights[width * (y - 1) + x] = height;
-//}
 
 std::vector<glm::vec3> generate_wind_field(std::string type_of_field, int width, int length) {
 	std::vector<glm::vec3> tmp;
+
+	// parse the desired type of wind field and then generate it
 	if (type_of_field == "linear" || type_of_field == "Linear" || type_of_field == "LINEAR") {
 		for (int i = 0; i < width * length; i++) {
 			tmp.push_back(glm::vec3{ 5.0f, 0.f, 0.f });
@@ -47,15 +41,20 @@ std::vector<glm::vec3> generate_wind_field(std::string type_of_field, int width,
 	float height = getHeight(heights, width, length, x, y);
 	setHeight(heights, width, length, x, y, height - slab_size);
 
-	// x, y of deposited slab is being calculated in very rudimentary way (discuss with group to find a better method)
+	// location of deposited slab is being calculated in very rudimentary/stupid way (discuss with group to find a better method)
 	auto mag = wind_strength.length() + height;
 
-	return 	mag * (wind_strength / (float) wind_strength.length()); // normalize wind direction and multiply by calculated magnitude
+	// normalize wind direction and multiply by calculated magnitude
+	return 	mag * (wind_strength / (float) wind_strength.length()); 
 }
 
-// deposits sand slab at the given x, y coordinates and returns true if the random number check is above beta, otherwise returns false
+// attempts to deposit a sand slab at the given x, y coordinates. returns true if the deposit was successful, otherwise returns false
 bool deposit_sand(CPU_Geometry* surface, std::vector<float> heights, int width, int length, int x, int y) {
-	if (random_number % 100 > beta * 100) {
+
+	// check if a random number between 0 - 1 is greater than beta
+	if (random_number % 100 / 100 > beta) {
+
+		// deposit sand at the given x, y coordinates
 		float height = getHeight(heights, width, length, x, y);
 		setHeight(heights, width, length, x, y, height + slab_size);
 		return true;
@@ -78,14 +77,13 @@ std::vector<glm::vec3> get_neighbours_heights(CPU_Geometry* surface, std::vector
 void reptation(CPU_Geometry* surface, std::vector<float> heights, std::vector<glm::vec3> wind_field, int width, int length, int x, int y) {
 	int n = 2; // this value was suggested by the paper
 
-	// find neighbours heights
+	// find neighbour's heights and store them in a vector (along with the cell's x, y coordinates)
 	auto neighbours = get_neighbours_heights(surface, heights, width, length, x, y);
 
-	// sort neighbours and deposit slab/n to n steepest neighbours (ie. cells with lowest heights) <----------------------------------currently not sorting, rather just taking last n entries from vector of neighbour's heights
+	// sort neighbour's heights and deposit slab/n to n steepest neighbours (ie. nearby cells with lowest heights) <----------------------------------currently not sorting, rather just taking last n entries from vector of neighbour's heights
 	auto entry_1 = neighbours.back();
 	neighbours.pop_back();
 	auto entry_2 = neighbours.back();
-
 	setHeight(heights, width, length, entry_1.y, entry_1.z, entry_1.x + slab_size/n);
 	setHeight(heights, width, length, entry_1.y, entry_1.z, entry_1.x + slab_size / n);
 }
@@ -95,10 +93,17 @@ void apply_wind(CPU_Geometry* surface, std::vector<float> heights, std::vector<g
 	for (int i = 0; i < number_of_iterations_2; i++) {
 		for (int x = 0; x < width; x++) {
 			for (int y = 0; y < length; y++) {
+
+				// if the current cell's height is above the threshold height
 				if (getHeight(heights, width, length, x, y) > threshold_height) {
+
+					// lift a slab of sand and return the x, y coordinates of where it should be deposited
 					glm::vec2 slab_deposit_distance = lift(surface, heights, wind_field, width, length, x, y);
+
+					// attempt to deposit sand at the given x, y coordinates
 					if (!deposit_sand(surface, heights, width, length, slab_deposit_distance.x, slab_deposit_distance.y)) {
 
+						// disperse sand to n nearest neighbours if the sand was not able to be deposited
 						reptation(surface, heights, wind_field, width, length, x, y);
 					}
 				}
