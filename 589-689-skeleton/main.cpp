@@ -224,7 +224,7 @@ int main() {
 	glfwInit();
 	Window window(800, 800, "CPSC 589/689"); // could set callbacks at construction if desired
 
-	GLDebug::enable();
+	//GLDebug::enable();
 
 	// SHADERS
 	ShaderProgram shader("shaders/test.vert", "shaders/test.frag");
@@ -235,7 +235,7 @@ int main() {
 
 	window.setupImGui(); // Make sure this call comes AFTER GLFW callbacks set.
 
-
+	/*
 	// A "dictionary" that maps models' ImGui display names to their ModelInfo.
 	// Because ModelInfo has no default constructor
 	// (and there's no good one for it in its current form)
@@ -273,10 +273,11 @@ int main() {
 	glm::vec3 diffuseCol(1.f, 0.f, 0.f);
 	float ambientStrength = 0.035f;
 	bool simpleWireframe = false;
+	*/
 
 	// Set the initial, default values of the shading uniforms.
 	shader.use();
-	cb->updateShadingUniforms(lightPos, lightCol, diffuseCol, ambientStrength, texExistence);
+	//cb->updateShadingUniforms(lightPos, lightCol, diffuseCol, ambientStrength, texExistence);
 
 	/*
 		//Test of b-spline curve below
@@ -311,20 +312,21 @@ int main() {
 
 	CPU_Geometry splinesurf;
 	CPU_Geometry zigcpu;
-	bool debug = false;
+	bool debug = true;
 	if (debug) std::cout << "about to call placesurfacevecs() in main()\n";
 	
 	placesurfacevecs(cells_cpu, &splinesurf, getWidth(), getLength(), getOrderK());
 	if (debug) std::cout << "placesurfacevecs() successful. now doing zigzagdraw()\n";
-	zigzagdraw(splinesurf, &zigcpu, 101, 101);
+	zigzagdraw(splinesurf, &zigcpu, getWidth(), getLength());
 	if (debug) std::cout << "zigzagdraw() successful\n";
 	//int knownwid = 4;
 	//int knownlen = 4;
 	bool changecheck[3];
-	for (int i = 0; i < 3; i++)
-	{
-		changecheck[i] = false;
-	}
+	//for (int i = 0; i < 3; i++)
+	//{
+	//	changecheck[i] = false;
+	//}
+	setflagstrue(changecheck);
 
 	// RENDER LOOP
 	while (!window.shouldClose()) {
@@ -398,10 +400,10 @@ int main() {
 		*/
 
 		// We'll only render with a texture if the model has UVs and a texture was chosen.
-		texExistence = (models.at(selectedModelName).hasUVs() && selectedTexName != noTexName);
+		//texExistence = (models.at(selectedModelName).hasUVs() && selectedTexName != noTexName);
 
 		// If a texture is not in use, the user can pick the diffuse colour.
-		if (!texExistence) change |= ImGui::ColorEdit3("Diffuse colour", glm::value_ptr(diffuseCol));
+		//if (!texExistence) change |= ImGui::ColorEdit3("Diffuse colour", glm::value_ptr(diffuseCol));
 
 		/* BOILERPLATE TO BE FACTORED OUT
 		// The rest of our ImGui widgets.
@@ -435,7 +437,7 @@ int main() {
 		glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		glEnable(GL_DEPTH_TEST);
-		glPolygonMode(GL_FRONT_AND_BACK, (simpleWireframe ? GL_LINE : GL_FILL));
+		//glPolygonMode(GL_FRONT_AND_BACK, (simpleWireframe ? GL_LINE : GL_FILL));
 
 		shader.use();
 
@@ -444,7 +446,7 @@ int main() {
 		{
 			// If any of our shading values was updated, we need to update the
 			// respective GLSL uniforms.
-			cb->updateShadingUniforms(lightPos, lightCol, diffuseCol, ambientStrength, texExistence);
+			//cb->updateShadingUniforms(lightPos, lightCol, diffuseCol, ambientStrength, texExistence);
 		}
 		cb->viewPipeline();
 		//glDrawArrays(GL_LINE_STRIP, 0, GLsizei(splineob.verts.size())); 
@@ -486,8 +488,9 @@ int main() {
 			else if (getRenderMode() == 2) {
 				if (changecheck[2])
 				{
+					if (debug) printCPUVerts(cells_cpu);
 					placesurfacevecs(cells_cpu, &splinesurf, getWidth(), getLength(), getOrderK());
-					zigzagdraw(splinesurf, &zigcpu, 101, 101);
+					zigzagdraw(splinesurf, &zigcpu, getWidth(), getLength());
 					changecheck[2] = false;
 				}
 				rendertest(zigcpu, &gpu_obj);

@@ -109,8 +109,10 @@ void placesurfacevecs(CPU_Geometry control, CPU_Geometry* surface, int width, in
 	//std::cout << "standard knots created\n";
 
 	//float step = 0.01f; //Setting the step to 0.01 means every surface generated will be 101 x 101 vertices.
-	float ustep = 0.01f;
-	float vstep = 0.01f;
+	//float ustep = 0.01f;
+	//float vstep = 0.01f;
+	float ustep = 1.f / ((float) width - 1.f);
+	float vstep = 1.f / ((float) length - 1.f);
 	float u, v;
 
 	surface->verts.clear();
