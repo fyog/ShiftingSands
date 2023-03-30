@@ -71,29 +71,29 @@ bool check_repose_up(CPU_Geometry* surface, std::vector<float> heights, int widt
 void avalanche_up(CPU_Geometry* surface, std::vector<float> heights, int width, int length, int x, int y) {
 	float currentHeight = getHeight(heights, width, length, x, y);
 	float currentHeightUp = getHeight(heights, width, length, x, y + 1);
-	setHeight(heights, width, length, x, y, currentHeight - 0.3f);
-	setHeight(heights, width, length, x, y + 1, currentHeightUp + 0.3f);
+	setHeight(heights, width, length, x, y, currentHeight - avalanche_amount);
+	setHeight(heights, width, length, x, y + 1, currentHeightUp + avalanche_amount);
 }
 
 void avalanche_left(CPU_Geometry* surface, std::vector<float> heights, int width, int length, int x, int y) {
 	float currentHeight = getHeight(heights, width, length, x, y);
 	float currentHeightLeft = getHeight(heights, width, length, x - 1, y);
-	setHeight(heights, width, length, x, y, currentHeight - 0.3f);
-	setHeight(heights, width, length, x - 1, y, currentHeightLeft + 0.3f);
+	setHeight(heights, width, length, x, y, currentHeight - avalanche_amount);
+	setHeight(heights, width, length, x - 1, y, currentHeightLeft + avalanche_amount);
 }
 
 void avalanche_down(CPU_Geometry* surface, std::vector<float> heights, int width, int length, int x, int y) {
 	float currentHeight = getHeight(heights, width, length, x, y);
 	float currentHeightDown = getHeight(heights, width, length, x, y - 1);
-	setHeight(heights, width, length, x, y, currentHeight - 0.3f);
-	setHeight(heights, width, length, x, y - 1, currentHeightDown + 0.3f);
+	setHeight(heights, width, length, x, y, currentHeight - avalanche_amount);
+	setHeight(heights, width, length, x, y - 1, currentHeightDown + avalanche_amount);
 }
 
 void avalanche_right(CPU_Geometry* surface, std::vector<float> heights, int width, int length, int x, int y) {
 	float currentHeight = getHeight(heights, width, length, x, y);
 	float currentHeightRight = getHeight(heights, width, length, x, y);
-	setHeight(heights, width, length, x, y, currentHeight - 0.3f);
-	setHeight(heights, width, length, x + 1, y, currentHeightRight + 0.3f);
+	setHeight(heights, width, length, x, y, currentHeight - avalanche_amount);
+	setHeight(heights, width, length, x + 1, y, currentHeightRight + avalanche_amount);
 }
 
 // diagonals?
