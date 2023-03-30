@@ -96,7 +96,7 @@ void reptation(CPU_Geometry* surface, std::vector<float> heights, std::vector<gl
 	auto neighbours = get_neighbours_heights(surface, heights, width, length, x, y);
 
 	// sort neighbour's heights in descending order
-	std::sort(neighbours.begin() -> x, neighbours.end() -> x, std::greater<float>());
+	//std::sort(neighbours.begin() -> x, neighbours.end() -> x, std::greater<float>());
 
 	// pop off n entries from the back of the vector and use those entries (n = 2)
 	auto entry_1 = neighbours.back();
