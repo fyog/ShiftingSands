@@ -8,7 +8,7 @@ extern std::vector<glm::vec3> wind_field;
 
 float slab_size = .5f;
 
-float threshold_height = 1.5f;
+float wind_threshold_height = 1.5f;
 
 float beta = .15f; // beta is the coefficient that is used to determine whether a sand slab sticks or bounces when deposited
 
@@ -107,13 +107,14 @@ void reptation(CPU_Geometry* surface, std::vector<float> heights, std::vector<gl
 }
 
 // applies wind behavior to the given surface (CPU_Geometry object) based on the given wind_field and current heights of each cell (missing reptation)
+// carries out the given
 void apply_wind(CPU_Geometry* surface, std::vector<float> heights, std::vector<glm::vec3> wind_field, int width, int length, float number_of_iterations_2) {
 	for (int i = 0; i < number_of_iterations_2; i++) {
 		for (int x = 0; x < width; x++) {
 			for (int y = 0; y < length; y++) {
 
-				// if the current cell's height is above the threshold height
-				if (getHeight(heights, width, length, x, y) > threshold_height) {
+				// if the current cell's height is above the wind threshold height
+				if (getHeight(heights, width, length, x, y) > wind_threshold_height) {
 
 					// lift a slab of sand and return the x, y coordinates of where it should be deposited
 					glm::vec2 slab_deposit_distance = lift(surface, heights, wind_field, width, length, x, y);
