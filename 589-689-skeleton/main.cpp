@@ -27,6 +27,7 @@
 #include "SurfaceRender.h"
 
 glm::vec3 lookAtPoint = glm::vec3(0,0,0);
+float scrollSpeed = 0.01f;
 
 // EXAMPLE CALLBACKS
 class Callbacks3D : public CallbackInterface {
@@ -43,6 +44,10 @@ public:
 		, mouseOldY(-1.0)
 		, screenWidth(screenWidth)
 		, screenHeight(screenHeight)
+		, upPressed(false)
+		, downPressed(false)
+		, rightPressed(false)
+		, leftPressed(false)
 	{
 		updateUniformLocations();
 	}
@@ -54,16 +59,31 @@ public:
 		}
 
 		if (key == GLFW_KEY_UP && action == GLFW_PRESS) {
-			lookAtPoint.x += 1.f;
+			upPressed = true;
 		}
+		else if (key == GLFW_KEY_UP && action == GLFW_RELEASE) {
+			upPressed = false;
+		}
+
 		if (key == GLFW_KEY_DOWN && action == GLFW_PRESS) {
-			lookAtPoint.x -= 1.f;
+			downPressed = true;
 		}
+		else if (key == GLFW_KEY_DOWN && action == GLFW_RELEASE) {
+			downPressed = false;
+		}
+
 		if (key == GLFW_KEY_RIGHT && action == GLFW_PRESS) {
-			lookAtPoint.z += 1.f;
+			rightPressed = true;
 		}
+		else if (key == GLFW_KEY_RIGHT && action == GLFW_RELEASE) {
+			rightPressed = false;
+		}
+
 		if (key == GLFW_KEY_LEFT && action == GLFW_PRESS) {
-			lookAtPoint.z -= 1.f;
+			leftPressed = true;
+		}
+		else if (key == GLFW_KEY_LEFT && action == GLFW_RELEASE) {
+			leftPressed = false;
 		}
 	}
 
@@ -139,6 +159,20 @@ public:
 
 
 	Camera camera;
+
+	bool getUpPressed() {
+		return upPressed;
+	}
+	bool getDownPressed() {
+		return downPressed;
+	}
+	bool getLeftPressed() {
+		return leftPressed;
+	}
+	bool getRightPressed() {
+		return rightPressed;
+	}
+
 private:
 	// Uniform locations do not, ordinarily, change between frames.
 	// However, we may need to update them if the shader is changed and recompiled.
@@ -160,6 +194,11 @@ private:
 	float aspect;
 	double mouseOldX;
 	double mouseOldY;
+
+	bool upPressed;
+	bool downPressed;
+	bool rightPressed;
+	bool leftPressed;
 
 	// Uniform locations
 	GLint mLoc;
@@ -305,7 +344,8 @@ int main() {
 	GPU_Geometry gpu_obj;
 
 	createCells(cells_cpu);
-	preparecellsforrender(cells_cpu, &lerpline);
+	//preparecellsforrender(cells_cpu, &lerpline);
+	renderCells(cells_cpu);
 
 	cubesRender(cells_cpu, &cubeobj);
 
@@ -419,11 +459,28 @@ int main() {
 		ImGui::InputFloat("x", &lookAtPoint.x);
 		ImGui::InputFloat("y", &lookAtPoint.y);
 		ImGui::InputFloat("z", &lookAtPoint.z);
+		ImGui::InputFloat("Scroll speed: ", &scrollSpeed);
 		ImGui::End();
 
 		// ImGui to control sand cell data structure
 		sandCellImGui(cells_cpu);
 
+		if (cb->getUpPressed()) {
+			std::cout << "Up" << std::endl;
+			lookAtPoint.x += scrollSpeed;
+		}
+		else if (cb->getDownPressed()) {
+			std::cout << "Down" << std::endl;
+			lookAtPoint.x -= scrollSpeed;
+		}
+		if (cb->getRightPressed()) {
+			std::cout << "Right" << std::endl;
+			lookAtPoint.z += scrollSpeed;
+		}
+		else if (cb->getLeftPressed()) {
+			std::cout << "Left" << std::endl;
+			lookAtPoint.z -= scrollSpeed;
+		}
 
 		ImGui::Render();
 
@@ -467,10 +524,13 @@ int main() {
 				//renderCells(cells_cpu);
 				if (changecheck[0])
 				{
-					preparecellsforrender(cells_cpu, &lerpline);
+					createCells(cells_cpu);
+					//preparecellsforrender(cells_cpu, &lerpline);
+					
 					changecheck[0] = false;
 				}
-				rendertest(lerpline, &gpu_obj); 
+				renderCells(cells_cpu);
+				//rendertest(lerpline, &gpu_obj); 
 			}
 			// Cubes Render
 			else if (getRenderMode() == 1) {
