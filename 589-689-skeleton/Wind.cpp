@@ -1,5 +1,6 @@
 #include "Wind.h"
 #include "Avalanche.h"
+#include <random>
 
 
 extern std::vector<glm::vec3> wind_field;
@@ -12,12 +13,25 @@ float beta = .15f; // beta is the coefficient that is used to determine whether 
 
 int number_of_iterations_2 = 1;
 
-int random_number = 50; // placeholder - I was too lazy to implement RNG tonight
-
 // TO ADD:
 //
 // - movement of variable slab sizes, the size of which should be some function of wind strength and height
 //
+
+// Random number generator to test the structure 
+float randNumber(float _min, float _max) {
+	// Set up the random number generator
+	std::random_device rd;
+	std::mt19937 gen(rd());
+
+	// Define the range for the random number
+	std::uniform_int_distribution<> dis(_min, _max);
+
+	// Generate a random number and print it
+	float random_number = dis(gen);
+
+	return random_number;
+}
 
 std::vector<glm::vec3> generate_wind_field(std::string type_of_field, int width, int length) {
 	std::vector<glm::vec3> tmp;
@@ -52,7 +66,7 @@ std::vector<glm::vec3> generate_wind_field(std::string type_of_field, int width,
 bool deposit_sand(CPU_Geometry* surface, std::vector<float> heights, int width, int length, int x, int y) {
 
 	// check if a random number between 0 - 1 is greater than beta
-	if (random_number % 100 / 100 > beta) {
+	if ((randNumber(0, 100) / 100) > beta) {
 
 		// deposit sand at the given x, y coordinates
 		float height = getHeight(heights, width, length, x, y);

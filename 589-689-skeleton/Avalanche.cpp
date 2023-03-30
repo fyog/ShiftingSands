@@ -45,7 +45,7 @@ void apply_avalanching(CPU_Geometry* surface, std::vector<float> heights, int wi
 	}
 }
 
-// checks repose of in the cell below the given cell
+// checks repose of the cell below the given cell
 bool check_repose_down(CPU_Geometry* surface, std::vector<float> heights, int width, int length, int x, int y) {
 	if (getHeight(heights, width, length, x, y) - getHeight(heights, width, length, x, y - 1) > repose
 		&& y - 1 < 0) {
@@ -54,7 +54,7 @@ bool check_repose_down(CPU_Geometry* surface, std::vector<float> heights, int wi
 	return false;
 }
 
-// checks repose of in the cell left of the given cell
+// checks repose of the cell left of the given cell
 bool check_repose_left(CPU_Geometry* surface, std::vector<float> heights, int width, int length, int x, int y) {
 	if (getHeight(heights, width, length, x, y) - getHeight(heights, width, length, x - 1, y) > repose
 		&& x - 1 < 0) {
@@ -63,7 +63,7 @@ bool check_repose_left(CPU_Geometry* surface, std::vector<float> heights, int wi
 	return false;
 }
 
-// checks repose of in the cell right of the given cell
+// checks repose of the cell right of the given cell
 bool check_repose_right(CPU_Geometry* surface, std::vector<float> heights, int width, int length, int x, int y) {
 	if (getHeight(heights, width, length, x, y) - getHeight(heights, width, length, x + 1, y) > repose
 		&& x + 1 > width) {
@@ -72,7 +72,7 @@ bool check_repose_right(CPU_Geometry* surface, std::vector<float> heights, int w
 	return false;
 }
 
-// checks repose of in the cell above the given cell
+// checks repose of the cell above the given cell
 bool check_repose_up(CPU_Geometry* surface, std::vector<float> heights, int width, int length, int x, int y) {
 	if (getHeight(heights, width, length, x, y) - getHeight(heights, width, length, x, y + 1) > repose
 		&& y + 1 > length) {
@@ -114,7 +114,6 @@ void avalanche_right(CPU_Geometry* surface, std::vector<float> heights, int widt
 }
 
 // diagonals?
-
 //bool check_repose_diagonal_1(Surface surface, int x, int y) {
 //	if (surface.getCell(x, y).getHeight() - surface.getCell(x + 1, y +1).getHeight() > repose) {
 //		return true;
