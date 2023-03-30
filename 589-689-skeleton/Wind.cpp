@@ -1,6 +1,8 @@
 #include "Wind.h"
 #include "Avalanche.h"
 #include <random>
+#include <bits/stdc++.h>
+
 
 
 extern std::vector<glm::vec3> wind_field;
@@ -94,11 +96,14 @@ void reptation(CPU_Geometry* surface, std::vector<float> heights, std::vector<gl
 	// find neighbour's heights and store them in a vector (along with the cell's x, y coordinates)
 	auto neighbours = get_neighbours_heights(surface, heights, width, length, x, y);
 
-	// sort neighbour's heights and deposit slab/n to n steepest neighbours (ie. nearby cells with lowest heights) <----------------------------------currently not sorting, rather just taking last n entries from vector of neighbour's heights
+	// sort neighbour's heights in descending order
+	std::sort(neighbours.begin() -> x, neighbours.end() -> x, std::greater<float>());
+
+	// pop off n entries from the back of the vector and use those entries (n = 2)
 	auto entry_1 = neighbours.back();
 	neighbours.pop_back();
 	auto entry_2 = neighbours.back();
-	setHeight(heights, width, length, entry_1.y, entry_1.z, entry_1.x + slab_size/n);
+	setHeight(heights, width, length, entry_1.y, entry_1.z, entry_1.x + slab_size / n);
 	setHeight(heights, width, length, entry_1.y, entry_1.z, entry_1.x + slab_size / n);
 }
 
