@@ -1,7 +1,6 @@
 #include "Wind.h"
 #include "Avalanche.h"
 #include <random>
-#include <bits/stdc++.h>
 
 
 
