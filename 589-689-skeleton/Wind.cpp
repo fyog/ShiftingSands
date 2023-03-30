@@ -64,6 +64,32 @@ bool deposit_sand(CPU_Geometry* surface, std::vector<float> heights, int width, 
 	return false;
 }
 
+// collect the given cell's immediate neighbour's heights (cell is specified by the x, y coordinates)
+// returns a vec3 where first entry is the height and the second and third entries are the x and y coordinates respectively
+std::vector<glm::vec3> get_neighbours_heights(CPU_Geometry* surface, std::vector<float> heights, int width, int length, int x, int y) {
+	std::vector<glm::vec3> tmp;
+	tmp.push_back(glm::vec3(getHeight(heights, width, length, x + 1, y), x + 1, y));
+	tmp.push_back(glm::vec3(getHeight(heights, width, length, x - 1, y), x - 1, y));
+	tmp.push_back(glm::vec3(getHeight(heights, width, length, x, y + 1), x, y + 1));
+	tmp.push_back(glm::vec3(getHeight(heights, width, length, x, y - 1), x, y - 1));
+	return tmp;
+}
+
+void reptation(CPU_Geometry* surface, std::vector<float> heights, std::vector<glm::vec3> wind_field, int width, int length, int x, int y) {
+	int n = 2; // this value was suggested by the paper
+
+	// find neighbours heights
+	auto neighbours = get_neighbours_heights(surface, heights, width, length, x, y);
+
+	// sort neighbours and deposit slab/n to n steepest neighbours (ie. cells with lowest heights) <----------------------------------currently not sorting, rather just taking last n entries from vector of neighbour's heights
+	auto entry_1 = neighbours.back();
+	neighbours.pop_back();
+	auto entry_2 = neighbours.back();
+
+	setHeight(heights, width, length, entry_1.y, entry_1.z, entry_1.x + slab_size/n);
+	setHeight(heights, width, length, entry_1.y, entry_1.z, entry_1.x + slab_size / n);
+}
+
 // applies wind behavior to the given surface (CPU_Geometry object) based on the given wind_field and current heights of each cell (missing reptation)
 void apply_wind(CPU_Geometry* surface, std::vector<float> heights, std::vector<glm::vec3> wind_field, int width, int length, float number_of_iterations_2) {
 	for (int i = 0; i < number_of_iterations_2; i++) {
@@ -73,7 +99,7 @@ void apply_wind(CPU_Geometry* surface, std::vector<float> heights, std::vector<g
 					glm::vec2 slab_deposit_distance = lift(surface, heights, wind_field, width, length, x, y);
 					if (!deposit_sand(surface, heights, width, length, slab_deposit_distance.x, slab_deposit_distance.y)) {
 
-						// implement reptation behavior here
+						reptation(surface, heights, wind_field, width, length, x, y);
 					}
 				}
 			}
