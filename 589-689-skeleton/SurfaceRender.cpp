@@ -111,8 +111,8 @@ void placesurfacevecs(CPU_Geometry control, CPU_Geometry* surface, int width, in
 	//float step = 0.01f; //Setting the step to 0.01 means every surface generated will be 101 x 101 vertices.
 	//float ustep = 0.01f;
 	//float vstep = 0.01f;
-	float ustep = 1.f / ((float) width - 1.f);
-	float vstep = 1.f / ((float) length - 1.f);
+	float ustep = 1.f / (((float) width - 1.f) * 8);
+	float vstep = 1.f / (((float) length - 1.f) * 8);
 	float u, v;
 
 	surface->verts.clear();
@@ -261,6 +261,13 @@ void zagzigdraw(CPU_Geometry obj, CPU_Geometry* newobj, int width, int length)
 			}
 		}
 	}
+}
+
+void splineframe(CPU_Geometry obj, CPU_Geometry * newobj, int width, int length)
+{
+	int subwidth = (8 * (width - 1));
+	int sublength = (8 * (length - 1));
+	zigzagdraw(obj, newobj, subwidth, sublength);
 }
 
 void rendertest(CPU_Geometry lineobj, GPU_Geometry* output_gpu)

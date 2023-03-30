@@ -316,9 +316,10 @@ int main() {
 	if (debug) std::cout << "about to call placesurfacevecs() in main()\n";
 	
 	placesurfacevecs(cells_cpu, &splinesurf, getWidth(), getLength(), getOrderK());
-	if (debug) std::cout << "placesurfacevecs() successful. now doing zigzagdraw()\n";
-	zigzagdraw(splinesurf, &zigcpu, getWidth(), getLength());
-	if (debug) std::cout << "zigzagdraw() successful\n";
+	//if (debug) std::cout << "placesurfacevecs() successful. now doing zigzagdraw()\n";
+	//zigzagdraw(splinesurf, &zigcpu, getWidth(), getLength());
+	splineframe(splinesurf, &zigcpu, getWidth(), getLength());
+	//if (debug) std::cout << "zigzagdraw() successful\n";
 	//int knownwid = 4;
 	//int knownlen = 4;
 	bool changecheck[3];
@@ -488,9 +489,20 @@ int main() {
 			else if (getRenderMode() == 2) {
 				if (changecheck[2])
 				{
-					if (debug) printCPUVerts(cells_cpu);
+					//if (debug) printCPUVerts(cells_cpu);
 					placesurfacevecs(cells_cpu, &splinesurf, getWidth(), getLength(), getOrderK());
-					zigzagdraw(splinesurf, &zigcpu, getWidth(), getLength());
+					if (debug)
+					{
+						std::cout << "Now printing splinesurf vertices \n\n";
+						printCPUVerts(splinesurf);
+					}
+					//zigzagdraw(splinesurf, &zigcpu, getWidth(), getLength());
+					splineframe(splinesurf, &zigcpu, getWidth(), getLength());
+					if (debug)
+					{
+						std::cout << "\n\nNow printing zigcpu vertices\n\n";
+						printCPUVerts(zigcpu);
+					}
 					changecheck[2] = false;
 				}
 				rendertest(zigcpu, &gpu_obj);
