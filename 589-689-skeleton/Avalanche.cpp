@@ -10,7 +10,7 @@ float getHeight(std::vector<float> heights, int width, int length, int x, int y)
 	return heights[width * (y - 1) + x];
 }
 
-void setHeight(std::vector<float> heights, int width, int length, int x, int y, float height) {
+void setHeight(std::vector<float> &heights, int width, int length, int x, int y, float height) {
 	heights[width * (y - 1) + x] = height;
 }
 

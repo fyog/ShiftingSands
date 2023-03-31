@@ -56,7 +56,7 @@ std::vector<glm::vec3> generate_wind_field(std::string type_of_field, int width,
  glm::vec2 lift(CPU_Geometry * surface, std::vector<float> heights, std::vector<glm::vec3> wind_field, int width, int length, int x, int y) {
 	auto wind_strength = wind_field[width * (y - 1) + x];
 	float height = getHeight(heights, width, length, x, y);
-	setHeight(heights, width, length, x, y, height - slab_size);
+	setHeight(&heights, width, length, x, y, height - slab_size);
 
 	// location of deposited slab is being calculated in very rudimentary/stupid way (discuss with group to find a better method)
 	auto mag = wind_strength.length() + height;
@@ -73,7 +73,7 @@ bool deposit_sand(CPU_Geometry* surface, std::vector<float> heights, int width, 
 
 		// deposit sand at the given x, y coordinates
 		float height = getHeight(heights, width, length, x, y);
-		setHeight(heights, width, length, x, y, height + slab_size);
+		setHeight(&heights, width, length, x, y, height + slab_size);
 		return true;
 	}
 	
@@ -92,6 +92,7 @@ std::vector<glm::vec3> get_neighbours_heights(CPU_Geometry* surface, std::vector
 }
 
 void reptation(CPU_Geometry* surface, std::vector<float> heights, std::vector<glm::vec3> wind_field, int width, int length, int x, int y) {
+
 	int n = 2; // this value was suggested by the paper
 
 	// find neighbour's heights and store them in a vector (along with the cell's x, y coordinates)
@@ -104,8 +105,8 @@ void reptation(CPU_Geometry* surface, std::vector<float> heights, std::vector<gl
 	auto entry_1 = neighbours.back();
 	neighbours.pop_back();
 	auto entry_2 = neighbours.back();
-	setHeight(heights, width, length, entry_1.y, entry_1.z, entry_1.x + slab_size / n);
-	setHeight(heights, width, length, entry_1.y, entry_1.z, entry_1.x + slab_size / n);
+	setHeight(&heights, width, length, entry_1.y, entry_1.z, entry_1.x + slab_size / n);
+	setHeight(&heights, width, length, entry_1.y, entry_1.z, entry_1.x + slab_size / n);
 }
 
 // applies wind behavior to the given surface (CPU_Geometry object) based on the given wind_field and current heights of each cell (missing reptation)

@@ -8,7 +8,7 @@ extern int number_of_iterations;
 
 float getHeight(std::vector<float> heights, int width, int length, int x, int y);
 
-void setHeight(std::vector<float> heights, int width, int length, int x, int y, float height);
+void setHeight(std::vector<float> *heights, int width, int length, int x, int y, float height);
 
 void apply_avalanching(CPU_Geometry* surface, std::vector<float> heights, int width, int length, float repose, float number_of_iterations);
 
