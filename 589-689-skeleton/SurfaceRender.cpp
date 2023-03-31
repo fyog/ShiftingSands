@@ -160,7 +160,7 @@ void placesurfacevecs(CPU_Geometry control, CPU_Geometry* surface, int width, in
 			}
 			else if (approxone(u))
 			{
-				getcontrolpoints(control, &vcontrol, (length - 1), width, length, false);
+				getcontrolpoints(control, &vcontrol, (width - 1), width, length, false);
 				temp = quickspline(&vcontrol, vknots, v, k, (length - 1));
 				surface->verts.push_back(temp);
 			}
@@ -172,7 +172,7 @@ void placesurfacevecs(CPU_Geometry control, CPU_Geometry* surface, int width, in
 			}
 			else if (approxone(v))
 			{
-				getcontrolpoints(control, &ucontrol, (width - 1), width, length, true);
+				getcontrolpoints(control, &ucontrol, (length - 1), width, length, true);
 				temp = quickspline(&ucontrol, uknots, u, k, (width - 1));
 				surface->verts.push_back(temp);
 			}

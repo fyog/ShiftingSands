@@ -63,8 +63,8 @@ void sandCellImGui(CPU_Geometry& cpuGeom) {
 	// Names of render modes to be displayed in slider
 	const char* renderModeNames[] = { "LERP", "Cubes", "Smooth" };
 
-	cellChange |= ImGui::InputInt("Length (X): ", &_width);
-	cellChange |= ImGui::InputInt("Width  (Z): ", &_length);
+	cellChange |= ImGui::InputInt("Length (X): ", &_length);
+	cellChange |= ImGui::InputInt("Width  (Z): ", &_width);
 	cellChange |= ImGui::Checkbox("Random Heights", &randomHeights);
 	cellChange |= ImGui::InputInt("Order k of B-Spline Surface", &_order_k);
 	if (!randomHeights) {
