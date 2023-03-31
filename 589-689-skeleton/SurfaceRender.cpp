@@ -86,6 +86,11 @@ glm::vec3 onesplinepoint(CPU_Geometry control, int width, int length, float u, f
 	return vrange.verts[0];
 }
 
+bool approxone(float val)
+{
+	return (val >= 0.99999 && val <= 1.00001);
+}
+
 void placesurfacevecs(CPU_Geometry control, CPU_Geometry* surface, int width, int length, int k)
 {
 	//std::cout << "Entering placesurfacevecs()\n";
@@ -111,33 +116,38 @@ void placesurfacevecs(CPU_Geometry control, CPU_Geometry* surface, int width, in
 	//float step = 0.01f; //Setting the step to 0.01 means every surface generated will be 101 x 101 vertices.
 	//float ustep = 0.01f;
 	//float vstep = 0.01f;
-	float ustep = 1.f / (((float) width - 1.f) * 8);
-	float vstep = 1.f / (((float) length - 1.f) * 8);
-	float u, v;
+	float ustep = 1.f / (((float) width) * 3.f);
+	float vstep = 1.f / (((float) length) * 3.f);
+	float u, v, i, j;
+	float finu, finv;
+	finu = ((float)width) * 3.f;
+	finv = ((float)length) * 3.f;
 
 	surface->verts.clear();
 
-	for (v = 0.f; v <= 1.f; v += vstep) //The outer loop goes along the length of the surface
+	for (i = 0.f; i <= finv; i += 1.f) //The outer loop goes along the length of the surface
 	{
-		for (u = 0.f; u <= 1.f; u += ustep) //The inner loop goes along the width.
+		v = i * vstep;
+		for (j = 0.f; j <= finu; j += 1.f) //The inner loop goes along the width.
 		{
+			u = j * ustep;
 			//Several if statements will handle end-point interpolation
 			if (u == 0.f && v == 0.f)
 			{
 				temp = point2dindex(control, 0, 0, width); //the control point at these indices will be some corner of the surface
 				surface->verts.push_back(temp);
 			}
-			else if (u == 1.f && v == 1.f)
+			else if (approxone(u) && approxone(v))
 			{
 				temp = point2dindex(control, (width - 1), (length - 1), width);
 				surface->verts.push_back(temp);
 			}
-			else if (u == 0.f && v == 1.f)
+			else if (u == 0.f && approxone(v))
 			{
 				temp = point2dindex(control, 0, (length - 1), width);
 				surface->verts.push_back(temp);
 			}
-			else if (u == 1.f && v == 0.f)
+			else if (approxone(u) && v == 0.f)
 			{
 				temp = point2dindex(control, (width - 1), 0, width);
 				surface->verts.push_back(temp);
@@ -148,7 +158,7 @@ void placesurfacevecs(CPU_Geometry control, CPU_Geometry* surface, int width, in
 				temp = quickspline(&vcontrol, vknots, v, k, (length - 1)); //in this case, Q(u,v) will be some point on a 2d b-spline curve that already has defined control points
 				surface->verts.push_back(temp);
 			}
-			else if (u == 1.f)
+			else if (approxone(u))
 			{
 				getcontrolpoints(control, &vcontrol, (length - 1), width, length, false);
 				temp = quickspline(&vcontrol, vknots, v, k, (length - 1));
@@ -160,7 +170,7 @@ void placesurfacevecs(CPU_Geometry control, CPU_Geometry* surface, int width, in
 				temp = quickspline(&ucontrol, uknots, u, k, (width - 1));
 				surface->verts.push_back(temp);
 			}
-			else if (v == 1.f)
+			else if (approxone(v))
 			{
 				getcontrolpoints(control, &ucontrol, (width - 1), width, length, true);
 				temp = quickspline(&ucontrol, uknots, u, k, (width - 1));
@@ -265,8 +275,8 @@ void zagzigdraw(CPU_Geometry obj, CPU_Geometry* newobj, int width, int length)
 
 void splineframe(CPU_Geometry obj, CPU_Geometry * newobj, int width, int length)
 {
-	int subwidth = (8 * (width - 1));
-	int sublength = (8 * (length - 1));
+	int subwidth = (3 * width) + 1;
+	int sublength = (3 * length) + 1;
 	zigzagdraw(obj, newobj, subwidth, sublength);
 }
 
