@@ -50,6 +50,12 @@ int getRenderMode() {
 	return renderMode;
 }
 
+int _order_k= 4;
+
+int getOrderK() {
+	return _order_k;
+}
+
 // ImGui panel to control the sand cells
 void sandCellImGui(CPU_Geometry& cpuGeom) {
 	ImGui::Begin("Sand Cell Tuning");
@@ -59,9 +65,10 @@ void sandCellImGui(CPU_Geometry& cpuGeom) {
 	// Names of render modes to be displayed in slider
 	const char* renderModeNames[] = { "LERP", "Cubes", "Smooth" };
 
-	cellChange |= ImGui::InputInt("Length (X): ", &_width);
-	cellChange |= ImGui::InputInt("Width  (Z): ", &_length);
+	cellChange |= ImGui::InputInt("Length (X): ", &_length);
+	cellChange |= ImGui::InputInt("Width  (Z): ", &_width);
 	cellChange |= ImGui::Checkbox("Random Heights", &randomHeights);
+	cellChange |= ImGui::InputInt("Order k of B-Spline Surface", &_order_k);
 	cellChange |= ImGui::Checkbox("Avalanching behavior", &avalanche_submenu);
 	if (avalanche_submenu) {
 		cellChange |= ImGui::InputInt("Number of iterations: ", &number_of_iterations);

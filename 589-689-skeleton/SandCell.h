@@ -26,6 +26,7 @@ int getLength();
 bool getCellChange();
 bool getShowCells();
 int getRenderMode();
+int getOrderK();
 
 void sandCellImGui(CPU_Geometry& cpuGeom);
 float randNumber(float _min, float _max);

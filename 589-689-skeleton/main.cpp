@@ -275,67 +275,24 @@ int main() {
 
 	window.setupImGui(); // Make sure this call comes AFTER GLFW callbacks set.
 
-
-	// A "dictionary" that maps models' ImGui display names to their ModelInfo.
-	// Because ModelInfo has no default constructor
-	// (and there's no good one for it in its current form)
-	// We have to use .at() and .emplace() instead of "[]" notation.
-	// See: https://stackoverflow.com/questions/29826155/why-a-default-constructor-is-needed-using-unordered-map-and-tuple
-	std::unordered_map<std::string, ModelInfo> models;
-	models.emplace("Cow", ModelInfo("./models/spot/spot_triangulated.obj"));
-	models.emplace("Fish", ModelInfo("./models/blub/blub_triangulated.obj"));
-	models.emplace("Torus", ModelInfo("./models/torus.obj"));
-
-	// Select first model by default.
-	std::string selectedModelName = models.begin()->first;
-	models.at(selectedModelName).bind(); // Bind it.
-
-	// A "dictionary" that maps textures' ImGui display names to their Texture.
-	// Because Texture has no default constructor
-	// (and there's no good one for it in its current form)
-	// We have to use .at() and .emplace() instead of "[]" notation.
-	// See: https://stackoverflow.com/questions/29826155/why-a-default-constructor-is-needed-using-unordered-map-and-tuple
-	std::unordered_map<std::string, Texture> textures;
-	textures.emplace("Cow", Texture("./textures/spot/spot_texture.png", GL_LINEAR));
-	textures.emplace("Fish", Texture("./textures/blub/blub_texture.png", GL_LINEAR));
-	const std::string noTexName = "None";
-
-	// Select first texture by default.
-	std::string selectedTexName = textures.begin()->first;
-	textures.at(selectedTexName).bind(); // Bind it.
+	//Texture cowtex = Texture("./textures/spot/spot_texture.png", GL_LINEAR);
+	Texture sandtex = Texture("./textures/spot/spot_texture.png", GL_LINEAR); //had to put it at the same path as the old cow texture because for some reason it wasn't working otherwise.
+	sandtex.bind();
+	//std::cout << "Texture is " << cowtex.getDimensions().x << " by " << cowtex.getDimensions().y << "\n";
 
 	// Say we're using textures (if the model supports them).
-	bool texExistence = models.at(selectedModelName).hasUVs();
+	bool texExistence = true;
 
 	// Some variables for shading that ImGui may alter.
 	glm::vec3 lightPos(0.f, 35.f, -35.f);
 	glm::vec3 lightCol(1.f);
-	glm::vec3 diffuseCol(1.f, 0.f, 0.f);
+	glm::vec3 diffuseCol(0.f, 0.f, 0.f);
 	float ambientStrength = 0.035f;
 	bool simpleWireframe = false;
 
 	// Set the initial, default values of the shading uniforms.
 	shader.use();
 	cb->updateShadingUniforms(lightPos, lightCol, diffuseCol, ambientStrength, texExistence);
-
-	/*
-		//Test of b-spline curve below
-		CPU_Geometry control;
-		control.verts.push_back(glm::vec3((-0.75),(-0.5),0.f));
-		control.verts.push_back(glm::vec3((-0.5), (-0.5), 0.f));
-		control.verts.push_back(glm::vec3((-0.25), (-0.25), 0.f));
-		control.verts.push_back(glm::vec3(0.f, 0.5f, 0.f));
-		control.verts.push_back(glm::vec3((0.25), (-0.5), 0.f));
-		control.verts.push_back(glm::vec3(0.5, (-0.25), 0.f));
-		control.verts.push_back(glm::vec3((0.75), 0.f, 0.f)); //in the end, 7 control points are placed for this example curve
-
-		CPU_Geometry splineob;
-		GPU_Geometry goodGPU;
-
-		bspline(4, &control, 0.01, &splineob); //See BSpline.cpp for definition of bspline. this will make a curve of order 4, with the control vertices in control (dereferenced here to be passed into a pointer),
-		//and it will have 0.01 set as the u-step value, meaning u will step forward a 100 times then find a point on the curve
-		goodGPU.setVerts(splineob.verts); // it would probably be better to set the vertices of the GPU object in the rendering loop, this is just here for testing.
-	*/
 
 	CPU_Geometry cells_cpu;
 	//CPU_Geometry cells_patch_cpu;
@@ -352,21 +309,23 @@ int main() {
 
 	CPU_Geometry splinesurf;
 	CPU_Geometry zigcpu;
-	bool debug = false;
+	bool debug = true;
 	if (debug) std::cout << "about to call placesurfacevecs() in main()\n";
 	
-	placesurfacevecs(cells_cpu, &splinesurf, getWidth(), getLength());
-	if (debug) std::cout << "placesurfacevecs() successful. now doing zigzagdraw()\n";
-	zigzagdraw(splinesurf, &zigcpu, 101, 101);
-	if (debug) std::cout << "zigzagdraw() successful\n";
+	placesurfacevecs(cells_cpu, &splinesurf, getWidth(), getLength(), getOrderK());
+	//if (debug) std::cout << "placesurfacevecs() successful. now doing zigzagdraw()\n";
+	//zigzagdraw(splinesurf, &zigcpu, getWidth(), getLength());
+	splineframe(splinesurf, &zigcpu, getWidth(), getLength());
+	//if (debug) std::cout << "zigzagdraw() successful\n";
 	//int knownwid = 4;
 	//int knownlen = 4;
 	bool changecheck[3];
-	for (int i = 0; i < 3; i++)
-	{
-		changecheck[i] = false;
-	}
-
+	//for (int i = 0; i < 3; i++)
+	//{
+	//	changecheck[i] = false;
+	//}
+	setflagstrue(changecheck);
+	std::cout << "about to enter render loop\n";
 	// RENDER LOOP
 	while (!window.shouldClose()) {
 		glfwPollEvents();
@@ -380,77 +339,6 @@ int main() {
 		ImGui::Begin("Render Info.");
 
 		bool change = false; // Whether any ImGui variable's changed.
-
-		/* BOILERPLATE TO BE FACTORED OUT
-		// A drop-down box for choosing the 3D model to render.
-		if (ImGui::BeginCombo("Model", selectedModelName.c_str()))
-		{
-			// Iterate over our dictionary's key-val pairs.
-			for (auto& keyVal : models) {
-				// Check if this key (a model display name) was last selected.
-				const bool isSelected = (selectedModelName == keyVal.first);
-
-				// Now check if the user is currently selecting that model.
-				// The use of "isSelected" just changes the colour of the box.
-				if (ImGui::Selectable(keyVal.first.c_str(), isSelected))
-				{
-					selectedModelName = keyVal.first;
-					keyVal.second.bind(); // Bind the selected model.
-				}
-				// Sets the initial focus when the combo is opened
-				if (isSelected) ImGui::SetItemDefaultFocus();
-			}
-			ImGui::EndCombo();
-			change = true;
-		}
-
-		// Only display the texture dropdown if applicable.
-		if (models.at(selectedModelName).hasUVs())
-		{
-			// A drop-down box for choosing the texture to use.
-			if (ImGui::BeginCombo("Texture", selectedTexName.c_str()))
-			{
-				// First, display an option to select NO texture!
-				const bool noneSelected = selectedTexName == noTexName;
-				if (ImGui::Selectable(noTexName.c_str(), noneSelected))
-				{
-					selectedTexName = noTexName;
-				}
-				if (noneSelected) ImGui::SetItemDefaultFocus();
-
-				// Then, present our dictionary's contents as other texture options.
-				for (auto& keyVal : textures) {
-					// Check if this key (a model display name) was last selected.
-					const bool isSelected = (selectedTexName == keyVal.first);
-					// Now check if the user is currently selecting that texture.
-					// The use of "isSelected" just changes the colour of the box.
-					if (ImGui::Selectable(keyVal.first.c_str(), isSelected))
-					{
-						selectedTexName = keyVal.first;
-						keyVal.second.bind(); // Bind the selected texture.
-					}
-					// Sets the initial focus when the combo is opened
-					if (isSelected) ImGui::SetItemDefaultFocus();
-				}
-				ImGui::EndCombo();
-				change = true;
-			}
-		}
-		*/
-
-		// We'll only render with a texture if the model has UVs and a texture was chosen.
-		texExistence = (models.at(selectedModelName).hasUVs() && selectedTexName != noTexName);
-
-		// If a texture is not in use, the user can pick the diffuse colour.
-		if (!texExistence) change |= ImGui::ColorEdit3("Diffuse colour", glm::value_ptr(diffuseCol));
-
-		/* BOILERPLATE TO BE FACTORED OUT
-		// The rest of our ImGui widgets.
-		change |= ImGui::DragFloat3("Light's position", glm::value_ptr(lightPos));
-		change |= ImGui::ColorEdit3("Light's colour", glm::value_ptr(lightCol));
-		change |= ImGui::SliderFloat("Ambient strength", &ambientStrength, 0.0f, 1.f);
-		change |= ImGui::Checkbox("Simple wireframe", &simpleWireframe);
-		*/
 
 		// Framerate display, in case you need to debug performance.
 		ImGui::Text("Average %.1f ms/frame (%.1f fps)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
@@ -498,7 +386,7 @@ int main() {
 		{
 			// If any of our shading values was updated, we need to update the
 			// respective GLSL uniforms.
-			cb->updateShadingUniforms(lightPos, lightCol, diffuseCol, ambientStrength, texExistence);
+			//cb->updateShadingUniforms(lightPos, lightCol, diffuseCol, ambientStrength, texExistence);
 		}
 		cb->viewPipeline();
 		//glDrawArrays(GL_LINE_STRIP, 0, GLsizei(splineob.verts.size())); 
@@ -526,8 +414,9 @@ int main() {
 					
 					changecheck[0] = false;
 				}
-				renderCells(cells_cpu);
-				//rendertest(lerpline, &gpu_obj); 
+
+				cb->updateShadingUniforms(lightPos, lightCol, diffuseCol, ambientStrength, false);
+				rendertest(lerpline, &gpu_obj); 
 			}
 			// Cubes Render
 			else if (getRenderMode() == 1) {
@@ -537,17 +426,23 @@ int main() {
 					cubesRender(cells_cpu, &cubeobj);
 					changecheck[1] = false;
 				}
+				cb->updateShadingUniforms(lightPos, lightCol, diffuseCol, ambientStrength, false);
 				rendertest(cubeobj, &gpu_obj);
 			}
 			// Smooth Render
 			else if (getRenderMode() == 2) {
 				if (changecheck[2])
 				{
-					placesurfacevecs(cells_cpu, &splinesurf, getWidth(), getLength());
-					zigzagdraw(splinesurf, &zigcpu, 101, 101);
+					//if (debug) printCPUVerts(cells_cpu);
+					placesurfacevecs(cells_cpu, &splinesurf, getWidth(), getLength(), getOrderK());
+					//zigzagdraw(splinesurf, &zigcpu, getWidth(), getLength());
+					//splineframe(splinesurf, &zigcpu, getWidth(), getLength());
+					drawtexturedsurface(&splinesurf, &zigcpu, getWidth(), getLength());
 					changecheck[2] = false;
 				}
-				rendertest(zigcpu, &gpu_obj);
+				//textures.at(selectedTexName).bind();
+				cb->updateShadingUniforms(lightPos, lightCol, diffuseCol, ambientStrength, true);
+				renderpoly(zigcpu, &gpu_obj, &sandtex);
 			}
 		}
 

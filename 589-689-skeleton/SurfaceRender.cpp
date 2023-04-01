@@ -1,8 +1,4 @@
-#include "BSpline.h"
-#include "Geometry.h"
-
-#define K_ORDER 4
-
+#include "SurfaceRender.h"
 
 //When the the control points for the surface are generated, they will be passed to the surface generator as either a vector of glm::vec3 vertices, or else a CPU_Geometry object (which contains a vertex vector)
 
@@ -44,14 +40,14 @@ void getcontrolpoints(CPU_Geometry control, CPU_Geometry* copy, int index, int w
 	}
 }
 
-glm::vec3 onesplinepoint(CPU_Geometry control, int width, int length, float u, float v, float * uknots, float * vknots)
+glm::vec3 onesplinepoint(CPU_Geometry control, int width, int length, float u, float v, float * uknots, float * vknots, int k)
 {
 	//std::cout << "Entering onesplinepoint()\n";
 	//onesplinepoint() will use the quickspline() function to calculate one point on the b-spline surface.
 	//We assume that u is going along the width, and v is going along the length. 
 	CPU_Geometry ucontrol, vrange; //ucontrol will have the control points going in the u direction, vrange will be the control points in some relevant range in the v direction
 	int m = length - 1; //there are "length" control points going along and m for a b-spline calculation is the number of control points minus 1
-	int k = K_ORDER; //We'll assume all b-spline curves should be of order four (cubic). The constant is defined at teh top if you want to change it, though
+	//int k = K_ORDER; //We'll assume all b-spline curves should be of order four (cubic). The constant is defined at teh top if you want to change it, though
 	int vdelta = getdelta(vknots, (m + k + 1), v, 0); //As in the quickspline() algorithm, we need to get the delta knot to know what the relevant range to look at is.
 
 	m = width - 1; //The m for control points going along the width
@@ -86,14 +82,19 @@ glm::vec3 onesplinepoint(CPU_Geometry control, int width, int length, float u, f
 	return vrange.verts[0];
 }
 
-void placesurfacevecs(CPU_Geometry control, CPU_Geometry* surface, int width, int length)
+bool approxone(float val)
+{
+	return (val >= 0.99999 && val <= 1.00001);
+}
+
+void placesurfacevecs(CPU_Geometry control, CPU_Geometry* surface, int width, int length, int k)
 {
 	//std::cout << "Entering placesurfacevecs()\n";
 	float * uknots;
 	float * vknots;
-	int k = K_ORDER;
+	if (k < 1) return; 
+	//int k = K_ORDER;
 	glm::vec3 temp;
-
 	CPU_Geometry ucontrol;
 	CPU_Geometry vcontrol;
 
@@ -108,32 +109,41 @@ void placesurfacevecs(CPU_Geometry control, CPU_Geometry* surface, int width, in
 	standardknots(vknots, k, (length - 1));
 	//std::cout << "standard knots created\n";
 
-	float step = 0.01f; //Setting the step to 0.01 means every surface generated will be 101 x 101 vertices.
-	float u, v;
+	//float step = 0.01f; //Setting the step to 0.01 means every surface generated will be 101 x 101 vertices.
+	//float ustep = 0.01f;
+	//float vstep = 0.01f;
+	float ustep = 1.f / (((float) width) * 3.f);
+	float vstep = 1.f / (((float) length) * 3.f);
+	float u, v, i, j;
+	float finu, finv;
+	finu = ((float)width) * 3.f;
+	finv = ((float)length) * 3.f;
 
 	surface->verts.clear();
 
-	for (v = 0.f; v <= 1.f; v += step) //The outer loop goes along the length of the surface
+	for (i = 0.f; i <= finv; i += 1.f) //The outer loop goes along the length of the surface
 	{
-		for (u = 0.f; u <= 1.f; u += step) //The inner loop goes along the width.
+		v = i * vstep;
+		for (j = 0.f; j <= finu; j += 1.f) //The inner loop goes along the width.
 		{
+			u = j * ustep;
 			//Several if statements will handle end-point interpolation
 			if (u == 0.f && v == 0.f)
 			{
 				temp = point2dindex(control, 0, 0, width); //the control point at these indices will be some corner of the surface
 				surface->verts.push_back(temp);
 			}
-			else if (u == 1.f && v == 1.f)
+			else if (approxone(u) && approxone(v))
 			{
 				temp = point2dindex(control, (width - 1), (length - 1), width);
 				surface->verts.push_back(temp);
 			}
-			else if (u == 0.f && v == 1.f)
+			else if (u == 0.f && approxone(v))
 			{
 				temp = point2dindex(control, 0, (length - 1), width);
 				surface->verts.push_back(temp);
 			}
-			else if (u == 1.f && v == 0.f)
+			else if (approxone(u) && v == 0.f)
 			{
 				temp = point2dindex(control, (width - 1), 0, width);
 				surface->verts.push_back(temp);
@@ -144,9 +154,9 @@ void placesurfacevecs(CPU_Geometry control, CPU_Geometry* surface, int width, in
 				temp = quickspline(&vcontrol, vknots, v, k, (length - 1)); //in this case, Q(u,v) will be some point on a 2d b-spline curve that already has defined control points
 				surface->verts.push_back(temp);
 			}
-			else if (u == 1.f)
+			else if (approxone(u))
 			{
-				getcontrolpoints(control, &vcontrol, (length - 1), width, length, false);
+				getcontrolpoints(control, &vcontrol, (width - 1), width, length, false);
 				temp = quickspline(&vcontrol, vknots, v, k, (length - 1));
 				surface->verts.push_back(temp);
 			}
@@ -156,15 +166,15 @@ void placesurfacevecs(CPU_Geometry control, CPU_Geometry* surface, int width, in
 				temp = quickspline(&ucontrol, uknots, u, k, (width - 1));
 				surface->verts.push_back(temp);
 			}
-			else if (v == 1.f)
+			else if (approxone(v))
 			{
-				getcontrolpoints(control, &ucontrol, (width - 1), width, length, true);
+				getcontrolpoints(control, &ucontrol, (length - 1), width, length, true);
 				temp = quickspline(&ucontrol, uknots, u, k, (width - 1));
 				surface->verts.push_back(temp);
 			}
 			else
 			{
-				temp = onesplinepoint(control, width, length, u, v, uknots, vknots);
+				temp = onesplinepoint(control, width, length, u, v, uknots, vknots, k);
 				surface->verts.push_back(temp);
 			}
 		}
@@ -201,7 +211,6 @@ void zigzagdraw(CPU_Geometry obj, CPU_Geometry* newobj, int width, int length) /
 	//depending on how many rows there are (ie, the value of length) we'll either put the final vertex at obj[width - 1][length - 1] if (length - 1) % 2 == 0, or, in other words, if length is odd. If length is
 	//even then it will end on obj[0][length - 1]. use this information when defining zagzigdraw().
 }
-
 
 void zagzigdraw(CPU_Geometry obj, CPU_Geometry* newobj, int width, int length)
 {
@@ -259,12 +268,212 @@ void zagzigdraw(CPU_Geometry obj, CPU_Geometry* newobj, int width, int length)
 	}
 }
 
-void rendertest(CPU_Geometry lineobj, GPU_Geometry* output_gpu)
+void splineframe(CPU_Geometry obj, CPU_Geometry * newobj, int width, int length)
+{
+	int subwidth = (3 * width) + 1;
+	int sublength = (3 * length) + 1;
+	zigzagdraw(obj, newobj, subwidth, sublength);
+}
 
+float calcarea(glm::vec3 x, glm::vec3 y)
+{
+	return (glm::length(x) * glm::length(y));
+}
+
+glm::vec3 calcnorm(CPU_Geometry rawspline, int i, int j, int subwidth, int sublength)
+{
+	glm::vec3 up, down, left, right, centre, temp, returner;
+	glm::vec3 f1, f2, f3, f4;
+	float a1, a2, a3, a4;
+	returner = glm::vec3(0.f, 0.f, 0.f);
+	centre = point2dindex(rawspline, i, j, subwidth);
+	if (i == 0 && j == 0)
+	{
+		temp = point2dindex(rawspline, (i + 1), j, subwidth);
+		right = temp - centre;
+		temp = point2dindex(rawspline, i, (j + 1), subwidth);
+		up = temp - centre;
+		returner = glm::cross(up, right);
+		returner = glm::normalize(returner);
+	}
+	else if (i == (subwidth - 1) && j == (sublength - 1))
+	{
+		temp = point2dindex(rawspline, (i - 1), j, subwidth);
+		left = temp - centre;
+		temp = point2dindex(rawspline, i, (j - 1), subwidth);
+		down = temp - centre;
+		returner = glm::cross(down, left);
+		returner = glm::normalize(returner);
+	}
+	else if (i == 0 && j == (sublength - 1))
+	{
+		temp = point2dindex(rawspline, (i + 1), j, subwidth);
+		right = temp - centre;
+		temp = point2dindex(rawspline, i, (j - 1), subwidth);
+		down = temp - centre;
+		returner = glm::cross(right, down);
+		returner = glm::normalize(returner);
+	}
+	else if (i == (subwidth - 1) && j == 0)
+	{
+		temp = point2dindex(rawspline, (i - 1), j, subwidth);
+		left = temp - centre;
+		temp = point2dindex(rawspline, i, (j + 1), subwidth);
+		up = temp - centre;
+		returner = glm::cross(left, up);
+		returner = glm::normalize(returner);
+	}
+	else if (i == 0)
+	{
+		temp = point2dindex(rawspline, (i + 1), j, subwidth);
+		right = temp - centre;
+		temp = point2dindex(rawspline, i, (j + 1), subwidth);
+		up = temp - centre;
+		temp = point2dindex(rawspline, i, (j - 1), subwidth);
+		down = temp - centre;
+		f1 = glm::cross(up, right);
+		a1 = calcarea(right, up);
+		f2 = glm::cross(right, down);
+		a2 = calcarea(right, down);
+		returner = (a1 * f1) + (a2 * f2);
+		returner = glm::normalize(returner);
+	}
+	else if (i == (subwidth - 1))
+	{
+		temp = point2dindex(rawspline, (i - 1), j, subwidth);
+		left = temp - centre;
+		temp = point2dindex(rawspline, i, (j + 1), subwidth);
+		up = temp - centre;
+		temp = point2dindex(rawspline, i, (j - 1), subwidth);
+		down = temp - centre;
+		f1 = glm::cross(left, up);
+		a1 = calcarea(left, up);
+		f2 = glm::cross(down, left);
+		a2 = calcarea(left, down);
+		returner = (a1 * f1) + (a2 * f2);
+		returner = glm::normalize(returner);
+	}
+	else if (j == 0)
+	{
+		temp = point2dindex(rawspline, (i - 1), j, subwidth);
+		left = temp - centre;
+		temp = point2dindex(rawspline, (i + 1), j, subwidth);
+		right = temp - centre;
+		temp = point2dindex(rawspline, i, (j + 1), subwidth);
+		up = temp - centre;
+		f1 = glm::cross(left, up);
+		a1 = calcarea(left, up);
+		f2 = glm::cross(up, right);
+		a2 = calcarea(right, up);
+		returner = (a1 * f1) + (a2 * f2);
+		returner = glm::normalize(returner);
+	}
+	else if (j == (sublength - 1))
+	{
+		temp = point2dindex(rawspline, (i - 1), j, subwidth);
+		left = temp - centre;
+		temp = point2dindex(rawspline, (i + 1), j, subwidth);
+		right = temp - centre;
+		temp = point2dindex(rawspline, i, (j - 1), subwidth);
+		down = temp - centre;
+		f1 = glm::cross(down, left);
+		a1 = calcarea(left, down);
+		f2 = glm::cross(right, down);
+		a2 = calcarea(right, down);
+		returner = (a1 * f1) + (a2 * f2);
+		returner = glm::normalize(returner);
+	}
+	else
+	{
+		temp = point2dindex(rawspline, (i - 1), j, subwidth);
+		left = temp - centre;
+		temp = point2dindex(rawspline, (i + 1), j, subwidth);
+		right = temp - centre;
+		temp = point2dindex(rawspline, i, (j - 1), subwidth);
+		down = temp - centre;
+		temp = point2dindex(rawspline, i, (j + 1), subwidth);
+		up = temp - centre;
+		f1 = glm::cross(down, left);
+		a1 = calcarea(left, down);
+		f2 = glm::cross(right, down);
+		a2 = calcarea(right, down);
+		f3 = glm::cross(left, up);
+		a3 = calcarea(left, up);
+		f4 = glm::cross(up, right);
+		a4 = calcarea(right, up);
+		returner = (a1 * f1) + (a2 * f2) + (a3 * f3) + (a4 * f4);
+		returner = glm::normalize(returner);
+	}
+	return returner;
+}
+
+void placequad(CPU_Geometry rawspline, CPU_Geometry* texsurface, int i, int j, int subwidth, int sublength)
+{
+	glm::vec3 tl, tr, bl, br; //The top-left, top-right, bottom-left, and bottom-right vertices
+	glm::vec3 ntl, ntr, nbl, nbr; //The normals
+	bl = point2dindex(rawspline, i, j, subwidth);
+	nbl = calcnorm(rawspline, i, j, subwidth, sublength);
+	br = point2dindex(rawspline, (i + 1), j, subwidth);
+	nbr = calcnorm(rawspline, (i + 1), j, subwidth, sublength);
+	tl = point2dindex(rawspline, i, (j + 1), subwidth);
+	ntl = calcnorm(rawspline, i, (j + 1), subwidth, sublength);
+	tr = point2dindex(rawspline, (i + 1), (j + 1), subwidth);
+	ntr = calcnorm(rawspline, (i + 1), (j + 1), subwidth, sublength);
+
+	texsurface->verts.push_back(tr);
+	texsurface->normals.push_back(ntr);
+	texsurface->uvs.push_back(glm::vec2(1.f, 0.f));
+	texsurface->verts.push_back(tl);
+	texsurface->normals.push_back(ntl);
+	texsurface->uvs.push_back(glm::vec2(0.f, 1.f));
+	texsurface->verts.push_back(bl);
+	texsurface->normals.push_back(nbl);
+	texsurface->uvs.push_back(glm::vec2(0.f, 0.f));
+
+	texsurface->verts.push_back(br);
+	texsurface->normals.push_back(nbr);
+	texsurface->uvs.push_back(glm::vec2(1.f, 0.f));
+	texsurface->verts.push_back(tr);
+	texsurface->normals.push_back(ntr);
+	texsurface->uvs.push_back(glm::vec2(1.f, 0.f));
+	texsurface->verts.push_back(bl);
+	texsurface->normals.push_back(nbl);
+	texsurface->uvs.push_back(glm::vec2(0.f, 0.f));
+}
+
+void drawtexturedsurface(CPU_Geometry* rawspline, CPU_Geometry* texsurface, int width, int length)
+{
+	int subwidth = (3 * width) + 1;
+	int sublength = (3 * length) + 1;
+	texsurface->verts.clear();
+	texsurface->normals.clear();
+	texsurface->uvs.clear();
+	int i, j;
+	
+	for (i = 0; i < (subwidth - 1); i++)
+	{
+		for (j = 0; j < (sublength - 1); j++)
+		{
+			placequad(*rawspline, texsurface, i, j, subwidth, sublength);
+		}
+	}
+}
+
+void rendertest(CPU_Geometry lineobj, GPU_Geometry* output_gpu)
 {
 	//GPU_Geometry output_gpu;
 	output_gpu->setVerts(lineobj.verts);
 	//output_gpu->bind();
 	glDrawArrays(GL_LINE_STRIP, 0, GLsizei(lineobj.verts.size()));
 	//output_cpu.verts.clear();
+}
+
+void renderpoly(CPU_Geometry polyobj, GPU_Geometry* output_gpu, Texture * tex)
+{
+	output_gpu->setVerts(polyobj.verts);
+	output_gpu->setNormals(polyobj.normals);
+	output_gpu->setUVs(polyobj.uvs);
+	tex->bind();
+	glDrawArrays(GL_TRIANGLES, 0, GLsizei(polyobj.verts.size()));
+	tex->unbind();
 }
