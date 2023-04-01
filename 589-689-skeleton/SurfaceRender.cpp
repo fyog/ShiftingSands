@@ -1,8 +1,4 @@
-#include "BSpline.h"
-#include "Geometry.h"
-
-#define K_ORDER 3
-
+#include "SurfaceRender.h"
 
 //When the the control points for the surface are generated, they will be passed to the surface generator as either a vector of glm::vec3 vertices, or else a CPU_Geometry object (which contains a vertex vector)
 
@@ -216,7 +212,6 @@ void zigzagdraw(CPU_Geometry obj, CPU_Geometry* newobj, int width, int length) /
 	//even then it will end on obj[0][length - 1]. use this information when defining zagzigdraw().
 }
 
-
 void zagzigdraw(CPU_Geometry obj, CPU_Geometry* newobj, int width, int length)
 {
 	int i, j;
@@ -280,12 +275,75 @@ void splineframe(CPU_Geometry obj, CPU_Geometry * newobj, int width, int length)
 	zigzagdraw(obj, newobj, subwidth, sublength);
 }
 
-void rendertest(CPU_Geometry lineobj, GPU_Geometry* output_gpu)
+float randomfloat()
+{
+	//This will generate a random float in the range [0,1]. It's assumed that rand() has already been seeded.
+	float x = rand();
+	float y = rand();
+	if (x >= y && x != 0.f)
+	{
+		return (y / x);
+	}
+	else if (x <= y && y != 0.f)
+	{
+		return (x / y);
+	}
+	return 0.f;
+}
 
+glm::vec3 randomcolor()
+{
+	float r = randomfloat();
+	float g = randomfloat();
+	float b = randomfloat();
+	return glm::vec3(r, g, b);
+}
+
+void placequad(CPU_Geometry rawspline, CPU_Geometry* texsurface, int i, int j, int subwidth)
+{
+	glm::vec3 tl, tr, bl, br; //The top-left, top-right, bottom-left, and bottom-right vertices
+	bl = point2dindex(rawspline, i, j, subwidth);
+	br = point2dindex(rawspline, (i + 1), j, subwidth);
+	tl = point2dindex(rawspline, i, (j + 1), subwidth);
+	tr = point2dindex(rawspline, (i + 1), (j + 1), subwidth);
+
+	texsurface->verts.push_back(tr);
+	texsurface->verts.push_back(tl);
+	texsurface->verts.push_back(bl);
+
+	texsurface->verts.push_back(br);
+	texsurface->verts.push_back(tr);
+	texsurface->verts.push_back(bl);
+}
+
+void drawtexturedsurface(CPU_Geometry* rawspline, CPU_Geometry* texsurface, int width, int length)
+{
+	int subwidth = (3 * width) + 1;
+	int sublength = (3 * length) + 1;
+	texsurface->verts.clear();
+	texsurface->normals.clear();
+	int i, j;
+	
+	for (i = 0; i < (subwidth - 1); i++)
+	{
+		for (j = 0; j < (sublength - 1); j++)
+		{
+			placequad(*rawspline, texsurface, i, j, subwidth);
+		}
+	}
+}
+
+void rendertest(CPU_Geometry lineobj, GPU_Geometry* output_gpu)
 {
 	//GPU_Geometry output_gpu;
 	output_gpu->setVerts(lineobj.verts);
 	//output_gpu->bind();
 	glDrawArrays(GL_LINE_STRIP, 0, GLsizei(lineobj.verts.size()));
 	//output_cpu.verts.clear();
+}
+
+void renderpoly(CPU_Geometry polyobj, GPU_Geometry* output_gpu)
+{
+	output_gpu->setVerts(polyobj.verts);
+	glDrawArrays(GL_TRIANGLES, 0, GLsizei(polyobj.verts.size()));
 }

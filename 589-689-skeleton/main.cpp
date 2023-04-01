@@ -492,10 +492,11 @@ int main() {
 					//if (debug) printCPUVerts(cells_cpu);
 					placesurfacevecs(cells_cpu, &splinesurf, getWidth(), getLength(), getOrderK());
 					//zigzagdraw(splinesurf, &zigcpu, getWidth(), getLength());
-					splineframe(splinesurf, &zigcpu, getWidth(), getLength());
+					//splineframe(splinesurf, &zigcpu, getWidth(), getLength());
+					drawtexturedsurface(&splinesurf, &zigcpu, getWidth(), getLength());
 					changecheck[2] = false;
 				}
-				rendertest(zigcpu, &gpu_obj);
+				renderpoly(zigcpu, &gpu_obj);
 			}
 		}
 
