@@ -23,6 +23,7 @@
 #include "glm/glm.hpp"
 #include "glm/gtc/type_ptr.hpp"
 
+#include "Avalanche.h"
 #include "SandCell.h"
 #include "SurfaceRender.h"
 
@@ -465,6 +466,7 @@ int main() {
 		// ImGui to control sand cell data structure
 		sandCellImGui(cells_cpu);
 
+
 		if (cb->getUpPressed()) {
 			std::cout << "Up" << std::endl;
 			lookAtPoint.x += scrollSpeed;
@@ -485,7 +487,6 @@ int main() {
 		ImGui::Render();
 
 		gpu_obj.bind();
-
 
 		glEnable(GL_LINE_SMOOTH);
 		glEnable(GL_FRAMEBUFFER_SRGB);
