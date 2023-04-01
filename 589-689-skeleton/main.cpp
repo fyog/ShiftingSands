@@ -249,6 +249,7 @@ int main() {
 	// Select first model by default.
 	std::string selectedModelName = models.begin()->first;
 	models.at(selectedModelName).bind(); // Bind it.
+	*/
 
 	// A "dictionary" that maps textures' ImGui display names to their Texture.
 	// Because Texture has no default constructor
@@ -263,9 +264,13 @@ int main() {
 	// Select first texture by default.
 	std::string selectedTexName = textures.begin()->first;
 	textures.at(selectedTexName).bind(); // Bind it.
+	std::cout << selectedTexName << "\n";
+
+	Texture cowtex = Texture("./textures/spot/spot_texture.png", GL_LINEAR);
+	std::cout << "Texture is " << cowtex.getDimensions().x << " by " << cowtex.getDimensions().y << "\n";
 
 	// Say we're using textures (if the model supports them).
-	bool texExistence = models.at(selectedModelName).hasUVs();
+	bool texExistence = true;
 
 	// Some variables for shading that ImGui may alter.
 	glm::vec3 lightPos(0.f, 35.f, -35.f);
@@ -273,30 +278,10 @@ int main() {
 	glm::vec3 diffuseCol(1.f, 0.f, 0.f);
 	float ambientStrength = 0.035f;
 	bool simpleWireframe = false;
-	*/
 
 	// Set the initial, default values of the shading uniforms.
 	shader.use();
-	//cb->updateShadingUniforms(lightPos, lightCol, diffuseCol, ambientStrength, texExistence);
-
-	/*
-		//Test of b-spline curve below
-		CPU_Geometry control;
-		control.verts.push_back(glm::vec3((-0.75),(-0.5),0.f));
-		control.verts.push_back(glm::vec3((-0.5), (-0.5), 0.f));
-		control.verts.push_back(glm::vec3((-0.25), (-0.25), 0.f));
-		control.verts.push_back(glm::vec3(0.f, 0.5f, 0.f));
-		control.verts.push_back(glm::vec3((0.25), (-0.5), 0.f));
-		control.verts.push_back(glm::vec3(0.5, (-0.25), 0.f));
-		control.verts.push_back(glm::vec3((0.75), 0.f, 0.f)); //in the end, 7 control points are placed for this example curve
-
-		CPU_Geometry splineob;
-		GPU_Geometry goodGPU;
-
-		bspline(4, &control, 0.01, &splineob); //See BSpline.cpp for definition of bspline. this will make a curve of order 4, with the control vertices in control (dereferenced here to be passed into a pointer),
-		//and it will have 0.01 set as the u-step value, meaning u will step forward a 100 times then find a point on the curve
-		goodGPU.setVerts(splineob.verts); // it would probably be better to set the vertices of the GPU object in the rendering loop, this is just here for testing.
-	*/
+	cb->updateShadingUniforms(lightPos, lightCol, diffuseCol, ambientStrength, texExistence);
 
 	CPU_Geometry cells_cpu;
 	//CPU_Geometry cells_patch_cpu;
@@ -438,7 +423,7 @@ int main() {
 		glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		glEnable(GL_DEPTH_TEST);
-		//glPolygonMode(GL_FRONT_AND_BACK, (simpleWireframe ? GL_LINE : GL_FILL));
+		glPolygonMode(GL_FRONT_AND_BACK, (simpleWireframe ? GL_LINE : GL_FILL));
 
 		shader.use();
 
@@ -496,7 +481,8 @@ int main() {
 					drawtexturedsurface(&splinesurf, &zigcpu, getWidth(), getLength());
 					changecheck[2] = false;
 				}
-				renderpoly(zigcpu, &gpu_obj);
+				//textures.at(selectedTexName).bind();
+				renderpoly(zigcpu, &gpu_obj, &cowtex);
 			}
 		}
 

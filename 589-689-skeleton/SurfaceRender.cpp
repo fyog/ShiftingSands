@@ -275,45 +275,170 @@ void splineframe(CPU_Geometry obj, CPU_Geometry * newobj, int width, int length)
 	zigzagdraw(obj, newobj, subwidth, sublength);
 }
 
-float randomfloat()
+float calcarea(glm::vec3 x, glm::vec3 y)
 {
-	//This will generate a random float in the range [0,1]. It's assumed that rand() has already been seeded.
-	float x = rand();
-	float y = rand();
-	if (x >= y && x != 0.f)
-	{
-		return (y / x);
-	}
-	else if (x <= y && y != 0.f)
-	{
-		return (x / y);
-	}
-	return 0.f;
+	return (glm::length(x) * glm::length(y));
 }
 
-glm::vec3 randomcolor()
+glm::vec3 calcnorm(CPU_Geometry rawspline, int i, int j, int subwidth, int sublength)
 {
-	float r = randomfloat();
-	float g = randomfloat();
-	float b = randomfloat();
-	return glm::vec3(r, g, b);
+	glm::vec3 up, down, left, right, centre, temp, returner;
+	glm::vec3 f1, f2, f3, f4;
+	float a1, a2, a3, a4;
+	returner = glm::vec3(0.f, 0.f, 0.f);
+	centre = point2dindex(rawspline, i, j, subwidth);
+	if (i == 0 && j == 0)
+	{
+		temp = point2dindex(rawspline, (i + 1), j, subwidth);
+		right = temp - centre;
+		temp = point2dindex(rawspline, i, (j + 1), subwidth);
+		up = temp - centre;
+		returner = glm::cross(up, right);
+		returner = glm::normalize(returner);
+	}
+	else if (i == (subwidth - 1) && j == (sublength - 1))
+	{
+		temp = point2dindex(rawspline, (i - 1), j, subwidth);
+		left = temp - centre;
+		temp = point2dindex(rawspline, i, (j - 1), subwidth);
+		down = temp - centre;
+		returner = glm::cross(down, left);
+		returner = glm::normalize(returner);
+	}
+	else if (i == 0 && j == (sublength - 1))
+	{
+		temp = point2dindex(rawspline, (i + 1), j, subwidth);
+		right = temp - centre;
+		temp = point2dindex(rawspline, i, (j - 1), subwidth);
+		down = temp - centre;
+		returner = glm::cross(right, down);
+		returner = glm::normalize(returner);
+	}
+	else if (i == (subwidth - 1) && j == 0)
+	{
+		temp = point2dindex(rawspline, (i - 1), j, subwidth);
+		left = temp - centre;
+		temp = point2dindex(rawspline, i, (j + 1), subwidth);
+		up = temp - centre;
+		returner = glm::cross(left, up);
+		returner = glm::normalize(returner);
+	}
+	else if (i == 0)
+	{
+		temp = point2dindex(rawspline, (i + 1), j, subwidth);
+		right = temp - centre;
+		temp = point2dindex(rawspline, i, (j + 1), subwidth);
+		up = temp - centre;
+		temp = point2dindex(rawspline, i, (j - 1), subwidth);
+		down = temp - centre;
+		f1 = glm::cross(up, right);
+		a1 = calcarea(right, up);
+		f2 = glm::cross(right, down);
+		a2 = calcarea(right, down);
+		returner = (a1 * f1) + (a2 * f2);
+		returner = glm::normalize(returner);
+	}
+	else if (i == (subwidth - 1))
+	{
+		temp = point2dindex(rawspline, (i - 1), j, subwidth);
+		left = temp - centre;
+		temp = point2dindex(rawspline, i, (j + 1), subwidth);
+		up = temp - centre;
+		temp = point2dindex(rawspline, i, (j - 1), subwidth);
+		down = temp - centre;
+		f1 = glm::cross(left, up);
+		a1 = calcarea(left, up);
+		f2 = glm::cross(down, left);
+		a2 = calcarea(left, down);
+		returner = (a1 * f1) + (a2 * f2);
+		returner = glm::normalize(returner);
+	}
+	else if (j == 0)
+	{
+		temp = point2dindex(rawspline, (i - 1), j, subwidth);
+		left = temp - centre;
+		temp = point2dindex(rawspline, (i + 1), j, subwidth);
+		right = temp - centre;
+		temp = point2dindex(rawspline, i, (j + 1), subwidth);
+		up = temp - centre;
+		f1 = glm::cross(left, up);
+		a1 = calcarea(left, up);
+		f2 = glm::cross(up, right);
+		a2 = calcarea(right, up);
+		returner = (a1 * f1) + (a2 * f2);
+		returner = glm::normalize(returner);
+	}
+	else if (j == (sublength - 1))
+	{
+		temp = point2dindex(rawspline, (i - 1), j, subwidth);
+		left = temp - centre;
+		temp = point2dindex(rawspline, (i + 1), j, subwidth);
+		right = temp - centre;
+		temp = point2dindex(rawspline, i, (j - 1), subwidth);
+		down = temp - centre;
+		f1 = glm::cross(down, left);
+		a1 = calcarea(left, down);
+		f2 = glm::cross(right, down);
+		a2 = calcarea(right, down);
+		returner = (a1 * f1) + (a2 * f2);
+		returner = glm::normalize(returner);
+	}
+	else
+	{
+		temp = point2dindex(rawspline, (i - 1), j, subwidth);
+		left = temp - centre;
+		temp = point2dindex(rawspline, (i + 1), j, subwidth);
+		right = temp - centre;
+		temp = point2dindex(rawspline, i, (j - 1), subwidth);
+		down = temp - centre;
+		temp = point2dindex(rawspline, i, (j + 1), subwidth);
+		up = temp - centre;
+		f1 = glm::cross(down, left);
+		a1 = calcarea(left, down);
+		f2 = glm::cross(right, down);
+		a2 = calcarea(right, down);
+		f3 = glm::cross(left, up);
+		a3 = calcarea(left, up);
+		f4 = glm::cross(up, right);
+		a4 = calcarea(right, up);
+		returner = (a1 * f1) + (a2 * f2) + (a3 * f3) + (a4 * f4);
+		returner = glm::normalize(returner);
+	}
+	return returner;
 }
 
-void placequad(CPU_Geometry rawspline, CPU_Geometry* texsurface, int i, int j, int subwidth)
+void placequad(CPU_Geometry rawspline, CPU_Geometry* texsurface, int i, int j, int subwidth, int sublength)
 {
 	glm::vec3 tl, tr, bl, br; //The top-left, top-right, bottom-left, and bottom-right vertices
+	glm::vec3 ntl, ntr, nbl, nbr; //The normals
 	bl = point2dindex(rawspline, i, j, subwidth);
+	nbl = calcnorm(rawspline, i, j, subwidth, sublength);
 	br = point2dindex(rawspline, (i + 1), j, subwidth);
+	nbr = calcnorm(rawspline, (i + 1), j, subwidth, sublength);
 	tl = point2dindex(rawspline, i, (j + 1), subwidth);
+	ntl = calcnorm(rawspline, i, (j + 1), subwidth, sublength);
 	tr = point2dindex(rawspline, (i + 1), (j + 1), subwidth);
+	ntr = calcnorm(rawspline, (i + 1), (j + 1), subwidth, sublength);
 
 	texsurface->verts.push_back(tr);
+	texsurface->normals.push_back(ntr);
+	texsurface->uvs.push_back(glm::vec2(1.f, 0.f));
 	texsurface->verts.push_back(tl);
+	texsurface->normals.push_back(ntl);
+	texsurface->uvs.push_back(glm::vec2(0.f, 1.f));
 	texsurface->verts.push_back(bl);
+	texsurface->normals.push_back(nbl);
+	texsurface->uvs.push_back(glm::vec2(0.f, 0.f));
 
 	texsurface->verts.push_back(br);
+	texsurface->normals.push_back(nbr);
+	texsurface->uvs.push_back(glm::vec2(1.f, 0.f));
 	texsurface->verts.push_back(tr);
+	texsurface->normals.push_back(ntr);
+	texsurface->uvs.push_back(glm::vec2(1.f, 0.f));
 	texsurface->verts.push_back(bl);
+	texsurface->normals.push_back(nbl);
+	texsurface->uvs.push_back(glm::vec2(0.f, 0.f));
 }
 
 void drawtexturedsurface(CPU_Geometry* rawspline, CPU_Geometry* texsurface, int width, int length)
@@ -322,13 +447,14 @@ void drawtexturedsurface(CPU_Geometry* rawspline, CPU_Geometry* texsurface, int 
 	int sublength = (3 * length) + 1;
 	texsurface->verts.clear();
 	texsurface->normals.clear();
+	texsurface->uvs.clear();
 	int i, j;
 	
 	for (i = 0; i < (subwidth - 1); i++)
 	{
 		for (j = 0; j < (sublength - 1); j++)
 		{
-			placequad(*rawspline, texsurface, i, j, subwidth);
+			placequad(*rawspline, texsurface, i, j, subwidth, sublength);
 		}
 	}
 }
@@ -342,8 +468,12 @@ void rendertest(CPU_Geometry lineobj, GPU_Geometry* output_gpu)
 	//output_cpu.verts.clear();
 }
 
-void renderpoly(CPU_Geometry polyobj, GPU_Geometry* output_gpu)
+void renderpoly(CPU_Geometry polyobj, GPU_Geometry* output_gpu, Texture * tex)
 {
 	output_gpu->setVerts(polyobj.verts);
+	output_gpu->setNormals(polyobj.normals);
+	output_gpu->setUVs(polyobj.uvs);
+	tex->bind();
 	glDrawArrays(GL_TRIANGLES, 0, GLsizei(polyobj.verts.size()));
+	tex->unbind();
 }
