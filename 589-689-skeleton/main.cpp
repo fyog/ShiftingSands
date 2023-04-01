@@ -224,7 +224,7 @@ int main() {
 	glfwInit();
 	Window window(800, 800, "CPSC 589/689"); // could set callbacks at construction if desired
 
-	//GLDebug::enable();
+	GLDebug::enable();
 
 	// SHADERS
 	ShaderProgram shader("shaders/test.vert", "shaders/test.frag");
@@ -235,39 +235,10 @@ int main() {
 
 	window.setupImGui(); // Make sure this call comes AFTER GLFW callbacks set.
 
-	/*
-	// A "dictionary" that maps models' ImGui display names to their ModelInfo.
-	// Because ModelInfo has no default constructor
-	// (and there's no good one for it in its current form)
-	// We have to use .at() and .emplace() instead of "[]" notation.
-	// See: https://stackoverflow.com/questions/29826155/why-a-default-constructor-is-needed-using-unordered-map-and-tuple
-	std::unordered_map<std::string, ModelInfo> models;
-	models.emplace("Cow", ModelInfo("./models/spot/spot_triangulated.obj"));
-	models.emplace("Fish", ModelInfo("./models/blub/blub_triangulated.obj"));
-	models.emplace("Torus", ModelInfo("./models/torus.obj"));
-
-	// Select first model by default.
-	std::string selectedModelName = models.begin()->first;
-	models.at(selectedModelName).bind(); // Bind it.
-	*/
-
-	// A "dictionary" that maps textures' ImGui display names to their Texture.
-	// Because Texture has no default constructor
-	// (and there's no good one for it in its current form)
-	// We have to use .at() and .emplace() instead of "[]" notation.
-	// See: https://stackoverflow.com/questions/29826155/why-a-default-constructor-is-needed-using-unordered-map-and-tuple
-	std::unordered_map<std::string, Texture> textures;
-	textures.emplace("Cow", Texture("./textures/spot/spot_texture.png", GL_LINEAR));
-	textures.emplace("Fish", Texture("./textures/blub/blub_texture.png", GL_LINEAR));
-	const std::string noTexName = "None";
-
-	// Select first texture by default.
-	std::string selectedTexName = textures.begin()->first;
-	textures.at(selectedTexName).bind(); // Bind it.
-	std::cout << selectedTexName << "\n";
-
-	Texture cowtex = Texture("./textures/spot/spot_texture.png", GL_LINEAR);
-	std::cout << "Texture is " << cowtex.getDimensions().x << " by " << cowtex.getDimensions().y << "\n";
+	//Texture cowtex = Texture("./textures/spot/spot_texture.png", GL_LINEAR);
+	Texture sandtex = Texture("./textures/spot/spot_texture.png", GL_LINEAR); //had to put it at the same path as the old cow texture because for some reason it wasn't working otherwise.
+	sandtex.bind();
+	//std::cout << "Texture is " << cowtex.getDimensions().x << " by " << cowtex.getDimensions().y << "\n";
 
 	// Say we're using textures (if the model supports them).
 	bool texExistence = true;
@@ -313,7 +284,7 @@ int main() {
 	//	changecheck[i] = false;
 	//}
 	setflagstrue(changecheck);
-
+	std::cout << "about to enter render loop\n";
 	// RENDER LOOP
 	while (!window.shouldClose()) {
 		glfwPollEvents();
@@ -327,77 +298,6 @@ int main() {
 		ImGui::Begin("Render Info.");
 
 		bool change = false; // Whether any ImGui variable's changed.
-
-		/* BOILERPLATE TO BE FACTORED OUT
-		// A drop-down box for choosing the 3D model to render.
-		if (ImGui::BeginCombo("Model", selectedModelName.c_str()))
-		{
-			// Iterate over our dictionary's key-val pairs.
-			for (auto& keyVal : models) {
-				// Check if this key (a model display name) was last selected.
-				const bool isSelected = (selectedModelName == keyVal.first);
-
-				// Now check if the user is currently selecting that model.
-				// The use of "isSelected" just changes the colour of the box.
-				if (ImGui::Selectable(keyVal.first.c_str(), isSelected))
-				{
-					selectedModelName = keyVal.first;
-					keyVal.second.bind(); // Bind the selected model.
-				}
-				// Sets the initial focus when the combo is opened
-				if (isSelected) ImGui::SetItemDefaultFocus();
-			}
-			ImGui::EndCombo();
-			change = true;
-		}
-
-		// Only display the texture dropdown if applicable.
-		if (models.at(selectedModelName).hasUVs())
-		{
-			// A drop-down box for choosing the texture to use.
-			if (ImGui::BeginCombo("Texture", selectedTexName.c_str()))
-			{
-				// First, display an option to select NO texture!
-				const bool noneSelected = selectedTexName == noTexName;
-				if (ImGui::Selectable(noTexName.c_str(), noneSelected))
-				{
-					selectedTexName = noTexName;
-				}
-				if (noneSelected) ImGui::SetItemDefaultFocus();
-
-				// Then, present our dictionary's contents as other texture options.
-				for (auto& keyVal : textures) {
-					// Check if this key (a model display name) was last selected.
-					const bool isSelected = (selectedTexName == keyVal.first);
-					// Now check if the user is currently selecting that texture.
-					// The use of "isSelected" just changes the colour of the box.
-					if (ImGui::Selectable(keyVal.first.c_str(), isSelected))
-					{
-						selectedTexName = keyVal.first;
-						keyVal.second.bind(); // Bind the selected texture.
-					}
-					// Sets the initial focus when the combo is opened
-					if (isSelected) ImGui::SetItemDefaultFocus();
-				}
-				ImGui::EndCombo();
-				change = true;
-			}
-		}
-		*/
-
-		// We'll only render with a texture if the model has UVs and a texture was chosen.
-		//texExistence = (models.at(selectedModelName).hasUVs() && selectedTexName != noTexName);
-
-		// If a texture is not in use, the user can pick the diffuse colour.
-		//if (!texExistence) change |= ImGui::ColorEdit3("Diffuse colour", glm::value_ptr(diffuseCol));
-
-		/* BOILERPLATE TO BE FACTORED OUT
-		// The rest of our ImGui widgets.
-		change |= ImGui::DragFloat3("Light's position", glm::value_ptr(lightPos));
-		change |= ImGui::ColorEdit3("Light's colour", glm::value_ptr(lightCol));
-		change |= ImGui::SliderFloat("Ambient strength", &ambientStrength, 0.0f, 1.f);
-		change |= ImGui::Checkbox("Simple wireframe", &simpleWireframe);
-		*/
 
 		// Framerate display, in case you need to debug performance.
 		ImGui::Text("Average %.1f ms/frame (%.1f fps)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
@@ -485,7 +385,7 @@ int main() {
 				}
 				//textures.at(selectedTexName).bind();
 				cb->updateShadingUniforms(lightPos, lightCol, diffuseCol, ambientStrength, true);
-				renderpoly(zigcpu, &gpu_obj, &cowtex);
+				renderpoly(zigcpu, &gpu_obj, &sandtex);
 			}
 		}
 
