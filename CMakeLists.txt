@@ -124,7 +124,7 @@ foreach(file ${files_m})
 	configure_file(${file} models/${fileName} COPYONLY)
 endforeach()
 
-add_executable(${APP_NAME} ${SOURCES})
+add_executable(${APP_NAME} ${SOURCES} "589-689-skeleton/Avalanche.h" "589-689-skeleton/Avalanche.cpp" "589-689-skeleton/Wind.h" "589-689-skeleton/Wind.cpp")
 target_include_directories(${APP_NAME} PRIVATE ${INCLUDES})
 target_link_libraries(${APP_NAME} ${LIBRARIES})
 target_compile_definitions(${APP_NAME} PRIVATE ${DEFINITIONS})

@@ -1,5 +1,4 @@
 #include "SandCell.h"
-#include "SurfaceRender.h"
 
 // X and Z range of the cells
 int _width = 4;
@@ -7,7 +6,10 @@ int _length = 4;
 
 // Toggle if you want to generate random heights
 bool randomHeights = false;
+bool avalanche = false;
+bool avalanche_submenu = false;
 float pillarHeight = 0.f;
+
 // Toggle to render the cells
 bool cellChange = false;
 bool showCells = true;
@@ -67,17 +69,24 @@ void sandCellImGui(CPU_Geometry& cpuGeom) {
 	cellChange |= ImGui::InputInt("Width  (Z): ", &_width);
 	cellChange |= ImGui::Checkbox("Random Heights", &randomHeights);
 	cellChange |= ImGui::InputInt("Order k of B-Spline Surface", &_order_k);
+	cellChange |= ImGui::Checkbox("Avalanching behavior", &avalanche_submenu);
+	if (avalanche_submenu) {
+		cellChange |= ImGui::InputInt("Number of iterations: ", &number_of_iterations);
+		cellChange |= ImGui::InputFloat("Avalanching amount: ", &avalanche_amount);
+		cellChange |= ImGui::InputFloat("Iterations: ", &repose);
+		cellChange |= ImGui::Checkbox("Avalanche", &avalanche);
+	}
 	if (!randomHeights) {
 		cellChange |= ImGui::InputFloat("Height of Pillar", &pillarHeight, 0.1f, 1.f);
 	}
 
 	if (cellChange) {
+
 		// Recreate cells
 		createCells(cpuGeom);
 		if (!randomHeights) {
 			pillarSetup(cpuGeom, pillarHeight);
 		}
-		
 	}
 
 	ImGui::Checkbox("Render Cells", &showCells);
@@ -107,6 +116,7 @@ float randNumber(float _min, float _max) {
 // Function to create cells that uses build in values
 void createCells(CPU_Geometry& cpuGeom) {
 	cpuGeom.verts.clear();
+
 	// Test value for adhesion, will need to be removed
 	int _adhesion = 10.f;
 
@@ -124,16 +134,16 @@ void createCells(CPU_Geometry& cpuGeom) {
 			else {
 				heights.push_back(0.f);
 			}
-			
+
 			adhesions.push_back(_adhesion);
 			// Pushes row by row
-			cpuGeom.verts.push_back(glm::vec3(i, heights.back(), j)); 
+			cpuGeom.verts.push_back(glm::vec3(i, heights.back(), j));
 		}
 	}
 }
 
 // Function that creates cells can be passed values of X & Z
-void createCells(int _x, int _z, CPU_Geometry &cpuGeom) {
+void createCells(int _x, int _z, CPU_Geometry& cpuGeom) {
 	_width = _x;
 	_length = _z;
 
@@ -217,7 +227,7 @@ void renderCells2Calls(CPU_Geometry& input_cpu) {
 			}
 			index--;
 		}
-		
+
 		else {
 			index = index + _width;
 			for (int i = 0; i < _width; i++) {
@@ -252,7 +262,7 @@ void renderCells2Calls(CPU_Geometry& input_cpu) {
 			}
 			index += _width;
 			index++;
-		}		
+		}
 
 	}
 	output_gpu.setVerts(output_cpu.verts);
@@ -262,7 +272,7 @@ void renderCells2Calls(CPU_Geometry& input_cpu) {
 
 }
 
-void cubesRender(CPU_Geometry &inputCPU, CPU_Geometry * outputCPU) {
+void cubesRender(CPU_Geometry& inputCPU, CPU_Geometry* outputCPU) {
 	CPU_Geometry tempCPU;
 	//CPU_Geometry outputCPU;
 	GPU_Geometry outputGPU;
@@ -272,49 +282,49 @@ void cubesRender(CPU_Geometry &inputCPU, CPU_Geometry * outputCPU) {
 		// Makes the eight vertices of a cube
 		// P0
 		tempCPU.verts.push_back(glm::vec3(inputCPU.verts.at(i).x - 0.5f,
-											0.0f,
-											inputCPU.verts.at(i).z - 0.5f));
-		
+			0.0f,
+			inputCPU.verts.at(i).z - 0.5f));
+
 		// P1
 		tempCPU.verts.push_back(glm::vec3(inputCPU.verts.at(i).x + 0.5f,
-											0.0f,
-											inputCPU.verts.at(i).z - 0.5f));
-		
+			0.0f,
+			inputCPU.verts.at(i).z - 0.5f));
+
 		// P2
 		tempCPU.verts.push_back(glm::vec3(inputCPU.verts.at(i).x - 0.5f,
-											0.0f,
-											inputCPU.verts.at(i).z + 0.5f));
-		
+			0.0f,
+			inputCPU.verts.at(i).z + 0.5f));
+
 		// P3
 		tempCPU.verts.push_back(glm::vec3(inputCPU.verts.at(i).x + 0.5f,
-											0.0f,
-											inputCPU.verts.at(i).z + 0.5f));
-		
+			0.0f,
+			inputCPU.verts.at(i).z + 0.5f));
+
 		// P4
 		tempCPU.verts.push_back(glm::vec3(inputCPU.verts.at(i).x - 0.5f,
-											inputCPU.verts.at(i).y,
-											inputCPU.verts.at(i).z - 0.5f));
-		
+			inputCPU.verts.at(i).y,
+			inputCPU.verts.at(i).z - 0.5f));
+
 		// P5
 		tempCPU.verts.push_back(glm::vec3(inputCPU.verts.at(i).x + 0.5f,
-											inputCPU.verts.at(i).y,
-											inputCPU.verts.at(i).z - 0.5f));
-		
+			inputCPU.verts.at(i).y,
+			inputCPU.verts.at(i).z - 0.5f));
+
 		// P6
 		tempCPU.verts.push_back(glm::vec3(inputCPU.verts.at(i).x - 0.5f,
-											inputCPU.verts.at(i).y,
-											inputCPU.verts.at(i).z + 0.5f));	
-		
+			inputCPU.verts.at(i).y,
+			inputCPU.verts.at(i).z + 0.5f));
+
 		// P7
 		tempCPU.verts.push_back(glm::vec3(inputCPU.verts.at(i).x + 0.5f,
-											inputCPU.verts.at(i).y,
-											inputCPU.verts.at(i).z + 0.5f));
+			inputCPU.verts.at(i).y,
+			inputCPU.verts.at(i).z + 0.5f));
 
 		// Traversal order for line strip in indices
 		std::vector<int> traversalOrder = { 0,2,6,4,0,1,5,7,6,4,5,7,3,2,0,1,3 };
-		
+
 		/*
-		       5 ------ 7
+			   5 ------ 7
 			  /|       / |
 			 / |      /  |
 			4 ------ 6   |
@@ -344,10 +354,10 @@ void pillarSetup(CPU_Geometry& inputCPU, float _height) {
 
 	// This is a quick way to find the halfway point of the vertices
 	// Does not work for all sizes as it will often end up on the edge of the patch
-	int halfway = inputCPU.verts.size() / 2;	
+	int halfway = inputCPU.verts.size() / 2;
 
 	// Changes the middle point's height value to create a pillar
 	inputCPU.verts.at(halfway) = (glm::vec3(inputCPU.verts.at(halfway).x,
-											_height,
-											inputCPU.verts.at(halfway).z));
+		_height,
+		inputCPU.verts.at(halfway).z));
 }

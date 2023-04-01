@@ -23,6 +23,7 @@
 #include "glm/glm.hpp"
 #include "glm/gtc/type_ptr.hpp"
 
+#include "Avalanche.h"
 #include "SandCell.h"
 #include "SurfaceRender.h"
 
@@ -312,11 +313,9 @@ int main() {
 		// ImGui to control sand cell data structure
 		sandCellImGui(cells_cpu);
 
-
 		ImGui::Render();
 
 		gpu_obj.bind();
-
 
 		glEnable(GL_LINE_SMOOTH);
 		glEnable(GL_FRAMEBUFFER_SRGB);
