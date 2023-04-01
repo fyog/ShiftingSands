@@ -468,19 +468,15 @@ int main() {
 
 
 		if (cb->getUpPressed()) {
-			std::cout << "Up" << std::endl;
 			lookAtPoint.x += scrollSpeed;
 		}
 		else if (cb->getDownPressed()) {
-			std::cout << "Down" << std::endl;
 			lookAtPoint.x -= scrollSpeed;
 		}
 		if (cb->getRightPressed()) {
-			std::cout << "Right" << std::endl;
 			lookAtPoint.z += scrollSpeed;
 		}
 		else if (cb->getLeftPressed()) {
-			std::cout << "Left" << std::endl;
 			lookAtPoint.z -= scrollSpeed;
 		}
 
