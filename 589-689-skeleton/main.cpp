@@ -275,7 +275,7 @@ int main() {
 	// Some variables for shading that ImGui may alter.
 	glm::vec3 lightPos(0.f, 35.f, -35.f);
 	glm::vec3 lightCol(1.f);
-	glm::vec3 diffuseCol(1.f, 0.f, 0.f);
+	glm::vec3 diffuseCol(0.f, 0.f, 0.f);
 	float ambientStrength = 0.035f;
 	bool simpleWireframe = false;
 
@@ -458,6 +458,7 @@ int main() {
 					preparecellsforrender(cells_cpu, &lerpline);
 					changecheck[0] = false;
 				}
+				cb->updateShadingUniforms(lightPos, lightCol, diffuseCol, ambientStrength, false);
 				rendertest(lerpline, &gpu_obj); 
 			}
 			// Cubes Render
@@ -468,6 +469,7 @@ int main() {
 					cubesRender(cells_cpu, &cubeobj);
 					changecheck[1] = false;
 				}
+				cb->updateShadingUniforms(lightPos, lightCol, diffuseCol, ambientStrength, false);
 				rendertest(cubeobj, &gpu_obj);
 			}
 			// Smooth Render
@@ -482,6 +484,7 @@ int main() {
 					changecheck[2] = false;
 				}
 				//textures.at(selectedTexName).bind();
+				cb->updateShadingUniforms(lightPos, lightCol, diffuseCol, ambientStrength, true);
 				renderpoly(zigcpu, &gpu_obj, &cowtex);
 			}
 		}
