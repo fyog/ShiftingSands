@@ -409,8 +409,8 @@ int main() {
 				//renderCells(cells_cpu);
 				if (changecheck[0])
 				{
-					createCells(cells_cpu);
-					//preparecellsforrender(cells_cpu, &lerpline);
+					//createCells(cells_cpu);
+					preparecellsforrender(cells_cpu, &lerpline);
 					
 					changecheck[0] = false;
 				}
