@@ -4,8 +4,6 @@
 
 
 
-extern std::vector<glm::vec3> wind_field;
-
 float slab_size = .5f;
 
 float wind_threshold_height = 1.5f;

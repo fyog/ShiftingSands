@@ -27,6 +27,7 @@
 #include "Avalanche.h"
 #include "SandCell.h"
 #include "SurfaceRender.h"
+#include "Wind.h"
 
 glm::vec3 lookAtPoint = glm::vec3(0,0,0);
 float scrollSpeed = 0.01f;
@@ -261,10 +262,14 @@ bool avalanche = false;
 bool avalanche_submenu = false;
 float pillarHeight = 0.f;
 
+bool wind = false;
+bool wind_submenu = false;
+
 // Toggle to render the cells
 bool cellChange = false;
 bool showCells = true;
 int renderMode = 0;
+int field_type = 0;
 int _order_k = 4;
 
 // ImGui panel to control the sand cells
@@ -275,6 +280,7 @@ void sandCellImGui(CPU_Geometry& cpuGeom) {
 
 	// Names of render modes to be displayed in slider
 	const char* renderModeNames[] = { "LERP", "Cubes", "Smooth" };
+	const char* wind_field_types[] = { "Linear", "Radial", "Converging" };
 
 	cellChange |= ImGui::InputInt("Length (X): ", &_length);
 	cellChange |= ImGui::InputInt("Width  (Z): ", &_width);
@@ -282,10 +288,21 @@ void sandCellImGui(CPU_Geometry& cpuGeom) {
 	cellChange |= ImGui::InputInt("Order k of B-Spline Surface", &_order_k);
 	cellChange |= ImGui::Checkbox("Avalanching behavior", &avalanche_submenu);
 	if (avalanche_submenu) {
-		cellChange |= ImGui::InputInt("Number of iterations: ", &number_of_iterations);
 		cellChange |= ImGui::InputFloat("Avalanching amount: ", &avalanche_amount);
 		cellChange |= ImGui::InputFloat("Iterations: ", &repose);
 		cellChange |= ImGui::Checkbox("Avalanche", &avalanche);
+	}
+	cellChange |= ImGui::Checkbox("Wind Behavior", &wind_submenu);
+	if (wind_submenu) {
+		ImGui::Text("Type of wind field:");
+		ImGui::SliderInt(wind_field_types[field_type], &field_type, 0, 2);
+		cellChange |= ImGui::InputFloat("Beta", &beta);
+		cellChange |= ImGui::InputFloat("Wind threshold height: ", &wind_threshold_height);
+		cellChange |= ImGui::InputFloat("Slab size: ", &slab_size);
+		cellChange |= ImGui::InputInt("Number of iterations: ", &number_of_iterations_2);
+		cellChange |= ImGui::Checkbox("Wind", &wind);
+
+
 	}
 	if (!randomHeights) {
 		cellChange |= ImGui::InputFloat("Height of Pillar", &pillarHeight, 0.1f, 1.f);
@@ -433,10 +450,17 @@ int main() {
 		glPolygonMode(GL_FRONT_AND_BACK, (simpleWireframe ? GL_LINE : GL_FILL));
 
 		shader.use();
+
 		if (avalanche) {
 			apply_avalanching(&cells_cpu, heights, getWidth(), getLength(), repose, number_of_iterations);
 			avalanche = false;
 		}
+
+		/*if (wind){
+			apply_wind(&cells_cpu, heights, wind_field, getWidth(), getLength(), number_of_iterations);
+			wind = false;
+		}*/
+
 		// Boilerplate change check -- may need to change name
 		if (change)
 		{

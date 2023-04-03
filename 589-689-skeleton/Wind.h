@@ -8,7 +8,7 @@ extern std::vector<glm::vec3> wind_field;
 
 extern float slab_size;
 
-extern float threshold_height;
+extern float wind_threshold_height;
 
 extern float beta;
 
