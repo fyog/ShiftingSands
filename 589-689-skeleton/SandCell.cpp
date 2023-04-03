@@ -4,17 +4,6 @@
 int _width = 4;
 int _length = 4;
 
-// Toggle if you want to generate random heights
-bool randomHeights = false;
-bool avalanche = false;
-bool avalanche_submenu = false;
-float pillarHeight = 0.f;
-
-// Toggle to render the cells
-bool cellChange = false;
-bool showCells = true;
-int renderMode = 0;
-
 // Collections of height and adhesion values
 std::vector<float> heights;
 std::vector<float> adhesions;
@@ -50,53 +39,6 @@ int getRenderMode() {
 	return renderMode;
 }
 
-int _order_k= 4;
-
-int getOrderK() {
-	return _order_k;
-}
-
-// ImGui panel to control the sand cells
-void sandCellImGui(CPU_Geometry& cpuGeom) {
-	ImGui::Begin("Sand Cell Tuning");
-
-	cellChange = false;
-
-	// Names of render modes to be displayed in slider
-	const char* renderModeNames[] = { "LERP", "Cubes", "Smooth" };
-
-	cellChange |= ImGui::InputInt("Length (X): ", &_length);
-	cellChange |= ImGui::InputInt("Width  (Z): ", &_width);
-	cellChange |= ImGui::Checkbox("Random Heights", &randomHeights);
-	cellChange |= ImGui::InputInt("Order k of B-Spline Surface", &_order_k);
-	cellChange |= ImGui::Checkbox("Avalanching behavior", &avalanche_submenu);
-	if (avalanche_submenu) {
-		cellChange |= ImGui::InputInt("Number of iterations: ", &number_of_iterations);
-		cellChange |= ImGui::InputFloat("Avalanching amount: ", &avalanche_amount);
-		cellChange |= ImGui::InputFloat("Iterations: ", &repose);
-		cellChange |= ImGui::Checkbox("Avalanche", &avalanche);
-	}
-	if (!randomHeights) {
-		cellChange |= ImGui::InputFloat("Height of Pillar", &pillarHeight, 0.1f, 1.f);
-	}
-
-	if (cellChange) {
-
-		// Recreate cells
-		createCells(cpuGeom);
-		if (!randomHeights) {
-			pillarSetup(cpuGeom, pillarHeight);
-		}
-	}
-
-	ImGui::Checkbox("Render Cells", &showCells);
-	if (showCells) {
-		ImGui::Text("Number of Draw Calls:");
-		ImGui::SliderInt(renderModeNames[renderMode], &renderMode, 0, 2);
-	}
-
-	ImGui::End();
-}
 
 // Random number generator to test the structure 
 float randNumber(float _min, float _max) {

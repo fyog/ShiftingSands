@@ -1,3 +1,4 @@
+
 #include <iostream>
 #include <string>
 #include <list>
@@ -256,6 +257,61 @@ void setflagstrue(bool* flags)
 	}
 }
 
+// Toggle if you want to generate random heights
+bool randomHeights = false;
+bool avalanche = false;
+bool avalanche_submenu = false;
+float pillarHeight = 0.f;
+
+// Toggle to render the cells
+bool cellChange = false;
+bool showCells = true;
+int renderMode = 0;
+int _order_k = 4;
+
+
+// ImGui panel to control the sand cells
+void sandCellImGui(CPU_Geometry& cpuGeom) {
+	ImGui::Begin("Sand Cell Tuning");
+
+	cellChange = false;
+
+	// Names of render modes to be displayed in slider
+	const char* renderModeNames[] = { "LERP", "Cubes", "Smooth" };
+
+	cellChange |= ImGui::InputInt("Length (X): ", &_length);
+	cellChange |= ImGui::InputInt("Width  (Z): ", &_width);
+	cellChange |= ImGui::Checkbox("Random Heights", &randomHeights);
+	cellChange |= ImGui::InputInt("Order k of B-Spline Surface", &_order_k);
+	cellChange |= ImGui::Checkbox("Avalanching behavior", &avalanche_submenu);
+	if (avalanche_submenu) {
+		cellChange |= ImGui::InputInt("Number of iterations: ", &number_of_iterations);
+		cellChange |= ImGui::InputFloat("Avalanching amount: ", &avalanche_amount);
+		cellChange |= ImGui::InputFloat("Iterations: ", &repose);
+		cellChange |= ImGui::Checkbox("Avalanche", &avalanche);
+	}
+	if (!randomHeights) {
+		cellChange |= ImGui::InputFloat("Height of Pillar", &pillarHeight, 0.1f, 1.f);
+	}
+
+	if (cellChange) {
+
+		// Recreate cells
+		createCells(cpuGeom);
+		if (!randomHeights) {
+			pillarSetup(cpuGeom, pillarHeight);
+		}
+	}
+
+	ImGui::Checkbox("Render Cells", &showCells);
+	if (showCells) {
+		ImGui::Text("Number of Draw Calls:");
+		ImGui::SliderInt(renderModeNames[renderMode], &renderMode, 0, 2);
+	}
+
+	ImGui::End();
+}
+
 
 int main() {
 	Log::debug("Starting main");
@@ -312,7 +368,7 @@ int main() {
 	bool debug = true;
 	if (debug) std::cout << "about to call placesurfacevecs() in main()\n";
 	
-	placesurfacevecs(cells_cpu, &splinesurf, getWidth(), getLength(), getOrderK());
+	placesurfacevecs(cells_cpu, &splinesurf, getWidth(), getLength(), _order_k);
 	//if (debug) std::cout << "placesurfacevecs() successful. now doing zigzagdraw()\n";
 	//zigzagdraw(splinesurf, &zigcpu, getWidth(), getLength());
 	splineframe(splinesurf, &zigcpu, getWidth(), getLength());
@@ -434,7 +490,7 @@ int main() {
 				if (changecheck[2])
 				{
 					//if (debug) printCPUVerts(cells_cpu);
-					placesurfacevecs(cells_cpu, &splinesurf, getWidth(), getLength(), getOrderK());
+					placesurfacevecs(cells_cpu, &splinesurf, getWidth(), getLength(), _order_k);
 					//zigzagdraw(splinesurf, &zigcpu, getWidth(), getLength());
 					//splineframe(splinesurf, &zigcpu, getWidth(), getLength());
 					drawtexturedsurface(&splinesurf, &zigcpu, getWidth(), getLength());
