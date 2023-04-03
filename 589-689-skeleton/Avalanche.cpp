@@ -7,6 +7,8 @@ int number_of_iterations = 1;
 float avalanche_amount = .5f;
 
 float getHeight(std::vector<float> heights, int width, int length, int x, int y) {
+
+	// check the values of x and y to prevent out of bounds error
 	if (x < 0 || y < 0) {
 		x = 0;
 		y = 0;
@@ -17,6 +19,7 @@ float getHeight(std::vector<float> heights, int width, int length, int x, int y)
 	return heights[width * (y) + x];
 }
 
+// check the values of x and y to prevent out of bounds error
 void setHeight(std::vector<float> &heights, int width, int length, int x, int y, float height) {
 	if (x < 0 || y < 0) {
 		x = 0;
@@ -61,8 +64,7 @@ void apply_avalanching(CPU_Geometry* surface, std::vector<float> heights, int wi
 
 // checks repose of the cell below the given cell
 bool check_repose_down(CPU_Geometry* surface, std::vector<float> heights, int width, int length, int x, int y) {
-	if (getHeight(heights, width, length, x, y) - getHeight(heights, width, length, x, y - 1) > repose
-		&& y - 1 < 0) {
+	if (getHeight(heights, width, length, x, y) - getHeight(heights, width, length, x, y - 1) > repose) {
 		return true;
 	}
 	return false;
@@ -70,8 +72,7 @@ bool check_repose_down(CPU_Geometry* surface, std::vector<float> heights, int wi
 
 // checks repose of the cell left of the given cell
 bool check_repose_left(CPU_Geometry* surface, std::vector<float> heights, int width, int length, int x, int y) {
-	if (getHeight(heights, width, length, x, y) - getHeight(heights, width, length, x - 1, y) > repose
-		&& x - 1 < 0) {
+	if (getHeight(heights, width, length, x, y) - getHeight(heights, width, length, x - 1, y) > repose) {
 		return true;
 	}
 	return false;
@@ -79,8 +80,7 @@ bool check_repose_left(CPU_Geometry* surface, std::vector<float> heights, int wi
 
 // checks repose of the cell right of the given cell
 bool check_repose_right(CPU_Geometry* surface, std::vector<float> heights, int width, int length, int x, int y) {
-	if (getHeight(heights, width, length, x, y) - getHeight(heights, width, length, x + 1, y) > repose
-		&& x + 1 > width) {
+	if (getHeight(heights, width, length, x, y) - getHeight(heights, width, length, x + 1, y) > repose) {
 		return true;
 	}
 	return false;
@@ -88,8 +88,7 @@ bool check_repose_right(CPU_Geometry* surface, std::vector<float> heights, int w
 
 // checks repose of the cell above the given cell
 bool check_repose_up(CPU_Geometry* surface, std::vector<float> heights, int width, int length, int x, int y) {
-	if (getHeight(heights, width, length, x, y) - getHeight(heights, width, length, x, y + 1) > repose
-		&& y + 1 > length) {
+	if (getHeight(heights, width, length, x, y) - getHeight(heights, width, length, x, y + 1) > repose) {
 		return true;
 	}
 	return false;
