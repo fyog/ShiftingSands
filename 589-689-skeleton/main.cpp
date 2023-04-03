@@ -456,10 +456,11 @@ int main() {
 			avalanche = false;
 		}
 
-		/*if (wind){
-			apply_wind(&cells_cpu, heights, wind_field, getWidth(), getLength(), number_of_iterations);
+		if (wind) {
+			auto wind_field_gen = generate_wind_field("LINEAR", getWidth(), getLength());
+			apply_wind(&cells_cpu, heights, wind_field_gen, getWidth(), getLength(), number_of_iterations);
 			wind = false;
-		}*/
+		}
 
 		// Boilerplate change check -- may need to change name
 		if (change)
