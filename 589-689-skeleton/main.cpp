@@ -159,7 +159,6 @@ public:
 		return 2.f * flippedY - glm::vec2(1.f, 1.f);
 	}
 
-
 	Camera camera;
 
 	bool getUpPressed() {
@@ -213,7 +212,6 @@ private:
 	GLint texExistenceLoc;
 
 	ShaderProgram& shader;
-
 };
 
 // You may want to make your own class to replace this one.
@@ -268,7 +266,6 @@ bool cellChange = false;
 bool showCells = true;
 int renderMode = 0;
 int _order_k = 4;
-
 
 // ImGui panel to control the sand cells
 void sandCellImGui(CPU_Geometry& cpuGeom) {
@@ -436,7 +433,10 @@ int main() {
 		glPolygonMode(GL_FRONT_AND_BACK, (simpleWireframe ? GL_LINE : GL_FILL));
 
 		shader.use();
-
+		if (avalanche) {
+			apply_avalanching(&cells_cpu, heights, getWidth(), getLength(), repose, number_of_iterations);
+			avalanche = false;
+		}
 		// Boilerplate change check -- may need to change name
 		if (change)
 		{

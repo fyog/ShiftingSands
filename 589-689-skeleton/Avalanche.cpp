@@ -7,11 +7,25 @@ int number_of_iterations = 1;
 float avalanche_amount = .5f;
 
 float getHeight(std::vector<float> heights, int width, int length, int x, int y) {
-	return heights[width * (y - 1) + x];
+	if (x < 0 || y < 0) {
+		x = 0;
+		y = 0;
+	} else if (x > width || y > length) {
+		x = width;
+		y = length;
+	}
+	return heights[width * (y) + x];
 }
 
 void setHeight(std::vector<float> &heights, int width, int length, int x, int y, float height) {
-	heights[width * (y - 1) + x] = height;
+	if (x < 0 || y < 0) {
+		x = 0;
+		y = 0;
+	} else if (x > width || y > length) {
+		x = width;
+		y = length;
+	}
+	heights[width * (y) + x] = height;
 }
 
 // applies avalanching behavior to the given surface (CPU_Geometry object)
