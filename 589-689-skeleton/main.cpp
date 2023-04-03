@@ -271,6 +271,7 @@ bool showCells = true;
 int renderMode = 0;
 int field_type = 0;
 int _order_k = 4;
+const char* wind_field_type[] = { "Linear", "Radial", "Converging" };
 
 // ImGui panel to control the sand cells
 void sandCellImGui(CPU_Geometry& cpuGeom) {
@@ -280,22 +281,25 @@ void sandCellImGui(CPU_Geometry& cpuGeom) {
 
 	// Names of render modes to be displayed in slider
 	const char* renderModeNames[] = { "LERP", "Cubes", "Smooth" };
-	const char* wind_field_types[] = { "Linear", "Radial", "Converging" };
 
 	cellChange |= ImGui::InputInt("Length (X): ", &_length);
 	cellChange |= ImGui::InputInt("Width  (Z): ", &_width);
 	cellChange |= ImGui::Checkbox("Random Heights", &randomHeights);
 	cellChange |= ImGui::InputInt("Order k of B-Spline Surface", &_order_k);
-	cellChange |= ImGui::Checkbox("Avalanching behavior", &avalanche_submenu);
+
+	// avalanche behavior
+	ImGui::Checkbox("Avalanching behavior", &avalanche_submenu);
 	if (avalanche_submenu) {
 		cellChange |= ImGui::InputFloat("Avalanching amount: ", &avalanche_amount);
 		cellChange |= ImGui::InputFloat("Iterations: ", &repose);
 		cellChange |= ImGui::Checkbox("Avalanche", &avalanche);
 	}
-	cellChange |= ImGui::Checkbox("Wind Behavior", &wind_submenu);
+
+	// wind behavior
+	ImGui::Checkbox("Wind Behavior", &wind_submenu);
 	if (wind_submenu) {
 		ImGui::Text("Type of wind field:");
-		ImGui::SliderInt(wind_field_types[field_type], &field_type, 0, 2);
+		ImGui::SliderInt(wind_field_type[field_type], &field_type, 0, 2);
 		cellChange |= ImGui::InputFloat("Beta", &beta);
 		cellChange |= ImGui::InputFloat("Wind threshold height: ", &wind_threshold_height);
 		cellChange |= ImGui::InputFloat("Slab size: ", &slab_size);
@@ -325,7 +329,6 @@ void sandCellImGui(CPU_Geometry& cpuGeom) {
 
 	ImGui::End();
 }
-
 
 int main() {
 	Log::debug("Starting main");
@@ -396,10 +399,10 @@ int main() {
 	//}
 	setflagstrue(changecheck);
 	std::cout << "about to enter render loop\n";
-	// RENDER LOOP
+
+	// RENDER LOOP ----------------------------------------------------------------------------------------------------
 	while (!window.shouldClose()) {
 		glfwPollEvents();
-
 
 		// Three functions that must be called each new frame.
 		ImGui_ImplOpenGL3_NewFrame();
@@ -423,7 +426,6 @@ int main() {
 
 		// ImGui to control sand cell data structure
 		sandCellImGui(cells_cpu);
-
 
 		if (cb->getUpPressed()) {
 			lookAtPoint.x += scrollSpeed;
@@ -457,8 +459,8 @@ int main() {
 		}
 
 		if (wind) {
-			auto wind_field_gen = generate_wind_field("LINEAR", getWidth(), getLength());
-			apply_wind(&cells_cpu, heights, wind_field_gen, getWidth(), getLength(), number_of_iterations);
+			auto wind_field_gen = generate_wind_field(wind_field_type[field_type], getWidth(), getLength());
+			apply_wind(&cells_cpu, heights, wind_field_gen, getWidth(), getLength(), number_of_iterations_2);
 			wind = false;
 		}
 
@@ -470,9 +472,8 @@ int main() {
 			//cb->updateShadingUniforms(lightPos, lightCol, diffuseCol, ambientStrength, texExistence);
 		}
 		cb->viewPipeline();
+
 		//glDrawArrays(GL_LINE_STRIP, 0, GLsizei(splineob.verts.size())); 
-
-
 		//glDrawArrays(GL_TRIANGLES, 0, GLsizei(models.at(selectedModelName).numVerts())); //Commented this out to test b-spline -Reid
 		
 		if (getCellChange())
@@ -480,7 +481,6 @@ int main() {
 			setflagstrue(changecheck); //All flags will be set to true when the control points are changed
 			//we use an array of flags to check if we should redraw the objects instead of a single flag since the b-spline surface wasn't redrawing correctly when we only checked getCellChange()
 		}
-
 
 		// Toggle Render
 		if (getShowCells()) {
