@@ -258,6 +258,8 @@ void setflagstrue(bool* flags)
 
 // Toggle if you want to generate random heights
 bool randomHeights = false;
+bool random_submenu = false;
+float random_height = 2.f;
 bool avalanche = false;
 bool avalanche_submenu = false;
 float pillarHeight = 0.f;
@@ -284,8 +286,14 @@ void sandCellImGui(CPU_Geometry& cpuGeom) {
 
 	cellChange |= ImGui::InputInt("Length (X): ", &_length);
 	cellChange |= ImGui::InputInt("Width  (Z): ", &_width);
-	cellChange |= ImGui::Checkbox("Random Heights", &randomHeights);
-	cellChange |= ImGui::InputInt("Order k of B-Spline Surface", &_order_k);
+	cellChange |= ImGui::InputInt("Order k of B-Spline Surface: ", &_order_k);
+	cellChange |= ImGui::Checkbox("Random Heights", &random_submenu);
+
+	// randomize cell heights
+	if (random_submenu) {
+		cellChange |= ImGui::InputFloat("Randomized height threshold: ", &random_height);
+		cellChange |= ImGui::Checkbox("Randomize", &randomHeights);
+	}
 
 	// avalanche behavior
 	ImGui::Checkbox("Avalanching behavior", &avalanche_submenu);
@@ -308,17 +316,17 @@ void sandCellImGui(CPU_Geometry& cpuGeom) {
 
 
 	}
-	if (!randomHeights) {
+
+	// otherwise, ask for pillar height
+	else {
 		cellChange |= ImGui::InputFloat("Height of Pillar", &pillarHeight, 0.1f, 1.f);
+
 	}
 
 	if (cellChange) {
 
 		// Recreate cells
 		createCells(cpuGeom);
-		if (!randomHeights) {
-			pillarSetup(cpuGeom, pillarHeight);
-		}
 	}
 
 	ImGui::Checkbox("Render Cells", &showCells);
@@ -452,6 +460,18 @@ int main() {
 		glPolygonMode(GL_FRONT_AND_BACK, (simpleWireframe ? GL_LINE : GL_FILL));
 
 		shader.use();
+
+		// recreate with random heights, making sure no height is above the random_height variable
+		if (randomHeights) {
+			pillarSetup(cells_cpu, random_height);
+			randomHeights = false;
+		}
+
+		// otherwise, recreate the surface using pillarHeight
+		else {
+			pillarSetup(cells_cpu, pillarHeight);
+		}
+
 
 		if (avalanche) {
 			apply_avalanching(&cells_cpu, heights, getWidth(), getLength(), repose, number_of_iterations);
