@@ -256,28 +256,28 @@ void setflagstrue(bool* flags)
 	}
 }
 
-// Toggle if you want to generate random heights
+
+// ImGui variables
 bool randomHeights = false;
 bool random_submenu = false;
 float random_height = 2.f;
 bool avalanche = false;
 bool avalanche_submenu = false;
 float pillarHeight = 0.f;
-
 bool wind = false;
 bool wind_submenu = false;
-
-// Toggle to render the cells
 bool cellChange = false;
 bool showCells = true;
 int renderMode = 0;
 int field_type = 0;
 int _order_k = 4;
+
+// Names of wind field types to be displayed in slider
 const char* wind_field_type[] = { "Linear", "Radial", "Converging" };
 
-// ImGui panel to control the sand cells
+// ImGui panel to control the surface ---------------------------------------------------------------------------------
 void sandCellImGui(CPU_Geometry& cpuGeom) {
-	ImGui::Begin("Sand Cell Tuning");
+	ImGui::Begin("Surface Tuning");
 
 	cellChange = false;
 
@@ -313,19 +313,15 @@ void sandCellImGui(CPU_Geometry& cpuGeom) {
 		cellChange |= ImGui::InputFloat("Slab size: ", &slab_size);
 		cellChange |= ImGui::InputInt("Number of iterations: ", &number_of_iterations_2);
 		cellChange |= ImGui::Checkbox("Wind", &wind);
-
-
 	}
 
 	// otherwise, ask for pillar height
 	else {
 		cellChange |= ImGui::InputFloat("Height of Pillar", &pillarHeight, 0.1f, 1.f);
-
 	}
 
+	// any time there is a change to the surface parameters, recreate the surface
 	if (cellChange) {
-
-		// Recreate cells
 		createCells(cpuGeom);
 	}
 
@@ -518,6 +514,7 @@ int main() {
 				cb->updateShadingUniforms(lightPos, lightCol, diffuseCol, ambientStrength, false);
 				rendertest(lerpline, &gpu_obj); 
 			}
+
 			// Cubes Render
 			else if (getRenderMode() == 1) {
 				//cubesRender(cells_cpu);
@@ -529,6 +526,7 @@ int main() {
 				cb->updateShadingUniforms(lightPos, lightCol, diffuseCol, ambientStrength, false);
 				rendertest(cubeobj, &gpu_obj);
 			}
+
 			// Smooth Render
 			else if (getRenderMode() == 2) {
 				if (changecheck[2])
