@@ -300,6 +300,6 @@ void pillarSetup(CPU_Geometry& inputCPU, float _height) {
 
 	// Changes the middle point's height value to create a pillar
 	inputCPU.verts.at(halfway) = (glm::vec3(inputCPU.verts.at(halfway).x,
-		_height,
+		randNumber(0, _height),
 		inputCPU.verts.at(halfway).z));
 }

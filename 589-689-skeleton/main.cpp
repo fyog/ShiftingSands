@@ -472,7 +472,6 @@ int main() {
 			pillarSetup(cells_cpu, pillarHeight);
 		}
 
-
 		if (avalanche) {
 			apply_avalanching(&cells_cpu, heights, getWidth(), getLength(), repose, number_of_iterations);
 			avalanche = false;
