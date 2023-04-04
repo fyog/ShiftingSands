@@ -459,7 +459,7 @@ int main() {
 
 		// recreate with random heights, making sure no height is above the random_height variable
 		if (randomHeights) {
-			pillarSetup(cells_cpu, random_height);
+			pillarSetup(cells_cpu, random_height); // this is not work
 			randomHeights = false;
 		}
 
@@ -468,11 +468,13 @@ int main() {
 			pillarSetup(cells_cpu, pillarHeight);
 		}
 
+		// avalanching
 		if (avalanche) {
 			apply_avalanching(&cells_cpu, heights, getWidth(), getLength(), repose, number_of_iterations);
 			avalanche = false;
 		}
 
+		// wind effects
 		if (wind) {
 			auto wind_field_gen = generate_wind_field(wind_field_type[field_type], getWidth(), getLength());
 			apply_wind(&cells_cpu, heights, wind_field_gen, getWidth(), getLength(), number_of_iterations_2);
