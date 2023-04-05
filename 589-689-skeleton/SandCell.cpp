@@ -29,7 +29,7 @@ int getLength() {
 // Returns if the control points
 // of the cell were changed
 bool getCellChange() {
-	return cellChange;
+	return surfaceChange;
 }
 
 bool getShowCells() {
@@ -45,7 +45,9 @@ float* getRandomHeight() {
 }
 
 
-
+void updateCell(CPU_Geometry *cpu_geom, float height, int width, int length, int x, int y) {
+	cpu_geom -> verts[width * y + x].y = height;
+}
 
 // Random number generator to test the structure 
 float randNumber(float _min, float _max) {

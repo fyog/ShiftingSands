@@ -268,7 +268,9 @@ int pillarX = 0;
 int pillarY = 0;
 bool wind = false;
 bool wind_submenu = false;
-bool cellChange = false;
+bool surfaceChange = false;
+bool cellMod = false;
+bool saveCellHeight = false;
 bool showCells = true;
 int renderMode = 0;
 int field_type = 0;
@@ -281,28 +283,28 @@ const char* wind_field_type[] = { "Linear", "Radial", "Converging" };
 void sandCellImGui(CPU_Geometry& cpuGeom) {
 	ImGui::Begin("Surface Tuning");
 
-	cellChange = false;
+	surfaceChange = false;
 
 	// Names of render modes to be displayed in slider
 	const char* renderModeNames[] = { "LERP", "Cubes", "Smooth" };
 
-	cellChange |= ImGui::InputInt("Length (X): ", &_length);
-	cellChange |= ImGui::InputInt("Width  (Z): ", &_width);
-	cellChange |= ImGui::InputInt("Order k of B-Spline Surface: ", &_order_k);
-	cellChange |= ImGui::Checkbox("Random Heights", &random_submenu);
+	surfaceChange |= ImGui::InputInt("Length (X): ", &_length, 1, 200);
+	surfaceChange |= ImGui::InputInt("Width  (Z): ", &_width, 1, 200);
+	surfaceChange |= ImGui::InputInt("Order k of B-Spline Surface: ", &_order_k);
+	surfaceChange |= ImGui::Checkbox("Random Heights", &random_submenu);
 
 	// randomize cell heights
 	if (random_submenu) {
-		cellChange |= ImGui::InputFloat("Height threshold: ", getRandomHeight());
-		cellChange |= ImGui::Checkbox("Randomize", &randomHeights);
+		surfaceChange |= ImGui::InputFloat("Height threshold: ", getRandomHeight());
+		surfaceChange |= ImGui::Checkbox("Randomize", &randomHeights);
 	}
 
 	// avalanche behavior
 	ImGui::Checkbox("Avalanching behavior", &avalanche_submenu);
 	if (avalanche_submenu) {
-		cellChange |= ImGui::InputFloat("Avalanching amount: ", &avalanche_amount);
-		cellChange |= ImGui::InputFloat("Iterations: ", &repose);
-		cellChange |= ImGui::Checkbox("Avalanche", &avalanche);
+		surfaceChange |= ImGui::InputFloat("Avalanching amount: ", &avalanche_amount);
+		surfaceChange |= ImGui::InputFloat("Iterations: ", &repose);
+		surfaceChange |= ImGui::Checkbox("Avalanche", &avalanche);
 	}
 
 	// wind behavior
@@ -310,25 +312,32 @@ void sandCellImGui(CPU_Geometry& cpuGeom) {
 	if (wind_submenu) {
 		ImGui::Text("Type of wind field:");
 		ImGui::SliderInt(wind_field_type[field_type], &field_type, 0, 2);
-		cellChange |= ImGui::InputFloat("Beta", &beta);
-		cellChange |= ImGui::InputFloat("Wind threshold height: ", &wind_threshold_height);
-		cellChange |= ImGui::InputFloat("Slab size: ", &slab_size);
-		cellChange |= ImGui::InputInt("Number of iterations: ", &number_of_iterations_2);
-		cellChange |= ImGui::Checkbox("Wind", &wind);
+		surfaceChange |= ImGui::InputFloat("Beta", &beta);
+		surfaceChange |= ImGui::InputFloat("Wind threshold height: ", &wind_threshold_height);
+		surfaceChange |= ImGui::InputFloat("Slab size: ", &slab_size);
+		surfaceChange |= ImGui::InputInt("Number of iterations: ", &number_of_iterations_2);
+		surfaceChange |= ImGui::Checkbox("Wind", &wind);
 	}
 
-	// pillar height control
+	// individual pillar height control
 	ImGui::Checkbox("Precise height control", &pillar_submenu);
 	if (pillar_submenu) {
-		cellChange |= ImGui::InputFloat("Height of Pillar", &pillarHeight, 0.1f, 1.f);
-		cellChange |= ImGui::InputInt("Pillar X", &pillarX, 0.f, getWidth());
-		cellChange |= ImGui::InputInt("Pillar Y", &pillarY, 0.f, getLength());
+		ImGui::InputFloat("Height of Pillar", &pillarHeight, 0.f, 1.f);
+		ImGui::InputInt("Pillar X", &pillarX, 0.f, getWidth());
+		ImGui::InputInt("Pillar Y", &pillarY, 0.f, getLength());
+		ImGui::Checkbox("Apply", &cellMod);
 
 	}
 
-	// any time there is a change to the surface parameters, recreate the surface
-	if (cellChange) {
+	// any time there is a change to the surface parameters, but not any individual cell, recreate the surface
+	if (surfaceChange && !cellMod) {
 		createCells(cpuGeom);
+	}
+
+	// otherwise, if there is a change to a specific cell, update the surface but do not redraw <------------ NOT WORKING
+	else if (cellMod) {
+		updateCell(&cpuGeom, pillarHeight, getWidth(), getLength(), pillarX, pillarY);
+		cellMod = false;
 	}
 
 	ImGui::Checkbox("Render Cells", &showCells);
