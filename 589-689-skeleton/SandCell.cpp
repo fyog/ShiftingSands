@@ -44,9 +44,7 @@ float* getRandomHeight() {
 	return &random_height;
 }
 
-void setRandomHeight(float *random_height) {
-	random_height = random_height;
-}
+
 
 
 // Random number generator to test the structure 
@@ -299,16 +297,17 @@ void cubesRender(CPU_Geometry& inputCPU, CPU_Geometry* outputCPU) {
 	}
 }
 
-void pillarSetup(CPU_Geometry& inputCPU, float _height) {
+void pillarSetup(CPU_Geometry& inputCPU, float _height, int width, int length, int x, int y) {
 	//int halfX = _width / 2;
 	//int halfZ = _length / 2;
 
-	// This is a quick way to find the halfway point of the vertices
-	// Does not work for all sizes as it will often end up on the edge of the patch
-	int halfway = inputCPU.verts.size() / 2;
+
+	//int halfway = inputCPU.verts.size() / 2;
 
 	// Changes the middle point's height value to create a pillar
-	inputCPU.verts.at(halfway) = (glm::vec3(inputCPU.verts.at(halfway).x,
-		randNumber(0, _height),
-		inputCPU.verts.at(halfway).z));
+	inputCPU.verts[_width*y+x] = (
+		glm::vec3(inputCPU.verts[_width*y+x].x,
+		_height,
+		inputCPU.verts[_width * y + x].z)
+		);
 }

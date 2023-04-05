@@ -262,7 +262,10 @@ bool randomHeights = false;
 bool random_submenu = false;
 bool avalanche = false;
 bool avalanche_submenu = false;
+bool pillar_submenu = false;
 float pillarHeight = 0.f;
+int pillarX = 0;
+int pillarY = 0;
 bool wind = false;
 bool wind_submenu = false;
 bool cellChange = false;
@@ -290,7 +293,7 @@ void sandCellImGui(CPU_Geometry& cpuGeom) {
 
 	// randomize cell heights
 	if (random_submenu) {
-		cellChange |= ImGui::InputFloat("Randomized height threshold: ", getRandomHeight());
+		cellChange |= ImGui::InputFloat("Height threshold: ", getRandomHeight());
 		cellChange |= ImGui::Checkbox("Randomize", &randomHeights);
 	}
 
@@ -314,9 +317,13 @@ void sandCellImGui(CPU_Geometry& cpuGeom) {
 		cellChange |= ImGui::Checkbox("Wind", &wind);
 	}
 
-	// otherwise, ask for pillar height
-	else {
+	// pillar height control
+	ImGui::Checkbox("Precise height control", &pillar_submenu);
+	if (pillar_submenu) {
 		cellChange |= ImGui::InputFloat("Height of Pillar", &pillarHeight, 0.1f, 1.f);
+		cellChange |= ImGui::InputInt("Pillar X", &pillarX, 0.f, getWidth());
+		cellChange |= ImGui::InputInt("Pillar Y", &pillarY, 0.f, getLength());
+
 	}
 
 	// any time there is a change to the surface parameters, recreate the surface
@@ -458,13 +465,14 @@ int main() {
 
 		// recreate with random heights, making sure no height is above the random_height variable
 		if (randomHeights) {
-			//randomHeights = false;
+			//randomHeights = false; // eventually this should be uncommented and the current state of the surface should be preserved by some other means (eg. a bool passed to createCells()?)
 		}
 
-		// otherwise, recreate the surface using pillarHeight (this probably can be updsated to have more control over pillar location, size, etc.)
-		else {
-			pillarSetup(cells_cpu, pillarHeight);
+		// recreate a specific pillar on the surface using the given height
+		if (pillar_submenu) {
+			pillarSetup(cells_cpu, pillarHeight, getWidth(), getLength(), pillarX, pillarY);
 		}
+
 
 		// avalanching
 		if (avalanche) {

@@ -17,6 +17,7 @@ extern float pillarHeight;
 extern bool cellChange;
 extern bool showCells;
 extern int renderMode;
+
 extern std::vector<float> heights;
 extern std::vector<float> adhesions;
 std::vector<float> getAdhesionVector();
@@ -35,5 +36,5 @@ void renderCells(CPU_Geometry& input_cpu);
 void renderCells(CPU_Geometry& input_cpu, int _width, int _height);
 void renderCells2Calls(CPU_Geometry& input_cpu);
 void cubesRender(CPU_Geometry& inputCPU, CPU_Geometry* outputCPU);
-void pillarSetup(CPU_Geometry& inputCPU, float _height);
+void pillarSetup(CPU_Geometry& inputCPU, float _height, int width, int length, int x, int y);
 void preparecellsforrender(CPU_Geometry input_cpu, CPU_Geometry* output_cpu);
