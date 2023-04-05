@@ -260,7 +260,6 @@ void setflagstrue(bool* flags)
 // ImGui variables
 bool randomHeights = false;
 bool random_submenu = false;
-float random_height = 2.f;
 bool avalanche = false;
 bool avalanche_submenu = false;
 float pillarHeight = 0.f;
@@ -291,7 +290,7 @@ void sandCellImGui(CPU_Geometry& cpuGeom) {
 
 	// randomize cell heights
 	if (random_submenu) {
-		cellChange |= ImGui::InputFloat("Randomized height threshold: ", &random_height);
+		cellChange |= ImGui::InputFloat("Randomized height threshold: ", getRandomHeight());
 		cellChange |= ImGui::Checkbox("Randomize", &randomHeights);
 	}
 
@@ -459,7 +458,6 @@ int main() {
 
 		// recreate with random heights, making sure no height is above the random_height variable
 		if (randomHeights) {
-			pillarSetup(cells_cpu, random_height); // this is not work
 			randomHeights = false;
 		}
 

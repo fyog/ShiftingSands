@@ -3,6 +3,7 @@
 // X and Z range of the cells
 int _width = 4;
 int _length = 4;
+float random_height = 2.5f;
 
 // Collections of height and adhesion values
 std::vector<float> heights;
@@ -39,6 +40,14 @@ int getRenderMode() {
 	return renderMode;
 }
 
+float* getRandomHeight() {
+	return &random_height;
+}
+
+void setRandomHeight(float *random_height) {
+	random_height = random_height;
+}
+
 
 // Random number generator to test the structure 
 float randNumber(float _min, float _max) {
@@ -71,7 +80,7 @@ void createCells(CPU_Geometry& cpuGeom) {
 
 			if (randomHeights) {
 				// Random heights test
-				heights.push_back(randNumber(0.f, 2.5f));
+				heights.push_back(randNumber(0.f, random_height));
 			}
 			else {
 				heights.push_back(0.f);
