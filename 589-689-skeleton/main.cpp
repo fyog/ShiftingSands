@@ -458,10 +458,10 @@ int main() {
 
 		// recreate with random heights, making sure no height is above the random_height variable
 		if (randomHeights) {
-			randomHeights = false;
+			//randomHeights = false;
 		}
 
-		// otherwise, recreate the surface using pillarHeight
+		// otherwise, recreate the surface using pillarHeight (this probably can be updsated to have more control over pillar location, size, etc.)
 		else {
 			pillarSetup(cells_cpu, pillarHeight);
 		}
