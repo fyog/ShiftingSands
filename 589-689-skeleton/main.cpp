@@ -432,9 +432,12 @@ int main() {
 	cb->updateShadingUniforms(lightPos, lightCol, diffuseCol, ambientStrength, texExistence);
 
 	CPU_Geometry cells_cpu;
+	cells_cpu.verts.reserve(200000);
 	//CPU_Geometry cells_patch_cpu;
 	CPU_Geometry lerpline;
+	lerpline.verts.reserve(200000);
 	CPU_Geometry cubeobj;
+	cubeobj.verts.reserve(200000);
 
 	GPU_Geometry gpu_obj;
 
@@ -445,14 +448,16 @@ int main() {
 	cubesRender(cells_cpu, &cubeobj);
 
 	CPU_Geometry splinesurf;
+	splinesurf.verts.reserve(200000);
 	CPU_Geometry zigcpu;
+	zigcpu.verts.reserve(200000);
 	bool debug = true;
 	if (debug) std::cout << "about to call placesurfacevecs() in main()\n";
 	
-	placesurfacevecs(cells_cpu, &splinesurf, getWidth(), getLength(), _order_k);
+	placesurfacevecs(&cells_cpu, &splinesurf, getWidth(), getLength(), _order_k);
 	//if (debug) std::cout << "placesurfacevecs() successful. now doing zigzagdraw()\n";
 	//zigzagdraw(splinesurf, &zigcpu, getWidth(), getLength());
-	splineframe(splinesurf, &zigcpu, getWidth(), getLength());
+	splineframe(&splinesurf, &zigcpu, getWidth(), getLength());
 	//if (debug) std::cout << "zigzagdraw() successful\n";
 	//int knownwid = 4;
 	//int knownlen = 4;
@@ -556,7 +561,7 @@ int main() {
 				if (changecheck[0])
 				{
 					//createCells(cells_cpu);
-					preparecellsforrender(cells_cpu, &lerpline);
+					preparecellsforrender(&cells_cpu, &lerpline);
 					
 					changecheck[0] = false;
 				}
@@ -582,7 +587,7 @@ int main() {
 				if (changecheck[2])
 				{
 					//if (debug) printCPUVerts(cells_cpu);
-					placesurfacevecs(cells_cpu, &splinesurf, getWidth(), getLength(), _order_k);
+					placesurfacevecs(&cells_cpu, &splinesurf, getWidth(), getLength(), _order_k);
 					//zigzagdraw(splinesurf, &zigcpu, getWidth(), getLength());
 					//splineframe(splinesurf, &zigcpu, getWidth(), getLength());
 					drawtexturedsurface(&splinesurf, &zigcpu, getWidth(), getLength());

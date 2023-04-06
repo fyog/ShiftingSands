@@ -153,7 +153,7 @@ void renderCells(CPU_Geometry& input_cpu, int _x, int _z) {
 
 // Cell render with only two draw calls (2 zig zag patterns overlayed)
 
-void preparecellsforrender(CPU_Geometry input_cpu, CPU_Geometry* output_cpu)
+void preparecellsforrender(CPU_Geometry *input_cpu, CPU_Geometry* output_cpu)
 {
 	output_cpu->verts.clear();
 	zigzagdraw(input_cpu, output_cpu, _width, _length);
