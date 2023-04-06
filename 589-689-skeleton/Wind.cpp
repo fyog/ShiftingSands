@@ -63,7 +63,7 @@ std::vector<glm::vec3> generate_wind_field(std::string type_of_field, int width,
 	return 	mag * (wind_strength / (float) wind_strength.length()); 
 }
 
-// attempts to deposit a sand slab at the given x, y coordinates. returns true if the deposit was successful, otherwise returns false
+// attempts to deposit a sand slab at the given x, y coordinates. returns true if the depositing was successful, otherwise returns false
 bool deposit_sand(CPU_Geometry* surface, std::vector<float> heights, int width, int length, int x, int y) {
 
 	// check if a random number between 0 - 1 is greater than beta
@@ -78,18 +78,20 @@ bool deposit_sand(CPU_Geometry* surface, std::vector<float> heights, int width, 
 	return false;
 }
 
-// collect the given cell's immediate neighbour's heights (cell is specified by the x, y coordinates)
-// returns a vec3 where first entry is the height and the second and third entries are the x and y coordinates respectively
+// collect the given cell's immediate neighbour's x, y, z coordinates 
+// returns a vec3 where first entry x, second entry is y/height, third entry is z
 std::vector<glm::vec3> get_neighbours_heights(CPU_Geometry* surface, std::vector<float> heights, int width, int length, int x, int y) {
 	std::vector<glm::vec3> tmp;
-	tmp.push_back(glm::vec3(getHeight(heights, width, length, x + 1, y), x + 1, y));
-	tmp.push_back(glm::vec3(getHeight(heights, width, length, x - 1, y), x - 1, y));
-	tmp.push_back(glm::vec3(getHeight(heights, width, length, x, y + 1), x, y + 1));
-	tmp.push_back(glm::vec3(getHeight(heights, width, length, x, y - 1), x, y - 1));
+	tmp.push_back(glm::vec3(x + 1, getHeight(heights, width, length, x + 1, y) , y));
+	tmp.push_back(glm::vec3(x - 1, getHeight(heights, width, length, x - 1, y), y));
+	tmp.push_back(glm::vec3(x, getHeight(heights, width, length, x, y + 1), y + 1));
+	tmp.push_back(glm::vec3(x, getHeight(heights, width, length, x, y - 1), y - 1));
 	return tmp;
 }
 
-void reptation(CPU_Geometry* surface, std::vector<float> heights, std::vector<glm::vec3> wind_field, int width, int length, int x, int y) {
+
+// applies reptation behavior to the given surface
+void reptation(CPU_Geometry* surface, std::vector<float> heights, int width, int length, int x, int y) {
 
 	int n = 2; // this value was suggested by the paper
 
@@ -99,16 +101,17 @@ void reptation(CPU_Geometry* surface, std::vector<float> heights, std::vector<gl
 	// sort neighbour's heights in descending order
 	//std::sort(neighbours.begin() -> x, neighbours.end() -> x, std::greater<float>());
 
-	// pop off n entries from the back of the vector and use those entries (n = 2)
+	// pop off n entries from the back of the vector (n = 2)
 	auto entry_1 = neighbours.back();
 	neighbours.pop_back();
 	auto entry_2 = neighbours.back();
-	setHeight(heights, width, length, entry_1.y, entry_1.z, entry_1.x + slab_size / n);
-	setHeight(heights, width, length, entry_1.y, entry_1.z, entry_1.x + slab_size / n);
+
+	// adjust the heights of the vectors experiencing reptation 
+	setHeight(heights, width, length, entry_1.x, entry_1.z, entry_1.y + slab_size / n);
+	setHeight(heights, width, length, entry_2.x, entry_2.z, entry_2.y + slab_size / n);
 }
 
-// applies wind behavior to the given surface (CPU_Geometry object) based on the given wind_field and current heights of each cell (missing reptation)
-// carries out the given
+// applies wind behavior to the given surface (CPU_Geometry object) based on the given wind_field
 void apply_wind(CPU_Geometry* surface, std::vector<float> heights, std::vector<glm::vec3> wind_field, int width, int length, float number_of_iterations_2) {
 	for (int i = 0; i < number_of_iterations_2; i++) {
 		for (int x = 0; x < width; x++) {
@@ -124,7 +127,7 @@ void apply_wind(CPU_Geometry* surface, std::vector<float> heights, std::vector<g
 					if (!deposit_sand(surface, heights, width, length, slab_deposit_distance.x, slab_deposit_distance.y)) {
 
 						// disperse sand to n nearest neighbours if the sand was not able to be deposited
-						reptation(surface, heights, wind_field, width, length, x, y);
+						reptation(surface, heights, width, length, x, y);
 					}
 				}
 			}

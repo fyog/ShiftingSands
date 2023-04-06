@@ -322,7 +322,7 @@ void sandCellImGui(CPU_Geometry& cpuGeom) {
 	// individual pillar height control
 	ImGui::Checkbox("Precise height control", &pillar_submenu);
 	if (pillar_submenu) {
-		ImGui::InputFloat("Height of Pillar", &pillarHeight, 0.f, 1.f);
+		ImGui::InputFloat("Height of Pillar", &pillarHeight, 0.f, 10.f);
 		ImGui::InputInt("Pillar X", &pillarX, 0.f, getWidth());
 		ImGui::InputInt("Pillar Y", &pillarY, 0.f, getLength());
 		ImGui::Checkbox("Apply", &cellMod);
@@ -336,6 +336,7 @@ void sandCellImGui(CPU_Geometry& cpuGeom) {
 
 	// otherwise, if there is a change to a specific cell, update the surface but do not redraw <------------ NOT WORKING
 	else if (cellMod) {
+
 		updateCell(&cpuGeom, pillarHeight, getWidth(), getLength(), pillarX, pillarY);
 		cellMod = false;
 	}
