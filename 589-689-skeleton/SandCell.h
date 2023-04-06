@@ -32,7 +32,7 @@ float* getRandomHeight();
 void sandCellImGui(CPU_Geometry& cpuGeom);
 float randNumber(float _min, float _max);
 void createCells(CPU_Geometry& cpuGeom);
-void updateCell(CPU_Geometry* cpu_geom, float height, int width, int length, int x, int y);
+void updateCell(CPU_Geometry& cpu_geom, float height, int width, int length, int x, int y);
 void createCells(int _width, int _height, CPU_Geometry& cpuGeom);
 void renderCells(CPU_Geometry& input_cpu);
 void renderCells(CPU_Geometry& input_cpu, int _width, int _height);

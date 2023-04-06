@@ -34,6 +34,7 @@ int random_number = 50;
 //	return random_number;
 //}
 
+// generate wind fields - three different types: linear, radial, converging
 std::vector<glm::vec3> generate_wind_field(std::string type_of_field, int width, int length) {
 	std::vector<glm::vec3> tmp;
 

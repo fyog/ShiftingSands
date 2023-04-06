@@ -291,9 +291,9 @@ void sandCellImGui(CPU_Geometry& cpuGeom) {
 	surfaceChange |= ImGui::InputInt("Length (X): ", &_length, 1, 200);
 	surfaceChange |= ImGui::InputInt("Width  (Z): ", &_width, 1, 200);
 	surfaceChange |= ImGui::InputInt("Order k of B-Spline Surface: ", &_order_k);
-	surfaceChange |= ImGui::Checkbox("Random Heights", &random_submenu);
 
 	// randomize cell heights
+	ImGui::Checkbox("Random Heights", &random_submenu);
 	if (random_submenu) {
 		surfaceChange |= ImGui::InputFloat("Height threshold: ", getRandomHeight());
 		surfaceChange |= ImGui::Checkbox("Randomize", &randomHeights);
@@ -322,24 +322,31 @@ void sandCellImGui(CPU_Geometry& cpuGeom) {
 	// individual pillar height control
 	ImGui::Checkbox("Precise height control", &pillar_submenu);
 	if (pillar_submenu) {
-		ImGui::InputFloat("Height of Pillar", &pillarHeight, 0.f, 10.f);
+		ImGui::InputFloat("Height of pillar", &pillarHeight, 0.f, 10.f);
 		ImGui::InputInt("Pillar X", &pillarX, 0.f, getWidth());
 		ImGui::InputInt("Pillar Y", &pillarY, 0.f, getLength());
-		ImGui::Checkbox("Apply", &cellMod);
-
+		surfaceChange |= ImGui::Checkbox("Apply", &cellMod);
 	}
 
-	// any time there is a change to the surface parameters, but not any individual cell, recreate the surface
-	if (surfaceChange && !cellMod) {
+	// any time there is a change to the surface parameters
+	if (surfaceChange) {
+
+		// if there is a mod to a certain cell update the surface
+		if (cellMod) {
+			updateCell(cpuGeom, pillarHeight, getWidth(), getLength(), pillarX, pillarY);
+			cellMod = false;
+		}
 		createCells(cpuGeom);
+
 	}
 
 	// otherwise, if there is a change to a specific cell, update the surface but do not redraw <------------ NOT WORKING
-	else if (cellMod) {
+	//else if (cellMod) {
 
-		updateCell(&cpuGeom, pillarHeight, getWidth(), getLength(), pillarX, pillarY);
-		cellMod = false;
-	}
+	updateCell(cpuGeom, pillarHeight, getWidth(), getLength(), pillarX, pillarY);
+	//	//createCells(cpuGeom);
+	//	cellMod = false;
+	//}
 
 	ImGui::Checkbox("Render Cells", &showCells);
 	if (showCells) {

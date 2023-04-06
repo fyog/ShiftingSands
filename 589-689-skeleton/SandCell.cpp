@@ -45,8 +45,8 @@ float* getRandomHeight() {
 }
 
 
-void updateCell(CPU_Geometry *cpu_geom, float height, int width, int length, int x, int y) {
-	cpu_geom -> verts[width * y + x].y = height;
+void updateCell(CPU_Geometry &cpu_geom, float height, int width, int length, int x, int y) {
+	cpu_geom.verts[width * y + x].y = height;
 }
 
 // Random number generator to test the structure 
@@ -300,10 +300,9 @@ void cubesRender(CPU_Geometry& inputCPU, CPU_Geometry* outputCPU) {
 }
 
 void pillarSetup(CPU_Geometry& inputCPU, float _height, int width, int length, int x, int y) {
+
 	//int halfX = _width / 2;
 	//int halfZ = _length / 2;
-
-
 	//int halfway = inputCPU.verts.size() / 2;
 
 	// Changes the middle point's height value to create a pillar
