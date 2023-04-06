@@ -562,7 +562,7 @@ int main() {
 				{
 					//createCells(cells_cpu);
 					preparecellsforrender(&cells_cpu, &lerpline);
-					
+					gpu_obj.setVerts(lerpline.verts);
 					changecheck[0] = false;
 				}
 
@@ -576,6 +576,8 @@ int main() {
 				if (changecheck[1])
 				{
 					cubesRender(cells_cpu, &cubeobj);
+					gpu_obj.setVerts(cubeobj.verts);
+
 					changecheck[1] = false;
 				}
 				cb->updateShadingUniforms(lightPos, lightCol, diffuseCol, ambientStrength, false);
@@ -592,6 +594,10 @@ int main() {
 					//splineframe(splinesurf, &zigcpu, getWidth(), getLength());
 					drawtexturedsurface(&splinesurf, &zigcpu, getWidth(), getLength());
 					changecheck[2] = false;
+
+					gpu_obj.setVerts(zigcpu.verts);
+					gpu_obj.setNormals(zigcpu.normals);
+					gpu_obj.setUVs(zigcpu.uvs);
 				}
 				//textures.at(selectedTexName).bind();
 				cb->updateShadingUniforms(lightPos, lightCol, diffuseCol, ambientStrength, true);
