@@ -432,12 +432,12 @@ int main() {
 	cb->updateShadingUniforms(lightPos, lightCol, diffuseCol, ambientStrength, texExistence);
 
 	CPU_Geometry cells_cpu;
-	cells_cpu.verts.reserve(200000);
+	cells_cpu.verts.reserve(50000);
 	//CPU_Geometry cells_patch_cpu;
 	CPU_Geometry lerpline;
-	lerpline.verts.reserve(200000);
+	lerpline.verts.reserve(50000);
 	CPU_Geometry cubeobj;
-	cubeobj.verts.reserve(200000);
+	cubeobj.verts.reserve(50000);
 
 	GPU_Geometry gpu_obj;
 

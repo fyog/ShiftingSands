@@ -9,7 +9,7 @@ glm::vec3 point2dindex(CPU_Geometry *obj, int rowdex, int coldex, int width)
 {
 	//When we defined rowdex and coldex, rowdex was meant to be the index in some row and the index of some column, but the names might be a bit ambiguous since one might think of "rowdex == x" means that we're
 	//looking at the xth row, but actually it would be the xth element in that row. basically, you should think of like (rowdex) is the x-coord on a cartesian plane and (coldex) is the y-coord.
-	//glm::vec3 returner = obj.verts[(width * coldex) + rowdex]; //If this were a 2d [width] by [length] array, then this element would be equivalent to the [rowdex][coldex] element
+	//glm::vec3 returner = obj->verts[(width * coldex) + rowdex]; //If this were a 2d [width] by [length] array, then this element would be equivalent to the [rowdex][coldex] element
 	//return returner;
 
 	return obj->verts[(width * coldex) + rowdex];
@@ -48,8 +48,8 @@ glm::vec3 onesplinepoint(CPU_Geometry *control, int width, int length, float u, 
 	//onesplinepoint() will use the quickspline() function to calculate one point on the b-spline surface.
 	//We assume that u is going along the width, and v is going along the length. 
 	CPU_Geometry ucontrol, vrange; //ucontrol will have the control points going in the u direction, vrange will be the control points in some relevant range in the v direction
-	ucontrol.verts.reserve(k);
-	vrange.verts.reserve(k);
+	ucontrol.verts.reserve(500);
+	vrange.verts.reserve(500);
 	int m = length - 1; //there are "length" control points going along and m for a b-spline calculation is the number of control points minus 1
 	//int k = K_ORDER; //We'll assume all b-spline curves should be of order four (cubic). The constant is defined at teh top if you want to change it, though
 	int vdelta = getdelta(vknots, (m + k + 1), v, 0); //As in the quickspline() algorithm, we need to get the delta knot to know what the relevant range to look at is.
