@@ -98,7 +98,9 @@ void placesurfacevecs(CPU_Geometry *control, CPU_Geometry* surface, int width, i
 	//int k = K_ORDER;
 	glm::vec3 temp;
 	CPU_Geometry ucontrol;
+	ucontrol.verts.reserve(500000);
 	CPU_Geometry vcontrol;
+	vcontrol.verts.reserve(500000);
 
 	if (((width + k) < (2 * k)) || ((length + k) < (2 * k))) return; //if we don't have enough control points to generate a surface, return immediately without changing surface's vertex vector.
 
@@ -472,9 +474,11 @@ void rendertest(CPU_Geometry lineobj, GPU_Geometry* output_gpu)
 
 void renderpoly(CPU_Geometry polyobj, GPU_Geometry* output_gpu, Texture * tex)
 {
-	output_gpu->setVerts(polyobj.verts);
-	output_gpu->setNormals(polyobj.normals);
-	output_gpu->setUVs(polyobj.uvs);
+	// Moved these commented out set functions so they would not be called every frame
+	// rendering every frame slowed down the simulation
+	//output_gpu->setVerts(polyobj.verts);
+	//output_gpu->setNormals(polyobj.normals);
+	//output_gpu->setUVs(polyobj.uvs);
 	tex->bind();
 	glDrawArrays(GL_TRIANGLES, 0, GLsizei(polyobj.verts.size()));
 	tex->unbind();
