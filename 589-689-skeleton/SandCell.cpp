@@ -44,7 +44,6 @@ float* getRandomHeight() {
 	return &random_height;
 }
 
-
 void updateCell(CPU_Geometry &cpu_geom, float height, int width, int length, int x, int y) {
 	cpu_geom.verts[width * y + x].y = height;
 }
@@ -66,7 +65,7 @@ float randNumber(float _min, float _max) {
 
 // Function to create cells that uses build in values
 void createCells(CPU_Geometry& cpuGeom) {
-	cpuGeom.verts.clear();
+	//cpuGeom.verts.clear();
 
 	// Test value for adhesion, will need to be removed
 	int _adhesion = 10.f;
@@ -79,6 +78,7 @@ void createCells(CPU_Geometry& cpuGeom) {
 		for (int i = 0; i < _width; i++) {
 
 			if (randomHeights) {
+
 				// Random heights test
 				heights.push_back(randNumber(0.f, random_height));
 			}
