@@ -307,29 +307,23 @@ void sandCellImGui(CPU_Geometry& cpuGeom) {
 
 			ImGui::EndTabItem();
 		}
+
 		if (ImGui::BeginTabItem("Patch Modification")) {
 			// randomize cell heights
-			ImGui::Checkbox("Random Heights", &random_submenu);
-			if (random_submenu) {
+			if (ImGui::CollapsingHeader("Random Heights")) {
 				surfaceChange |= ImGui::InputFloat("Height threshold: ", getRandomHeight());
-				surfaceChange |= ImGui::Checkbox("Randomize", &randomHeights);
+					surfaceChange |= ImGui::Checkbox("Randomize", &randomHeights);
 			}
 
-			ImGui::Separator();
-
 			// avalanche behavior
-			ImGui::Checkbox("Avalanching behavior", &avalanche_submenu);
-			if (avalanche_submenu) {
+			if (ImGui::CollapsingHeader("Avalanching")) {
 				surfaceChange |= ImGui::InputFloat("Avalanching amount: ", &avalanche_amount);
 				surfaceChange |= ImGui::InputFloat("Iterations: ", &repose);
 				surfaceChange |= ImGui::Checkbox("Avalanche", &avalanche);
 			}
 
-			ImGui::Separator();
-
 			// wind behavior
-			ImGui::Checkbox("Wind Behavior", &wind_submenu);
-			if (wind_submenu) {
+			if (ImGui::CollapsingHeader("Wind")) {
 				ImGui::Text("Type of wind field:");
 				//ImGui::SliderInt(wind_field_type[field_type], &field_type, 0, 2);
 
@@ -344,16 +338,14 @@ void sandCellImGui(CPU_Geometry& cpuGeom) {
 				surfaceChange |= ImGui::Checkbox("Wind", &wind);
 			}
 
-			ImGui::Separator();
-
 			// individual pillar height control
-			ImGui::Checkbox("Precise height control", &pillar_submenu);
-			if (pillar_submenu) {
+			if (ImGui::CollapsingHeader("Pillar")) {
 				ImGui::InputFloat("Height of pillar", &pillarHeight, 0.f, 10.f);
 				ImGui::InputInt("Pillar X", &pillarX, 0.f, getWidth());
 				ImGui::InputInt("Pillar Y", &pillarY, 0.f, getLength());
 				surfaceChange |= ImGui::Checkbox("Apply", &cellMod);
 			}
+
 			ImGui::EndTabItem();
 		}
 		if (ImGui::BeginTabItem("Camera")) {
