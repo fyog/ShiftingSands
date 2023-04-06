@@ -8,25 +8,25 @@ float avalanche_amount = .5f;
 
 float getHeight(std::vector<float> heights, int width, int length, int x, int y) {
 
-	// check the values of x and y to prevent out of bounds error
+	// check the values of x and y to prevent out of bounds error (toric domain)
 	if (x < 0 || y < 0) {
-		x = 0;
-		y = 0;
-	} else if (x > width || y > length) {
 		x = width;
 		y = length;
+	} else if (x > width || y > length) {
+		x = 0;
+		y = 0;
 	}
 	return heights[width * (y) + x];
 }
 
-// check the values of x and y to prevent out of bounds error
+// check the values of x and y to prevent out of bounds error (toric domain)
 void setHeight(std::vector<float> &heights, int width, int length, int x, int y, float height) {
 	if (x < 0 || y < 0) {
-		x = 0;
-		y = 0;
-	} else if (x > width || y > length) {
 		x = width;
 		y = length;
+	} else if (x > width || y > length) {
+		x = 0;
+		y = 0;
 	}
 	heights[width * (y) + x] = height;
 }

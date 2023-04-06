@@ -336,6 +336,7 @@ void sandCellImGui(CPU_Geometry& cpuGeom) {
 			updateCell(cpuGeom, pillarHeight, getWidth(), getLength(), pillarX, pillarY);
 			cellMod = false;
 		}
+
 		createCells(cpuGeom);
 
 	}
