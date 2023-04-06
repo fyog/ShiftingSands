@@ -86,6 +86,7 @@ glm::vec3 quickspline(CPU_Geometry * control, float * knots, float u, int k, int
 	int delta = getdelta(knots, n, u, 0);
 
 	CPU_Geometry rangelife;
+	rangelife.verts.reserve(k);
 
 	int i;
 	for (i = 0; i < k; i++)

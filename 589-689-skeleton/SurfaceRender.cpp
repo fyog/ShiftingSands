@@ -48,6 +48,8 @@ glm::vec3 onesplinepoint(CPU_Geometry *control, int width, int length, float u, 
 	//onesplinepoint() will use the quickspline() function to calculate one point on the b-spline surface.
 	//We assume that u is going along the width, and v is going along the length. 
 	CPU_Geometry ucontrol, vrange; //ucontrol will have the control points going in the u direction, vrange will be the control points in some relevant range in the v direction
+	ucontrol.verts.reserve(k);
+	vrange.verts.reserve(k);
 	int m = length - 1; //there are "length" control points going along and m for a b-spline calculation is the number of control points minus 1
 	//int k = K_ORDER; //We'll assume all b-spline curves should be of order four (cubic). The constant is defined at teh top if you want to change it, though
 	int vdelta = getdelta(vknots, (m + k + 1), v, 0); //As in the quickspline() algorithm, we need to get the delta knot to know what the relevant range to look at is.
@@ -98,9 +100,9 @@ void placesurfacevecs(CPU_Geometry *control, CPU_Geometry* surface, int width, i
 	//int k = K_ORDER;
 	glm::vec3 temp;
 	CPU_Geometry ucontrol;
-	ucontrol.verts.reserve(500000);
+	ucontrol.verts.reserve(control->verts.size());
 	CPU_Geometry vcontrol;
-	vcontrol.verts.reserve(500000);
+	vcontrol.verts.reserve(control->verts.size());
 
 	if (((width + k) < (2 * k)) || ((length + k) < (2 * k))) return; //if we don't have enough control points to generate a surface, return immediately without changing surface's vertex vector.
 
