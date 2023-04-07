@@ -288,45 +288,87 @@ void sandCellImGui(CPU_Geometry& cpuGeom) {
 	// Names of render modes to be displayed in slider
 	const char* renderModeNames[] = { "LERP", "Cubes", "Smooth" };
 
-	surfaceChange |= ImGui::InputInt("Length (X): ", &_length, 1, 200);
-	surfaceChange |= ImGui::InputInt("Width  (Z): ", &_width, 1, 200);
-	surfaceChange |= ImGui::InputInt("Order k of B-Spline Surface: ", &_order_k);
+	if (ImGui::BeginTabBar("Tab Bar")) {
+		if (ImGui::BeginTabItem("Patch Setup")) {
+			surfaceChange |= ImGui::InputInt("Length (X): ", &_length, 1, 200);
+			surfaceChange |= ImGui::InputInt("Width  (Z): ", &_width, 1, 200);
+			surfaceChange |= ImGui::InputInt("Order k of B-Spline Surface: ", &_order_k);
 
-	// randomize cell heights
-	ImGui::Checkbox("Random Heights", &random_submenu);
-	if (random_submenu) {
-		surfaceChange |= ImGui::InputFloat("Height threshold: ", getRandomHeight());
-		surfaceChange |= ImGui::Checkbox("Randomize", &randomHeights);
+			ImGui::Separator();
+
+			ImGui::Checkbox("Render Cells", &showCells);
+			if (showCells) {
+				ImGui::Text("Type of Rendering:");
+				//ImGui::SliderInt(renderModeNames[renderMode], &renderMode, 0, 2);       // Previous selector version, I commented it out in case we want to use it again
+				ImGui::RadioButton(renderModeNames[0], &renderMode, 0); ImGui::SameLine();
+				ImGui::RadioButton(renderModeNames[1], &renderMode, 1); ImGui::SameLine();
+				ImGui::RadioButton(renderModeNames[2], &renderMode, 2);
+			}
+
+			ImGui::EndTabItem();
+		}
+
+		if (ImGui::BeginTabItem("Patch Modification")) {
+			// randomize cell heights
+			if (ImGui::CollapsingHeader("Random Heights")) {
+				surfaceChange |= ImGui::InputFloat("Height threshold: ", getRandomHeight());
+					surfaceChange |= ImGui::Checkbox("Randomize", &randomHeights);
+			}
+
+			// avalanche behavior
+			if (ImGui::CollapsingHeader("Avalanching")) {
+				surfaceChange |= ImGui::InputFloat("Avalanching amount: ", &avalanche_amount);
+				surfaceChange |= ImGui::InputFloat("Iterations: ", &repose);
+				surfaceChange |= ImGui::Checkbox("Avalanche", &avalanche);
+			}
+
+			// wind behavior
+			if (ImGui::CollapsingHeader("Wind")) {
+				ImGui::Text("Type of wind field:");
+				//ImGui::SliderInt(wind_field_type[field_type], &field_type, 0, 2);
+
+				ImGui::RadioButton(wind_field_type[0], &field_type, 0); ImGui::SameLine();
+				ImGui::RadioButton(wind_field_type[1], &field_type, 1); ImGui::SameLine();
+				ImGui::RadioButton(wind_field_type[2], &field_type, 2);
+
+				surfaceChange |= ImGui::InputFloat("Beta", &beta);
+				surfaceChange |= ImGui::InputFloat("Wind threshold height: ", &wind_threshold_height);
+				surfaceChange |= ImGui::InputFloat("Slab size: ", &slab_size);
+				surfaceChange |= ImGui::InputInt("Number of iterations: ", &number_of_iterations_2);
+				surfaceChange |= ImGui::Checkbox("Wind", &wind);
+			}
+
+			// individual pillar height control
+			if (ImGui::CollapsingHeader("Pillar")) {
+				ImGui::InputFloat("Height of pillar", &pillarHeight, 0.f, 10.f);
+				ImGui::InputInt("Pillar X", &pillarX, 0.f, getWidth());
+				ImGui::InputInt("Pillar Y", &pillarY, 0.f, getLength());
+				surfaceChange |= ImGui::Checkbox("Apply", &cellMod);
+			}
+
+			ImGui::EndTabItem();
+		}
+		if (ImGui::BeginTabItem("Camera")) {
+			// Framerate display, in case you need to debug performance.
+			ImGui::Text("Camera Look At Point");
+			ImGui::InputFloat("x", &lookAtPoint.x);
+			ImGui::InputFloat("y", &lookAtPoint.y);
+			ImGui::InputFloat("z", &lookAtPoint.z);
+			ImGui::InputFloat("Scroll speed: ", &scrollSpeed);
+
+
+			ImGui::Separator();
+			ImGui::Text("Average %.1f ms/frame (%.1f fps)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+
+			ImGui::EndTabItem();
+		}
+
+		ImGui::EndTabBar();
 	}
 
-	// avalanche behavior
-	ImGui::Checkbox("Avalanching behavior", &avalanche_submenu);
-	if (avalanche_submenu) {
-		surfaceChange |= ImGui::InputFloat("Avalanching amount: ", &avalanche_amount);
-		surfaceChange |= ImGui::InputFloat("Iterations: ", &repose);
-		surfaceChange |= ImGui::Checkbox("Avalanche", &avalanche);
-	}
 
-	// wind behavior
-	ImGui::Checkbox("Wind Behavior", &wind_submenu);
-	if (wind_submenu) {
-		ImGui::Text("Type of wind field:");
-		ImGui::SliderInt(wind_field_type[field_type], &field_type, 0, 2);
-		surfaceChange |= ImGui::InputFloat("Beta", &beta);
-		surfaceChange |= ImGui::InputFloat("Wind threshold height: ", &wind_threshold_height);
-		surfaceChange |= ImGui::InputFloat("Slab size: ", &slab_size);
-		surfaceChange |= ImGui::InputInt("Number of iterations: ", &number_of_iterations_2);
-		surfaceChange |= ImGui::Checkbox("Wind", &wind);
-	}
 
-	// individual pillar height control
-	ImGui::Checkbox("Precise height control", &pillar_submenu);
-	if (pillar_submenu) {
-		ImGui::InputFloat("Height of pillar", &pillarHeight, 0.f, 10.f);
-		ImGui::InputInt("Pillar X", &pillarX, 0.f, getWidth());
-		ImGui::InputInt("Pillar Y", &pillarY, 0.f, getLength());
-		surfaceChange |= ImGui::Checkbox("Apply", &cellMod);
-	}
+
 
 	// any time there is a change to the surface parameters
 	if (surfaceChange) {
@@ -348,12 +390,6 @@ void sandCellImGui(CPU_Geometry& cpuGeom) {
 	//	//createCells(cpuGeom);
 	//	cellMod = false;
 	//}
-
-	ImGui::Checkbox("Render Cells", &showCells);
-	if (showCells) {
-		ImGui::Text("Number of Draw Calls:");
-		ImGui::SliderInt(renderModeNames[renderMode], &renderMode, 0, 2);
-	}
 
 	ImGui::End();
 }
@@ -396,9 +432,12 @@ int main() {
 	cb->updateShadingUniforms(lightPos, lightCol, diffuseCol, ambientStrength, texExistence);
 
 	CPU_Geometry cells_cpu;
+	cells_cpu.verts.reserve(50000);
 	//CPU_Geometry cells_patch_cpu;
 	CPU_Geometry lerpline;
+	lerpline.verts.reserve(50000);
 	CPU_Geometry cubeobj;
+	cubeobj.verts.reserve(50000);
 
 	GPU_Geometry gpu_obj;
 
@@ -409,14 +448,16 @@ int main() {
 	cubesRender(cells_cpu, &cubeobj);
 
 	CPU_Geometry splinesurf;
+	splinesurf.verts.reserve(200000);
 	CPU_Geometry zigcpu;
+	zigcpu.verts.reserve(200000);
 	bool debug = true;
 	if (debug) std::cout << "about to call placesurfacevecs() in main()\n";
 	
-	placesurfacevecs(cells_cpu, &splinesurf, getWidth(), getLength(), _order_k);
+	placesurfacevecs(&cells_cpu, &splinesurf, getWidth(), getLength(), _order_k);
 	//if (debug) std::cout << "placesurfacevecs() successful. now doing zigzagdraw()\n";
 	//zigzagdraw(splinesurf, &zigcpu, getWidth(), getLength());
-	splineframe(splinesurf, &zigcpu, getWidth(), getLength());
+	splineframe(&splinesurf, &zigcpu, getWidth(), getLength());
 	//if (debug) std::cout << "zigzagdraw() successful\n";
 	//int knownwid = 4;
 	//int knownlen = 4;
@@ -437,20 +478,8 @@ int main() {
 		ImGui_ImplGlfw_NewFrame();
 		ImGui::NewFrame();
 
-		ImGui::Begin("Render Info.");
-
+		// TODO: May need to remove
 		bool change = false; // Whether any ImGui variable's changed.
-
-		// Framerate display, in case you need to debug performance.
-		ImGui::Text("Average %.1f ms/frame (%.1f fps)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
-
-		ImGui::Separator();
-		ImGui::Text("Camera Look At Point");
-		ImGui::InputFloat("x", &lookAtPoint.x);
-		ImGui::InputFloat("y", &lookAtPoint.y);
-		ImGui::InputFloat("z", &lookAtPoint.z);
-		ImGui::InputFloat("Scroll speed: ", &scrollSpeed);
-		ImGui::End();
 
 		// ImGui to control sand cell data structure
 		sandCellImGui(cells_cpu);
@@ -532,8 +561,8 @@ int main() {
 				if (changecheck[0])
 				{
 					//createCells(cells_cpu);
-					preparecellsforrender(cells_cpu, &lerpline);
-					
+					preparecellsforrender(&cells_cpu, &lerpline);
+					gpu_obj.setVerts(lerpline.verts);
 					changecheck[0] = false;
 				}
 
@@ -547,6 +576,8 @@ int main() {
 				if (changecheck[1])
 				{
 					cubesRender(cells_cpu, &cubeobj);
+					gpu_obj.setVerts(cubeobj.verts);
+
 					changecheck[1] = false;
 				}
 				cb->updateShadingUniforms(lightPos, lightCol, diffuseCol, ambientStrength, false);
@@ -558,11 +589,15 @@ int main() {
 				if (changecheck[2])
 				{
 					//if (debug) printCPUVerts(cells_cpu);
-					placesurfacevecs(cells_cpu, &splinesurf, getWidth(), getLength(), _order_k);
+					placesurfacevecs(&cells_cpu, &splinesurf, getWidth(), getLength(), _order_k);
 					//zigzagdraw(splinesurf, &zigcpu, getWidth(), getLength());
 					//splineframe(splinesurf, &zigcpu, getWidth(), getLength());
 					drawtexturedsurface(&splinesurf, &zigcpu, getWidth(), getLength());
 					changecheck[2] = false;
+
+					gpu_obj.setVerts(zigcpu.verts);
+					gpu_obj.setNormals(zigcpu.normals);
+					gpu_obj.setUVs(zigcpu.uvs);
 				}
 				//textures.at(selectedTexName).bind();
 				cb->updateShadingUniforms(lightPos, lightCol, diffuseCol, ambientStrength, true);

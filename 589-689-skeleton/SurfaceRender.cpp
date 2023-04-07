@@ -5,15 +5,17 @@
 /* If the width of a surface is k units, and it's length is j, then the vertex vector should be constructed such that it has one dimension, but every block of k vertices will represent some row of control points,
 and there should be j blocks of k control points. So, let's make a function that allows us to refer to vertices in the vector as though it were a 2d array. We'll pass it a CPU_Geom though.*/
 
-glm::vec3 point2dindex(CPU_Geometry obj, int rowdex, int coldex, int width)
+glm::vec3 point2dindex(CPU_Geometry *obj, int rowdex, int coldex, int width)
 {
 	//When we defined rowdex and coldex, rowdex was meant to be the index in some row and the index of some column, but the names might be a bit ambiguous since one might think of "rowdex == x" means that we're
 	//looking at the xth row, but actually it would be the xth element in that row. basically, you should think of like (rowdex) is the x-coord on a cartesian plane and (coldex) is the y-coord.
-	glm::vec3 returner = obj.verts[(width * coldex) + rowdex]; //If this were a 2d [width] by [length] array, then this element would be equivalent to the [rowdex][coldex] element
-	return returner;
+	//glm::vec3 returner = obj->verts[(width * coldex) + rowdex]; //If this were a 2d [width] by [length] array, then this element would be equivalent to the [rowdex][coldex] element
+	//return returner;
+
+	return obj->verts[(width * coldex) + rowdex];
 }
 
-void getcontrolpoints(CPU_Geometry control, CPU_Geometry* copy, int index, int width, int leng, bool alongwidth)
+void getcontrolpoints(CPU_Geometry *control, CPU_Geometry* copy, int index, int width, int leng, bool alongwidth)
 {
 	//getcontrolpoints is used to populate the vertex vector of the CPU_Geometry object that "copy" is pointing to. "control" should have the grid of control points (actually a 1d vector, but close enough for
 	//our purposes), and each row and column could be thought of as control points for one 2d b-spline curve. We want to use getcontrolpoints() to get these points so we can use them while generating the 3d
@@ -40,12 +42,14 @@ void getcontrolpoints(CPU_Geometry control, CPU_Geometry* copy, int index, int w
 	}
 }
 
-glm::vec3 onesplinepoint(CPU_Geometry control, int width, int length, float u, float v, float * uknots, float * vknots, int k)
+glm::vec3 onesplinepoint(CPU_Geometry *control, int width, int length, float u, float v, float * uknots, float * vknots, int k)
 {
 	//std::cout << "Entering onesplinepoint()\n";
 	//onesplinepoint() will use the quickspline() function to calculate one point on the b-spline surface.
 	//We assume that u is going along the width, and v is going along the length. 
 	CPU_Geometry ucontrol, vrange; //ucontrol will have the control points going in the u direction, vrange will be the control points in some relevant range in the v direction
+	ucontrol.verts.reserve(500);
+	vrange.verts.reserve(500);
 	int m = length - 1; //there are "length" control points going along and m for a b-spline calculation is the number of control points minus 1
 	//int k = K_ORDER; //We'll assume all b-spline curves should be of order four (cubic). The constant is defined at teh top if you want to change it, though
 	int vdelta = getdelta(vknots, (m + k + 1), v, 0); //As in the quickspline() algorithm, we need to get the delta knot to know what the relevant range to look at is.
@@ -87,7 +91,7 @@ bool approxone(float val)
 	return (val >= 0.99999 && val <= 1.00001);
 }
 
-void placesurfacevecs(CPU_Geometry control, CPU_Geometry* surface, int width, int length, int k)
+void placesurfacevecs(CPU_Geometry *control, CPU_Geometry* surface, int width, int length, int k)
 {
 	//std::cout << "Entering placesurfacevecs()\n";
 	float * uknots;
@@ -96,7 +100,9 @@ void placesurfacevecs(CPU_Geometry control, CPU_Geometry* surface, int width, in
 	//int k = K_ORDER;
 	glm::vec3 temp;
 	CPU_Geometry ucontrol;
+	ucontrol.verts.reserve(control->verts.size());
 	CPU_Geometry vcontrol;
+	vcontrol.verts.reserve(control->verts.size());
 
 	if (((width + k) < (2 * k)) || ((length + k) < (2 * k))) return; //if we don't have enough control points to generate a surface, return immediately without changing surface's vertex vector.
 
@@ -184,7 +190,7 @@ void placesurfacevecs(CPU_Geometry control, CPU_Geometry* surface, int width, in
 	free(vknots);
 }
 
-void zigzagdraw(CPU_Geometry obj, CPU_Geometry* newobj, int width, int length) //This is just a test function to see if point2dindex works as intended
+void zigzagdraw(CPU_Geometry *obj, CPU_Geometry* newobj, int width, int length) //This is just a test function to see if point2dindex works as intended
 {
 	int i, j;
 	glm::vec3 temp;
@@ -212,7 +218,7 @@ void zigzagdraw(CPU_Geometry obj, CPU_Geometry* newobj, int width, int length) /
 	//even then it will end on obj[0][length - 1]. use this information when defining zagzigdraw().
 }
 
-void zagzigdraw(CPU_Geometry obj, CPU_Geometry* newobj, int width, int length)
+void zagzigdraw(CPU_Geometry *obj, CPU_Geometry* newobj, int width, int length)
 {
 	int i, j;
 	glm::vec3 temp;
@@ -268,7 +274,7 @@ void zagzigdraw(CPU_Geometry obj, CPU_Geometry* newobj, int width, int length)
 	}
 }
 
-void splineframe(CPU_Geometry obj, CPU_Geometry * newobj, int width, int length)
+void splineframe(CPU_Geometry *obj, CPU_Geometry * newobj, int width, int length)
 {
 	int subwidth = (3 * width) + 1;
 	int sublength = (3 * length) + 1;
@@ -280,7 +286,7 @@ float calcarea(glm::vec3 x, glm::vec3 y)
 	return (glm::length(x) * glm::length(y));
 }
 
-glm::vec3 calcnorm(CPU_Geometry rawspline, int i, int j, int subwidth, int sublength)
+glm::vec3 calcnorm(CPU_Geometry *rawspline, int i, int j, int subwidth, int sublength)
 {
 	glm::vec3 up, down, left, right, centre, temp, returner;
 	glm::vec3 f1, f2, f3, f4;
@@ -407,7 +413,7 @@ glm::vec3 calcnorm(CPU_Geometry rawspline, int i, int j, int subwidth, int suble
 	return returner;
 }
 
-void placequad(CPU_Geometry rawspline, CPU_Geometry* texsurface, int i, int j, int subwidth, int sublength)
+void placequad(CPU_Geometry *rawspline, CPU_Geometry* texsurface, int i, int j, int subwidth, int sublength)
 {
 	glm::vec3 tl, tr, bl, br; //The top-left, top-right, bottom-left, and bottom-right vertices
 	glm::vec3 ntl, ntr, nbl, nbr; //The normals
@@ -422,7 +428,7 @@ void placequad(CPU_Geometry rawspline, CPU_Geometry* texsurface, int i, int j, i
 
 	texsurface->verts.push_back(tr);
 	texsurface->normals.push_back(ntr);
-	texsurface->uvs.push_back(glm::vec2(1.f, 0.f));
+	texsurface->uvs.push_back(glm::vec2(1.f, 1.f));
 	texsurface->verts.push_back(tl);
 	texsurface->normals.push_back(ntl);
 	texsurface->uvs.push_back(glm::vec2(0.f, 1.f));
@@ -435,7 +441,7 @@ void placequad(CPU_Geometry rawspline, CPU_Geometry* texsurface, int i, int j, i
 	texsurface->uvs.push_back(glm::vec2(1.f, 0.f));
 	texsurface->verts.push_back(tr);
 	texsurface->normals.push_back(ntr);
-	texsurface->uvs.push_back(glm::vec2(1.f, 0.f));
+	texsurface->uvs.push_back(glm::vec2(1.f, 1.f));
 	texsurface->verts.push_back(bl);
 	texsurface->normals.push_back(nbl);
 	texsurface->uvs.push_back(glm::vec2(0.f, 0.f));
@@ -454,7 +460,7 @@ void drawtexturedsurface(CPU_Geometry* rawspline, CPU_Geometry* texsurface, int 
 	{
 		for (j = 0; j < (sublength - 1); j++)
 		{
-			placequad(*rawspline, texsurface, i, j, subwidth, sublength);
+			placequad(rawspline, texsurface, i, j, subwidth, sublength);
 		}
 	}
 }
@@ -470,9 +476,11 @@ void rendertest(CPU_Geometry lineobj, GPU_Geometry* output_gpu)
 
 void renderpoly(CPU_Geometry polyobj, GPU_Geometry* output_gpu, Texture * tex)
 {
-	output_gpu->setVerts(polyobj.verts);
-	output_gpu->setNormals(polyobj.normals);
-	output_gpu->setUVs(polyobj.uvs);
+	// Moved these commented out set functions so they would not be called every frame
+	// rendering every frame slowed down the simulation
+	//output_gpu->setVerts(polyobj.verts);
+	//output_gpu->setNormals(polyobj.normals);
+	//output_gpu->setUVs(polyobj.uvs);
 	tex->bind();
 	glDrawArrays(GL_TRIANGLES, 0, GLsizei(polyobj.verts.size()));
 	tex->unbind();
