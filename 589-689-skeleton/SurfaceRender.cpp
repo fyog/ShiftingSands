@@ -428,7 +428,7 @@ void placequad(CPU_Geometry *rawspline, CPU_Geometry* texsurface, int i, int j, 
 
 	texsurface->verts.push_back(tr);
 	texsurface->normals.push_back(ntr);
-	texsurface->uvs.push_back(glm::vec2(1.f, 0.f));
+	texsurface->uvs.push_back(glm::vec2(1.f, 1.f));
 	texsurface->verts.push_back(tl);
 	texsurface->normals.push_back(ntl);
 	texsurface->uvs.push_back(glm::vec2(0.f, 1.f));
@@ -441,7 +441,7 @@ void placequad(CPU_Geometry *rawspline, CPU_Geometry* texsurface, int i, int j, 
 	texsurface->uvs.push_back(glm::vec2(1.f, 0.f));
 	texsurface->verts.push_back(tr);
 	texsurface->normals.push_back(ntr);
-	texsurface->uvs.push_back(glm::vec2(1.f, 0.f));
+	texsurface->uvs.push_back(glm::vec2(1.f, 1.f));
 	texsurface->verts.push_back(bl);
 	texsurface->normals.push_back(nbl);
 	texsurface->uvs.push_back(glm::vec2(0.f, 0.f));
