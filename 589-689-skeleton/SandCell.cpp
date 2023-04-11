@@ -4,7 +4,6 @@
 int _width = 4;
 int _length = 4;
 float random_height = 2.5f;
-float rand_max = 2.5f;
 
 // Collections of height and adhesion values
 std::vector<float> heights;
@@ -19,55 +18,12 @@ std::vector<float> getHeightsVector() {
 	return heights;
 }
 
-int& getWidth() {
+int getWidth() {
 	return _width;
 }
 
-int& getLength() {
+int getLength() {
 	return _length;
-}
-
-std::vector<float>& getHeights() {
-	return heights;
-}
-
-float getHeight(std::vector<float> &heights, int x, int y) {
-
-	// check the values of x and y to prevent out of bounds error (toric domain)
-	if (x < 0) {
-		x = 0;
-	}
-	if (y < 0) {
-		y = 0;
-	}
-	if (x > _length-1) {
-		x = _length-1;
-	}
-	if (y > _width-1) {
-		y = _width-1;
-	}
-
-	//return 10.f;
-	return heights.at((_length-1) * y + x);
-}
-
-void setHeight(std::vector<float>& heights, int x, int y, float height) {
-
-	// check the values of x and y to prevent out of bounds error (toric domain)
-	if (x < 0) {
-		x = 0;
-	}
-	if (y < 0) {
-		y = 0;
-	}
-	if (x > _length-1) {
-		x = _length-1;
-	}
-	if (y > _width-1) {
-		y = _width-1;
-	}
-
-	heights.at((_length-1) * y + x) = height;
 }
 
 // Returns if the control points
@@ -84,21 +40,16 @@ int getRenderMode() {
 	return renderMode;
 }
 
-float& getRandomHeight() {
-	return random_height;
+float* getRandomHeight() {
+	return &random_height;
 }
 
-void updateCell(CPU_Geometry& cpu_geom, float height, int x, int y) {
-	heights.at((_length-1) * y + x)= height;
-}
-
-float& get_rand_max() {
-	return rand_max;
+void updateCell(CPU_Geometry &cpu_geom, float height, int width, int length, int x, int y) {
+	cpu_geom.verts[width * y + x].y = height;
 }
 
 // Random number generator to test the structure 
 float randNumber(float _min, float _max) {
-
 	// Set up the random number generator
 	std::random_device rd;
 	std::mt19937 gen(rd());
@@ -112,58 +63,9 @@ float randNumber(float _min, float _max) {
 	return random_number;
 }
 
-// zeroes all the heights
-void clearCells(CPU_Geometry& cpu_geom) {
-	heights.clear();
-	for (int i = 0; i < _length; i++) {
-		for (int j = 0; j < _width; j++) {
-
-			// update heights list
-			heights.push_back(0.f);
-		}
-	}
-}
-
-// zero the board heights and update the surface
-void initializeSurface(CPU_Geometry& cpu_geom, std::vector<float> &heights) {
-
-	// clear the list of vertices
-	cpu_geom.verts.clear();
-	heights.clear();
-
-	// repopulate the list of vertices setting all heights to zero
-	for (int i = 0; i < _length; i++) {
-		for (int j = 0; j < _width; j++) {
-
-			// update heights list
-			heights.push_back(0.f);
-
-			// update surface
-			cpu_geom.verts.push_back(glm::vec3(i, 0.f, j));
-
-
-		}
-	}
-}
-
-// randomize surface heights
-void randomizeHeights(CPU_Geometry& cpuGeom, std::vector<float> &heights, float max_random_height) {
-
-	cpuGeom.verts.clear();
-	heights.clear();
-	float rand_height;
-	for (int i = 0; i < _length; i++) {
-		for (int j = 0; j < _width; j++) {
-			rand_height = randNumber(0, max_random_height);
-			cpuGeom.verts.push_back(glm::vec3(i, rand_height, j));
-			heights.push_back(rand_height);
-		}
-	}
-}
-
-void redrawSurface(CPU_Geometry& cpu_geom) {
-
-	//cpu_geom.verts.clear();
+// Function to create cells that uses build in values
+void createCells(CPU_Geometry& cpuGeom) {
+	//cpuGeom.verts.clear();
 
 	// Test value for adhesion, will need to be removed
 	int _adhesion = 10.f;
@@ -172,40 +74,21 @@ void redrawSurface(CPU_Geometry& cpu_geom) {
 	// vector array. These vector arrays are index aligned, so the data should be
 	// tied to a particular point (might be better as a struct)
 
-	for (int i = 0; i < _length; i++) {
-		for (int j = 0; j < _width; j++) {
-			float cell_height;
-			if (_width * j + i < heights.size()) {
-				cell_height = heights.at(_width * j + i);
+	for (int j = 0; j < _length; j++) {
+		for (int i = 0; i < _width; i++) {
+
+			if (randomHeights) {
+
+				// Random heights test
+				heights.push_back(randNumber(0.f, random_height));
 			}
 			else {
-				cell_height = 0.f;
+				heights.push_back(0.f);
 			}
 
 			adhesions.push_back(_adhesion);
-			cpu_geom.verts[_length*i + j] = glm::vec3(i, cell_height, j);
-		}
-	}
-}
-
-// Function to recreate cells that uses heights vector values
-void createCells(CPU_Geometry& cpuGeom) {
-
-	cpuGeom.verts.clear();
-
-	// Test value for adhesion, will need to be removed
-	int _adhesion = 10.f;
-
-	// The idea is that each data type we want to track for each cell is pushed to a
-	// vector array. These vector arrays are index aligned, so the data should be
-	// tied to a particular point (might be better as a struct)
-
-	for (int i = 0; i < _length; i++) {
-		for (int j = 0; j < _width; j++) {
-
-			auto cell_height = heights[_width * j + i];
-			//adhesions.push_back(_adhesion);
-			cpuGeom.verts.push_back(glm::vec3(i, cell_height, j));
+			// Pushes row by row
+			cpuGeom.verts.push_back(glm::vec3(i, heights.back(), j));
 		}
 	}
 }
@@ -229,7 +112,6 @@ void renderCells(CPU_Geometry& input_cpu) {
 	GPU_Geometry output_gpu;
 
 	int index = 0;
-
 	// Draws all the rows first
 	for (int j = 0; j < _length; j++) {
 		for (int i = 0; i < _width; i++) {
@@ -271,7 +153,7 @@ void renderCells(CPU_Geometry& input_cpu, int _x, int _z) {
 
 // Cell render with only two draw calls (2 zig zag patterns overlayed)
 
-void preparecellsforrender(CPU_Geometry* input_cpu, CPU_Geometry* output_cpu)
+void preparecellsforrender(CPU_Geometry *input_cpu, CPU_Geometry* output_cpu)
 {
 	output_cpu->verts.clear();
 	zigzagdraw(input_cpu, output_cpu, _width, _length);
@@ -334,7 +216,6 @@ void renderCells2Calls(CPU_Geometry& input_cpu) {
 		}
 
 	}
-
 	output_gpu.setVerts(output_cpu.verts);
 	output_gpu.bind();
 	glDrawArrays(GL_LINE_STRIP, 0, GLsizei(output_cpu.verts.size()));
@@ -418,16 +299,16 @@ void cubesRender(CPU_Geometry& inputCPU, CPU_Geometry* outputCPU) {
 	}
 }
 
-void pillarSetup(CPU_Geometry& inputCPU, float _height, int x, int y) {
+void pillarSetup(CPU_Geometry& inputCPU, float _height, int width, int length, int x, int y) {
 
 	//int halfX = _width / 2;
 	//int halfZ = _length / 2;
 	//int halfway = inputCPU.verts.size() / 2;
 
 	// Changes the middle point's height value to create a pillar
-	inputCPU.verts[_width * y + x] = (
-		glm::vec3(inputCPU.verts[_width * y + x].x,
-			_height,
-			inputCPU.verts[_width * y + x].z)
+	inputCPU.verts[_width*y+x] = (
+		glm::vec3(inputCPU.verts[_width*y+x].x,
+		_height,
+		inputCPU.verts[_width * y + x].z)
 		);
 }
