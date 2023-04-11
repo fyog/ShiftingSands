@@ -35,16 +35,16 @@ float getHeight(std::vector<float> &heights, int x, int y) {
 
 	// check the values of x and y to prevent out of bounds error (toric domain)
 	if (x < 0) {
-		x = 0;
+		x %= (_length-1);
 	}
 	if (y < 0) {
-		y = 0;
+		y %= (_width - 1);
 	}
 	if (x > _length-1) {
-		x = _length-1;
+		x %= (_length - 1);
 	}
 	if (y > _width-1) {
-		y = _width-1;
+		y %= (_width - 1);
 	}
 
 	//return 10.f;
@@ -55,16 +55,16 @@ void setHeight(std::vector<float>& heights, int x, int y, float height) {
 
 	// check the values of x and y to prevent out of bounds error (toric domain)
 	if (x < 0) {
-		x = 0;
+		x %= (_length - 1);
 	}
 	if (y < 0) {
-		y = 0;
+		y %= (_width - 1);
 	}
 	if (x > _length-1) {
-		x = _length-1;
+		x %= (_length - 1);
 	}
 	if (y > _width-1) {
-		y = _width-1;
+		y %= (_width - 1);
 	}
 
 	heights.at((_length-1) * y + x) = height;
@@ -131,9 +131,12 @@ void initializeSurface(CPU_Geometry& cpu_geom, std::vector<float> &heights) {
 	cpu_geom.verts.clear();
 	heights.clear();
 
+
 	// repopulate the list of vertices setting all heights to zero
 	for (int i = 0; i < _length; i++) {
 		for (int j = 0; j < _width; j++) {
+
+
 
 			// update heights list
 			heights.push_back(0.f);
@@ -163,7 +166,7 @@ void randomizeHeights(CPU_Geometry& cpuGeom, std::vector<float> &heights, float 
 
 void redrawSurface(CPU_Geometry& cpu_geom) {
 
-	//cpu_geom.verts.clear();
+	cpu_geom.verts.clear();
 
 	// Test value for adhesion, will need to be removed
 	int _adhesion = 10.f;
@@ -183,7 +186,7 @@ void redrawSurface(CPU_Geometry& cpu_geom) {
 			}
 
 			adhesions.push_back(_adhesion);
-			cpu_geom.verts[_length*i + j] = glm::vec3(i, cell_height, j);
+			cpu_geom.verts.push_back(glm::vec3(i, cell_height, j));
 		}
 	}
 }
