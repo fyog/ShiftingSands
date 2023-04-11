@@ -15,25 +15,25 @@ void apply_avalanching(CPU_Geometry& surface, std::vector<float> &heights, float
 		for (int x = 0; x < _length; x++) {
 			for (int y = 0; y < _width; y++) {
 
-				// avalanche right if repose is above threshold
-				if (check_repose_right(surface, heights, x, y)) {
-					//avalanche_right(surface, heights, x, y);
-				}
+				//// avalanche right if repose is above threshold
+				//if (check_repose_right(surface, heights, x, y)) {
+				//	avalanche_right(surface, heights, x, y);
+				//}
 
-				// avalanche up if repose is above threshold
-				else if (check_repose_up(surface, heights,  x, y)) {
-					//avalanche_up(surface, heights, x, y);
-				}
+				//// avalanche up if repose is above threshold
+				//else if (check_repose_up(surface, heights,  x, y)) {
+				//	avalanche_up(surface, heights, x, y);
+				//}
 
-				// avalanche left if repose is above threshold
-				else if (check_repose_left(surface, heights, x, y)) {
-					//avalanche_left(surface, heights,  x, y);
-				}
+				//// avalanche left if repose is above threshold
+				//else if (check_repose_left(surface, heights, x, y)) {
+				//	avalanche_left(surface, heights,  x, y);
+				//}
 
-				// avalanche down if repose is above threshold
-				else if (check_repose_down(surface, heights, x, y)) {
-					//avalanche_down(surface, heights, x, y);
-				}
+				//// avalanche down if repose is above threshold
+				//else if (check_repose_down(surface, heights, x, y)) {
+				//	avalanche_down(surface, heights, x, y);
+				//}
 			}
 		}
 	}
@@ -78,7 +78,7 @@ void avalanche_up(CPU_Geometry& surface, std::vector<float> &heights, int x, int
 
 	// checks for bedrock
 	float max_avalanche_amount = avalanche_amount;
-	//if (currentHeight - avalanche_amount < 0) max_avalanche_amount = currentHeight;
+	if (currentHeight - avalanche_amount < 0) max_avalanche_amount = currentHeight;
 
 	setHeight(heights, x, y, currentHeight - max_avalanche_amount);
 	setHeight(heights, x, y + 1, currentHeightUp + max_avalanche_amount);
@@ -91,7 +91,7 @@ void avalanche_left(CPU_Geometry& surface, std::vector<float> &heights, int x, i
 
 	// checks for bedrock
 	float max_avalanche_amount = avalanche_amount;
-	//if (currentHeight - avalanche_amount < 0) max_avalanche_amount = currentHeight;
+	if (currentHeight - avalanche_amount < 0) max_avalanche_amount = currentHeight;
 
 	setHeight(heights, x, y, currentHeight - max_avalanche_amount);
 	setHeight(heights, x - 1, y, currentHeightLeft + max_avalanche_amount);
@@ -104,7 +104,7 @@ void avalanche_down(CPU_Geometry& surface, std::vector<float> &heights, int x, i
 
 	// checks for bedrock
 	float max_avalanche_amount = avalanche_amount;
-	//if (currentHeight - avalanche_amount < 0) max_avalanche_amount = currentHeight;
+	if (currentHeight - avalanche_amount < 0) max_avalanche_amount = currentHeight;
 
 	setHeight(heights, x, y, currentHeight - max_avalanche_amount);
 	setHeight(heights, x, y - 1, currentHeightDown + max_avalanche_amount);
@@ -117,7 +117,7 @@ void avalanche_right(CPU_Geometry& surface, std::vector<float> &heights, int x, 
 
 	// checks for bedrock
 	float max_avalanche_amount = avalanche_amount;
-	//if (currentHeight - avalanche_amount < 0) max_avalanche_amount = currentHeight;
+	if (currentHeight - avalanche_amount < 0) max_avalanche_amount = currentHeight;
 
 	setHeight(heights, x, y, currentHeight - max_avalanche_amount);
 	setHeight(heights, x + 1, y, currentHeightRight + max_avalanche_amount);
