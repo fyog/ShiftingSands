@@ -256,7 +256,6 @@ void setflagstrue(bool* flags)
 	}
 }
 
-
 // ImGui variables
 bool randomHeights = false;
 bool random_submenu = false;
@@ -269,6 +268,9 @@ int pillarY = 0;
 bool wind = false;
 bool wind_submenu = false;
 bool surfaceChange = false;
+bool surfaceEnlargement = false;
+bool widthChange = false;
+bool lengthChange = false;
 bool cellMod = false;
 bool saveCellHeight = false;
 bool showCells = true;
@@ -283,15 +285,13 @@ const char* wind_field_type[] = { "Linear", "Radial", "Converging" };
 void sandCellImGui(CPU_Geometry& cpuGeom) {
 	ImGui::Begin("Surface Tuning");
 
-	surfaceChange = false;
-
 	// Names of render modes to be displayed in slider
 	const char* renderModeNames[] = { "LERP", "Cubes", "Smooth" };
 
 	if (ImGui::BeginTabBar("Tab Bar")) {
 		if (ImGui::BeginTabItem("Patch Setup")) {
-			surfaceChange |= ImGui::InputInt("Length (X): ", &_length, 1, 200);
-			surfaceChange |= ImGui::InputInt("Width  (Z): ", &_width, 1, 200);
+			surfaceChange |= ImGui::InputInt("Length (X): ", &getLength(), 1, 200);
+			surfaceChange |= ImGui::InputInt("Width (Z): ", &getWidth(), 1, 200);
 			surfaceChange |= ImGui::InputInt("Order k of B-Spline Surface: ", &_order_k);
 
 			ImGui::Separator();
@@ -309,16 +309,17 @@ void sandCellImGui(CPU_Geometry& cpuGeom) {
 		}
 
 		if (ImGui::BeginTabItem("Patch Modification")) {
+
 			// randomize cell heights
 			if (ImGui::CollapsingHeader("Random Heights")) {
-				surfaceChange |= ImGui::InputFloat("Height threshold: ", getRandomHeight());
-					surfaceChange |= ImGui::Checkbox("Randomize", &randomHeights);
+				ImGui::InputFloat("Height threshold: ", &get_rand_max());
+				surfaceChange |= ImGui::Checkbox("Randomize", &randomHeights);
 			}
 
 			// avalanche behavior
 			if (ImGui::CollapsingHeader("Avalanching")) {
-				surfaceChange |= ImGui::InputFloat("Avalanching amount: ", &avalanche_amount);
-				surfaceChange |= ImGui::InputFloat("Iterations: ", &repose);
+				ImGui::InputFloat("Avalanching amount: ", &avalanche_amount);
+				ImGui::InputFloat("Iterations: ", &repose);
 				surfaceChange |= ImGui::Checkbox("Avalanche", &avalanche);
 			}
 
@@ -331,10 +332,10 @@ void sandCellImGui(CPU_Geometry& cpuGeom) {
 				ImGui::RadioButton(wind_field_type[1], &field_type, 1); ImGui::SameLine();
 				ImGui::RadioButton(wind_field_type[2], &field_type, 2);
 
-				surfaceChange |= ImGui::InputFloat("Beta", &beta);
-				surfaceChange |= ImGui::InputFloat("Wind threshold height: ", &wind_threshold_height);
-				surfaceChange |= ImGui::InputFloat("Slab size: ", &slab_size);
-				surfaceChange |= ImGui::InputInt("Number of iterations: ", &number_of_iterations_2);
+				ImGui::InputFloat("Beta", &beta);
+				ImGui::InputFloat("Wind threshold height: ", &wind_threshold_height);
+				ImGui::InputFloat("Slab size: ", &slab_size);
+				ImGui::InputInt("Number of iterations: ", &number_of_iterations_2);
 				surfaceChange |= ImGui::Checkbox("Wind", &wind);
 			}
 
@@ -343,14 +344,19 @@ void sandCellImGui(CPU_Geometry& cpuGeom) {
 				ImGui::InputFloat("Height of pillar", &pillarHeight, 0.f, 10.f);
 				ImGui::InputInt("Pillar X", &pillarX, 0.f, getWidth());
 				ImGui::InputInt("Pillar Y", &pillarY, 0.f, getLength());
-				surfaceChange |= ImGui::Checkbox("Apply", &cellMod);
+				surfaceChange |= ImGui::Checkbox("Apply changes", &cellMod);
 			}
 
 			ImGui::EndTabItem();
 		}
+
+		// camera
 		if (ImGui::BeginTabItem("Camera")) {
-			// Framerate display, in case you need to debug performance.
+
+			// focus point
 			ImGui::Text("Camera Look At Point");
+
+			// coords
 			ImGui::InputFloat("x", &lookAtPoint.x);
 			ImGui::InputFloat("y", &lookAtPoint.y);
 			ImGui::InputFloat("z", &lookAtPoint.z);
@@ -365,31 +371,6 @@ void sandCellImGui(CPU_Geometry& cpuGeom) {
 
 		ImGui::EndTabBar();
 	}
-
-
-
-
-
-	// any time there is a change to the surface parameters
-	if (surfaceChange) {
-
-		// if there is a mod to a certain cell update the surface
-		if (cellMod) {
-			updateCell(cpuGeom, pillarHeight, getWidth(), getLength(), pillarX, pillarY);
-			cellMod = false;
-		}
-
-		createCells(cpuGeom);
-
-	}
-
-	// otherwise, if there is a change to a specific cell, update the surface but do not redraw <------------ NOT WORKING
-	//else if (cellMod) {
-
-	updateCell(cpuGeom, pillarHeight, getWidth(), getLength(), pillarX, pillarY);
-	//	//createCells(cpuGeom);
-	//	cellMod = false;
-	//}
 
 	ImGui::End();
 }
@@ -441,7 +422,8 @@ int main() {
 
 	GPU_Geometry gpu_obj;
 
-	createCells(cells_cpu);
+	initializeSurface(cells_cpu, getHeights());
+
 	//preparecellsforrender(cells_cpu, &lerpline);
 	renderCells(cells_cpu);
 
@@ -510,31 +492,7 @@ int main() {
 
 		shader.use();
 
-		// recreate with random heights, making sure no height is above the random_height variable
-		if (randomHeights) {
-			//randomHeights = false; // eventually this should be uncommented and the current state of the surface should be preserved by some other means (eg. a bool passed to createCells()?)
-		}
-
-		// recreate a specific pillar on the surface using the given height
-		if (pillar_submenu) {
-			pillarSetup(cells_cpu, pillarHeight, getWidth(), getLength(), pillarX, pillarY);
-		}
-
-
-		// avalanching
-		if (avalanche) {
-			apply_avalanching(&cells_cpu, heights, getWidth(), getLength(), repose, number_of_iterations);
-			avalanche = false;
-		}
-
-		// wind effects
-		if (wind) {
-			auto wind_field_gen = generate_wind_field(wind_field_type[field_type], getWidth(), getLength());
-			apply_wind(&cells_cpu, heights, wind_field_gen, getWidth(), getLength(), number_of_iterations_2);
-			wind = false;
-		}
-
-		// Boilerplate change check -- may need to change name
+		// Boilerplate change check -- may need to change name <------------- FUNCTION DOESNT DO NO THING
 		if (change)
 		{
 			// If any of our shading values was updated, we need to update the
@@ -554,6 +512,51 @@ int main() {
 
 		// Toggle Render
 		if (getShowCells()) {
+
+			// reedraw the surface anytime there is a change to its parameters
+			if (surfaceChange) {
+
+				// recreate a specific pillar on the surface using the given height
+				if (pillar_submenu) {
+					pillarSetup(cells_cpu, pillarHeight, pillarX, pillarY);
+				}
+
+				// recreate with random heights, making sure no height is above the random_height variable
+				if (randomHeights) {
+					randomizeHeights(cells_cpu, getHeights(), get_rand_max());
+					randomHeights = false;
+				}
+
+				// avalanching
+				if (avalanche) {
+					apply_avalanching(cells_cpu, getHeights(), repose, number_of_iterations);
+					avalanche = false;
+				}
+
+				// wind effects
+				if (wind) {
+					auto wind_field_gen = generate_wind_field(wind_field_type[field_type]);
+					apply_wind(cells_cpu, getHeights(), wind_field_gen, number_of_iterations_2);
+					wind = false;
+				}
+
+				// if there was a modification to a specific cell update the surface accordingly
+				if (cellMod) {
+					updateCell(cells_cpu, pillarHeight, pillarX, pillarY);
+					cellMod = false;
+				}
+
+				redrawSurface(cells_cpu); 
+				surfaceChange = false;
+			}
+
+			//// update the existing surface
+			//if (surfaceChange) {
+			//	if (cellMod) {
+			//		updateCell(cells_cpu, *getRandomHeight(), getWidth(), getLength(), pillarX, pillarY);
+			//	}
+			//	createCells(cells_cpu);
+			//}
 
 			// LERP Render mode
 			if (getRenderMode() == 0) {
@@ -599,12 +602,13 @@ int main() {
 					gpu_obj.setNormals(zigcpu.normals);
 					gpu_obj.setUVs(zigcpu.uvs);
 				}
+
 				//textures.at(selectedTexName).bind();
 				cb->updateShadingUniforms(lightPos, lightCol, diffuseCol, ambientStrength, true);
 				renderpoly(zigcpu, &gpu_obj, &sandtex);
 			}
-		}
 
+		}
 
 		glDisable(GL_FRAMEBUFFER_SRGB); // disable sRGB for things like imgui
 
