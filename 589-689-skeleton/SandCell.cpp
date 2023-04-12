@@ -173,7 +173,7 @@ void randomizeHeights(CPU_Geometry& cpuGeom, std::vector<float> &heights, float 
 		for (int j = 0; j < _width; j++) {
 			rand_height = randNumber(0, max_random_height);
 
-			heights[_width*j+i] = rand_height;
+			heights[_width*i+j] = rand_height;
 		}
 	}
 }
@@ -192,9 +192,9 @@ void redrawSurface(CPU_Geometry& cpu_geom) {
 			float cell_height = 0.f;
 
 			// if is a height associated with the current index, set cell_height to that value
-			if (_width * j + i < heights.size()) {
-				cell_height = heights.at(_width * j + i);
-				cpu_geom.verts[_width * j + i] = glm::vec3(i, cell_height, j);
+			if (_width * i + j < heights.size()) {
+				cell_height = heights.at(_width * i + j);
+				cpu_geom.verts[_width * i + j] = glm::vec3(i, cell_height, j);
 			}
 
 			// otherwise, there is not going to be a index associated with that height on the surface,
@@ -223,7 +223,7 @@ void createCells(CPU_Geometry& cpuGeom) {
 	for (int i = 0; i < _length; i++) {
 		for (int j = 0; j < _width; j++) {
 
-			auto cell_height = heights[_width * j + i];
+			auto cell_height = heights[_width * i + j];
 			//adhesions.push_back(_adhesion);
 			cpuGeom.verts.push_back(glm::vec3(i, cell_height, j));
 		}
