@@ -190,20 +190,14 @@ void redrawSurface(CPU_Geometry& cpu_geom) {
 	for (int i = 0; i < _length; i++) {
 		for (int j = 0; j < _width; j++) {
 			float cell_height = 0.f;
-			if ((j+1) * (i+1) < heights.size()) {
-				cell_height = heights.at(_width * j + i);
-			}
 
-			// this was used before to deal with the board's size increasing
-			else {
-				cell_height = 0.f;
-				heights.push_back(cell_height);
-			}
-
-			adhesions.push_back(_adhesion);
-			cpu_geom.verts[_width*j+i] = glm::vec3(i, cell_height, j);
+			// if is a height associated with the current index, set cell_height to that value
+			if (_width*j+i < heights.size()) cell_height = heights.at(_width * j + i);
+			//adhesions.push_back(_adhesion);
+			cpu_geom.verts[_width * j + i] = glm::vec3(i, cell_height, j);
 		}
 	}
+	
 }
 
 // Function to recreate cells that uses heights vector values
