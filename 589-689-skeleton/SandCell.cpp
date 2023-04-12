@@ -88,8 +88,21 @@ float& getRandomHeight() {
 	return random_height;
 }
 
-void updateCell(CPU_Geometry& cpu_geom, float height, int x, int y) {
-	heights.at((_width * y) + x)= height;
+void equalizeheights(CPU_Geometry* cpu_geom)
+{
+	if (heights.size() == cpu_geom->verts.size()) return;
+	heights.clear();
+	int i;
+	for (i = 0; i < cpu_geom->verts.size(); i++)
+	{
+		heights.push_back(cpu_geom->verts[i].y);
+	}
+}
+
+void updateCell(CPU_Geometry& cpu_geom, float height, int xc, int yc) {
+	equalizeheights(&cpu_geom);
+	heights.at((_width * yc) + xc)= height;
+	//cpu_geom.verts[(_width * yc) + xc].y = height;
 }
 
 float& get_rand_max() {
@@ -183,6 +196,7 @@ void redrawSurface(CPU_Geometry& cpu_geom) {
 			}
 			else {
 				cell_height = 0.f;
+				heights.push_back(cell_height);
 			}
 
 			adhesions.push_back(_adhesion);
@@ -206,7 +220,7 @@ void createCells(CPU_Geometry& cpuGeom) {
 	for (int i = 0; i < _length; i++) {
 		for (int j = 0; j < _width; j++) {
 
-			auto cell_height = heights[_width * j + i];
+			auto cell_height = heights[_width * i + j];
 			//adhesions.push_back(_adhesion);
 			cpuGeom.verts.push_back(glm::vec3(i, cell_height, j));
 		}
