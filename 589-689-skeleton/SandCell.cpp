@@ -99,6 +99,14 @@ void equalizeheights(CPU_Geometry* cpu_geom)
 	}
 }
 
+void fillHeights(int _length, int _width, std::vector<float> &heights) {
+	for (int i = 0; i < heights.size(); i++) {
+		if (i >= _length * _width) {
+			heights.push_back(0.f);
+		}
+	}
+}
+
 void updateCell(CPU_Geometry& cpu_geom, float height, int xc, int yc) {
 	equalizeheights(&cpu_geom);
 	heights.at((_width * yc) + xc)= height;
@@ -144,20 +152,15 @@ void initializeSurface(CPU_Geometry& cpu_geom, std::vector<float> &heights) {
 	cpu_geom.verts.clear();
 	heights.clear();
 
-
 	// repopulate the list of vertices setting all heights to zero
 	for (int i = 0; i < _length; i++) {
 		for (int j = 0; j < _width; j++) {
-
-
 
 			// update heights list
 			heights.push_back(0.f);
 
 			// update surface
 			cpu_geom.verts.push_back(glm::vec3(i, 0.f, j));
-
-
 		}
 	}
 }
@@ -165,21 +168,17 @@ void initializeSurface(CPU_Geometry& cpu_geom, std::vector<float> &heights) {
 // randomize surface heights
 void randomizeHeights(CPU_Geometry& cpuGeom, std::vector<float> &heights, float max_random_height) {
 
-	cpuGeom.verts.clear();
-	heights.clear();
 	float rand_height;
 	for (int i = 0; i < _length; i++) {
 		for (int j = 0; j < _width; j++) {
 			rand_height = randNumber(0, max_random_height);
-			cpuGeom.verts.push_back(glm::vec3(i, rand_height, j));
-			heights.push_back(rand_height);
+
+			heights[_length*j+i] = rand_height;
 		}
 	}
 }
 
 void redrawSurface(CPU_Geometry& cpu_geom) {
-
-	cpu_geom.verts.clear();
 
 	// Test value for adhesion, will need to be removed
 	int _adhesion = 10.f;
@@ -190,17 +189,19 @@ void redrawSurface(CPU_Geometry& cpu_geom) {
 
 	for (int i = 0; i < _length; i++) {
 		for (int j = 0; j < _width; j++) {
-			float cell_height;
+			float cell_height = 0.f;
 			if (_width * j + i < heights.size()) {
 				cell_height = heights.at(_width * j + i);
 			}
-			else {
-				cell_height = 0.f;
-				heights.push_back(cell_height);
-			}
+
+			//// this was used before to deal with the board's size increasing
+			//else {
+			//	cell_height = 0.f;
+			//	heights.push_back(cell_height);
+			//}
 
 			adhesions.push_back(_adhesion);
-			cpu_geom.verts.push_back(glm::vec3(i, cell_height, j));
+			cpu_geom.verts[_width*j+i] = glm::vec3(i, cell_height, j);
 		}
 	}
 }
@@ -220,7 +221,7 @@ void createCells(CPU_Geometry& cpuGeom) {
 	for (int i = 0; i < _length; i++) {
 		for (int j = 0; j < _width; j++) {
 
-			auto cell_height = heights[_width * i + j];
+			auto cell_height = heights[_length * j + i];
 			//adhesions.push_back(_adhesion);
 			cpuGeom.verts.push_back(glm::vec3(i, cell_height, j));
 		}
@@ -273,7 +274,6 @@ void renderCells(CPU_Geometry& input_cpu) {
 	}
 
 	output_cpu.verts.clear();
-
 }
 
 

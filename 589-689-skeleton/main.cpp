@@ -362,10 +362,8 @@ void sandCellImGui(CPU_Geometry& cpuGeom) {
 			ImGui::InputFloat("z", &lookAtPoint.z);
 			ImGui::InputFloat("Scroll speed: ", &scrollSpeed);
 
-
 			ImGui::Separator();
 			ImGui::Text("Average %.1f ms/frame (%.1f fps)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
-
 			ImGui::EndTabItem();
 		}
 
@@ -546,6 +544,7 @@ int main() {
 					cellMod = false;
 				}
 
+				fillHeights(_length, _width, getHeights());
 				redrawSurface(cells_cpu); 
 				surfaceChange = false;
 			}

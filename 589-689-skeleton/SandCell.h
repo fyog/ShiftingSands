@@ -29,6 +29,7 @@ int &getLength();
 std::vector<float> &getHeights();
 float getHeight(std::vector<float> &heights, int x, int y);
 void setHeight(std::vector<float>& heights, int x, int y, float height);
+void fillHeights(int _length, int _width, std::vector<float>& heights);
 bool getCellChange();
 bool getShowCells();
 int getRenderMode();
