@@ -544,7 +544,8 @@ int main() {
 					cellMod = false;
 				}
 
-				fillHeights(_length, _width, getHeights());
+				//heights.size();
+				//fillHeights(_length, _width, getHeights());
 				redrawSurface(cells_cpu); 
 				surfaceChange = false;
 			}

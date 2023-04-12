@@ -35,39 +35,39 @@ float getHeight(std::vector<float> &heights, int x, int y) {
 
 	// check the values of x and y to prevent out of bounds error (toric domain)
 	if (x < 0) {
-		x %= (_length-1);
+		x %= (_length);
 	}
 	if (y < 0) {
-		y %= (_width - 1);
+		y %= (_width);
 	}
-	if (x > _length-1) {
-		x %= (_length - 1);
+	if (x >= _length) {
+		x %= (_length);
 	}
-	if (y > _width-1) {
-		y %= (_width - 1);
+	if (y >= _width) {
+		y %= (_width);
 	}
 
 	//return 10.f;
-	return heights.at((_length-1) * y + x);
+	return heights.at((_width) * y + x);
 }
 
 void setHeight(std::vector<float>& heights, int x, int y, float height) {
 
 	// check the values of x and y to prevent out of bounds error (toric domain)
 	if (x < 0) {
-		x %= (_length - 1);
+		x %= (_length);
 	}
 	if (y < 0) {
-		y %= (_width - 1);
+		y %= (_width);
 	}
-	if (x > _length-1) {
-		x %= (_length - 1);
+	if (x >= _length) {
+		x %= (_length);
 	}
-	if (y > _width-1) {
-		y %= (_width - 1);
+	if (y > _width) {
+		y %= (_width);
 	}
 
-	heights.at((_length-1) * y + x) = height;
+	heights.at(_width * y + x) = height;
 }
 
 // Returns if the control points
@@ -108,7 +108,7 @@ void fillHeights(int _length, int _width, std::vector<float> &heights) {
 }
 
 void updateCell(CPU_Geometry& cpu_geom, float height, int xc, int yc) {
-	equalizeheights(&cpu_geom);
+	//equalizeheights(&cpu_geom);
 	heights.at((_width * yc) + xc)= height;
 	//cpu_geom.verts[(_width * yc) + xc].y = height;
 }
@@ -173,7 +173,7 @@ void randomizeHeights(CPU_Geometry& cpuGeom, std::vector<float> &heights, float 
 		for (int j = 0; j < _width; j++) {
 			rand_height = randNumber(0, max_random_height);
 
-			heights[_length*j+i] = rand_height;
+			heights[_width*j+i] = rand_height;
 		}
 	}
 }
@@ -190,15 +190,15 @@ void redrawSurface(CPU_Geometry& cpu_geom) {
 	for (int i = 0; i < _length; i++) {
 		for (int j = 0; j < _width; j++) {
 			float cell_height = 0.f;
-			if (_width * j + i < heights.size()) {
+			if ((j+1) * (i+1) < heights.size()) {
 				cell_height = heights.at(_width * j + i);
 			}
 
-			//// this was used before to deal with the board's size increasing
-			//else {
-			//	cell_height = 0.f;
-			//	heights.push_back(cell_height);
-			//}
+			// this was used before to deal with the board's size increasing
+			else {
+				cell_height = 0.f;
+				heights.push_back(cell_height);
+			}
 
 			adhesions.push_back(_adhesion);
 			cpu_geom.verts[_width*j+i] = glm::vec3(i, cell_height, j);
@@ -221,7 +221,7 @@ void createCells(CPU_Geometry& cpuGeom) {
 	for (int i = 0; i < _length; i++) {
 		for (int j = 0; j < _width; j++) {
 
-			auto cell_height = heights[_length * j + i];
+			auto cell_height = heights[_width * j + i];
 			//adhesions.push_back(_adhesion);
 			cpuGeom.verts.push_back(glm::vec3(i, cell_height, j));
 		}
