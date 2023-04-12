@@ -192,9 +192,17 @@ void redrawSurface(CPU_Geometry& cpu_geom) {
 			float cell_height = 0.f;
 
 			// if is a height associated with the current index, set cell_height to that value
-			if (_width*j+i < heights.size()) cell_height = heights.at(_width * j + i);
-			//adhesions.push_back(_adhesion);
-			cpu_geom.verts[_width * j + i] = glm::vec3(i, cell_height, j);
+			if (_width * j + i < heights.size()) {
+				cell_height = heights.at(_width * j + i);
+				cpu_geom.verts[_width * j + i] = glm::vec3(i, cell_height, j);
+			}
+
+			// otherwise, there is not going to be a index associated with that height on the surface,
+			// so we need to push new entries (w/ cell_height = 0.f) to the back of the surface verts
+			else {
+				//adhesions.push_back(_adhesion);
+				cpu_geom.verts.push_back(glm::vec3(i, cell_height, j));
+			}
 		}
 	}
 	
