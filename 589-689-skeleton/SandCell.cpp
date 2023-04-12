@@ -89,7 +89,7 @@ float& getRandomHeight() {
 }
 
 void updateCell(CPU_Geometry& cpu_geom, float height, int x, int y) {
-	heights.at((_length-1) * y + x)= height;
+	heights.at((_width * y) + x)= height;
 }
 
 float& get_rand_max() {
@@ -428,9 +428,10 @@ void pillarSetup(CPU_Geometry& inputCPU, float _height, int x, int y) {
 	//int halfway = inputCPU.verts.size() / 2;
 
 	// Changes the middle point's height value to create a pillar
-	inputCPU.verts[_width * y + x] = (
-		glm::vec3(inputCPU.verts[_width * y + x].x,
-			_height,
-			inputCPU.verts[_width * y + x].z)
-		);
+	inputCPU.verts[(_width * y) + x].y = _height;
+	//inputCPU.verts[_width * y + x] = (
+	//	glm::vec3(inputCPU.verts[_width * y + x].x,
+	//		_height,
+	//		inputCPU.verts[_width * y + x].z)
+	//	);
 }
