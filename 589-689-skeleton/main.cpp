@@ -29,7 +29,7 @@
 #include "SurfaceRender.h"
 #include "Wind.h"
 
-glm::vec3 lookAtPoint = glm::vec3(0,0,0);
+glm::vec3 lookAtPoint = glm::vec3(0, 0, 0);
 float scrollSpeed = 0.01f;
 
 // EXAMPLE CALLBACKS
@@ -312,14 +312,14 @@ void sandCellImGui(CPU_Geometry& cpuGeom) {
 			// randomize cell heights
 			if (ImGui::CollapsingHeader("Random Heights")) {
 				surfaceChange |= ImGui::InputFloat("Height threshold: ", getRandomHeight());
-					surfaceChange |= ImGui::Checkbox("Randomize", &randomHeights);
+				surfaceChange |= ImGui::Checkbox("Randomize", &randomHeights);
 			}
 
 			// avalanche behavior
 			if (ImGui::CollapsingHeader("Avalanching")) {
-				surfaceChange |= ImGui::InputFloat("Avalanching amount: ", &avalanche_amount);
-				surfaceChange |= ImGui::InputFloat("Iterations: ", &repose);
-				surfaceChange |= ImGui::Checkbox("Avalanche", &avalanche);
+				ImGui::InputFloat("Avalanching amount: ", &avalanche_amount);
+				ImGui::InputFloat("Iterations: ", &repose);
+				ImGui::Checkbox("Avalanche", &avalanche);
 			}
 
 			// wind behavior
@@ -343,7 +343,7 @@ void sandCellImGui(CPU_Geometry& cpuGeom) {
 				ImGui::InputFloat("Height of pillar", &pillarHeight, 0.f, 10.f);
 				ImGui::InputInt("Pillar X", &pillarX, 0.f, getWidth());
 				ImGui::InputInt("Pillar Y", &pillarY, 0.f, getLength());
-				surfaceChange |= ImGui::Checkbox("Apply", &cellMod);
+				ImGui::Checkbox("Apply", &cellMod);
 			}
 
 			ImGui::EndTabItem();
@@ -372,30 +372,24 @@ void sandCellImGui(CPU_Geometry& cpuGeom) {
 
 	// any time there is a change to the surface parameters
 	if (surfaceChange) {
-
-		// if there is a mod to a certain cell update the surface
-		if (cellMod) {
-			updateCell(cpuGeom, pillarHeight, getWidth(), getLength(), pillarX, pillarY);
-			cellMod = false;
-		}
-
 		createCells(cpuGeom);
-
 	}
 
 	// otherwise, if there is a change to a specific cell, update the surface but do not redraw <------------ NOT WORKING
 	//else if (cellMod) {
 
-	updateCell(cpuGeom, pillarHeight, getWidth(), getLength(), pillarX, pillarY);
+	if (cellMod)
+		updateCell(cpuGeom, pillarHeight, pillarX, pillarY);
 	//	//createCells(cpuGeom);
-	//	cellMod = false;
-	//}
+	
 
 	ImGui::End();
 }
 
 int main() {
 	Log::debug("Starting main");
+	int testval = -1;
+	std::cout << (testval % 9) << "\n";
 
 	// WINDOW
 	glfwInit();
@@ -453,7 +447,7 @@ int main() {
 	zigcpu.verts.reserve(200000);
 	bool debug = true;
 	if (debug) std::cout << "about to call placesurfacevecs() in main()\n";
-	
+
 	placesurfacevecs(&cells_cpu, &splinesurf, getWidth(), getLength(), _order_k);
 	//if (debug) std::cout << "placesurfacevecs() successful. now doing zigzagdraw()\n";
 	//zigzagdraw(splinesurf, &zigcpu, getWidth(), getLength());
@@ -517,20 +511,20 @@ int main() {
 
 		// recreate a specific pillar on the surface using the given height
 		if (pillar_submenu) {
-			pillarSetup(cells_cpu, pillarHeight, getWidth(), getLength(), pillarX, pillarY);
+			pillarSetup(cells_cpu, pillarHeight, pillarX, pillarY);
 		}
-
 
 		// avalanching
 		if (avalanche) {
-			apply_avalanching(&cells_cpu, heights, getWidth(), getLength(), repose, number_of_iterations);
+			apply_avalanching(cells_cpu, repose, number_of_iterations);
+			setflagstrue(changecheck);
 			avalanche = false;
 		}
 
 		// wind effects
 		if (wind) {
-			auto wind_field_gen = generate_wind_field(wind_field_type[field_type], getWidth(), getLength());
-			apply_wind(&cells_cpu, heights, wind_field_gen, getWidth(), getLength(), number_of_iterations_2);
+			auto wind_field_gen = generate_wind_field(wind_field_type[field_type]);
+			apply_wind(cells_cpu, heights, wind_field_gen, number_of_iterations_2);
 			wind = false;
 		}
 
@@ -545,8 +539,8 @@ int main() {
 
 		//glDrawArrays(GL_LINE_STRIP, 0, GLsizei(splineob.verts.size())); 
 		//glDrawArrays(GL_TRIANGLES, 0, GLsizei(models.at(selectedModelName).numVerts())); //Commented this out to test b-spline -Reid
-		
-		if (getCellChange())
+
+		if (getCellChange() || cellMod)
 		{
 			setflagstrue(changecheck); //All flags will be set to true when the control points are changed
 			//we use an array of flags to check if we should redraw the objects instead of a single flag since the b-spline surface wasn't redrawing correctly when we only checked getCellChange()
@@ -562,12 +556,12 @@ int main() {
 				{
 					//createCells(cells_cpu);
 					preparecellsforrender(&cells_cpu, &lerpline);
-					gpu_obj.setVerts(lerpline.verts);
+					
 					changecheck[0] = false;
 				}
-
+				gpu_obj.setVerts(lerpline.verts);
 				cb->updateShadingUniforms(lightPos, lightCol, diffuseCol, ambientStrength, false);
-				rendertest(lerpline, &gpu_obj); 
+				rendertest(lerpline, &gpu_obj);
 			}
 
 			// Cubes Render
@@ -576,10 +570,11 @@ int main() {
 				if (changecheck[1])
 				{
 					cubesRender(cells_cpu, &cubeobj);
-					gpu_obj.setVerts(cubeobj.verts);
+					
 
 					changecheck[1] = false;
 				}
+				gpu_obj.setVerts(cubeobj.verts);
 				cb->updateShadingUniforms(lightPos, lightCol, diffuseCol, ambientStrength, false);
 				rendertest(cubeobj, &gpu_obj);
 			}
@@ -595,14 +590,16 @@ int main() {
 					drawtexturedsurface(&splinesurf, &zigcpu, getWidth(), getLength());
 					changecheck[2] = false;
 
-					gpu_obj.setVerts(zigcpu.verts);
-					gpu_obj.setNormals(zigcpu.normals);
-					gpu_obj.setUVs(zigcpu.uvs);
+					
 				}
+				gpu_obj.setVerts(zigcpu.verts); //had to pull these out of the if statement to be able to switch
+				gpu_obj.setNormals(zigcpu.normals); //between view modes properly. don't think it will
+				gpu_obj.setUVs(zigcpu.uvs); //appreciably affect performance.
 				//textures.at(selectedTexName).bind();
 				cb->updateShadingUniforms(lightPos, lightCol, diffuseCol, ambientStrength, true);
 				renderpoly(zigcpu, &gpu_obj, &sandtex);
 			}
+			cellMod = false;
 		}
 
 
