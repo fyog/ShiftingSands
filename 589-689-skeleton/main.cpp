@@ -337,6 +337,7 @@ void sandCellImGui(CPU_Geometry& cpuGeom) {
 				ImGui::RadioButton(wind_field_type[2], &field_type, 2);
 
 				ImGui::InputFloat("Beta", &beta);
+				ImGui::InputFloat("Wind mag", &wind_mag);
 				ImGui::InputFloat("Wind threshold height: ", &wind_threshold_height);
 				ImGui::InputFloat("Slab size: ", &slab_size);
 				ImGui::InputInt("Number of iterations: ", &number_of_iterations_2);
@@ -530,7 +531,7 @@ int main() {
 		if (wind) {
 
 			// generate the proper wind field for the surface
-			auto wind_field_gen = generate_wind_field(cells_cpu, field_type);
+			auto wind_field_gen = generate_wind_field(cells_cpu, field_type, wind_mag);
 			apply_wind(cells_cpu, wind_field_gen, number_of_iterations_2);
 			setAvalancheAmount(avalanche_amount);
 			apply_avalanching(cells_cpu, repose, number_of_iterations_2);

@@ -9,6 +9,8 @@ float slab_size = .5f;
 
 float wind_threshold_height = .5f;
 
+float wind_mag = 2.f;
+
 float beta = .15f; // beta is the coefficient that is used to determine whether a sand slab sticks or bounces when deposited
 
 int number_of_iterations_2 = 1;
@@ -22,14 +24,14 @@ int random_number = 50;
 
 
 // generate wind fields - three different types: linear, radial, converging
-std::vector<glm::vec3> generate_wind_field(CPU_Geometry &surface, int field_type) {
+std::vector<glm::vec3> generate_wind_field(CPU_Geometry &surface, int field_type, float wind_mag) {
 	std::vector<glm::vec3> tmp;
 
 	// parse the desired type of wind field and then generate it
 	// Linear
 	if (field_type == 0) {
 		for (int i = 0; i < surface.verts.size(); i++) {
-			tmp.push_back(glm::vec3{ 5.0f, 0.f, 0.f });
+			tmp.push_back(glm::vec3{ wind_mag, 0.f, 0.f });
 		}
 	}
 	// Radial
@@ -40,6 +42,12 @@ std::vector<glm::vec3> generate_wind_field(CPU_Geometry &surface, int field_type
 	// Convergent
 	else if (field_type == 2) {
 		for (int i = 0; i < surface.verts.size(); i++) {
+	/*		if (surface.verts[i].y < _length / 2) {
+				wind_field.push_back(glm::vec3(wind_mag, 0.f, 0.f));
+			}
+			else {
+				wind_field.push_back(glm::vec3(-wind_mag, 0.f, 0.f));
+			}*/
 		}
 	}
 	
