@@ -519,6 +519,7 @@ int main() {
 
 		// avalanching
 		if (avalanche) {
+			setAvalancheAmount(avalanche_amount);
 			apply_avalanching(cells_cpu, repose, number_of_iterations);
 			setflagstrue(changecheck);
 			avalanche = false;
