@@ -514,7 +514,7 @@ int main() {
 
 		// avalanching
 		if (avalanche) {
-			apply_avalanching(cells_cpu, heights, repose, number_of_iterations);
+			apply_avalanching(cells_cpu, repose, number_of_iterations);
 			avalanche = false;
 		}
 

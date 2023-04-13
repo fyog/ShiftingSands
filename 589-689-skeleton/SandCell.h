@@ -19,7 +19,7 @@ extern bool cellMod;
 extern bool showCells;
 extern int renderMode;
 //float &get_rand_max();
-std::vector<float> getHeights();
+std::vector<float> &getHeights();
 
 extern std::vector<float> heights;
 extern std::vector<float> adhesions;

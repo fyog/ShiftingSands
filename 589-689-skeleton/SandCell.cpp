@@ -56,7 +56,7 @@ std::vector<float> getHeightsVector() {
 	return heights;
 }
 
-std::vector<float> getHeights() {
+std::vector<float> &getHeights() {
 	return heights;
 }
 
