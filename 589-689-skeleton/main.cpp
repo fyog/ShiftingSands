@@ -587,11 +587,10 @@ int main() {
 					//splineframe(splinesurf, &zigcpu, getWidth(), getLength());
 					drawtexturedsurface(&splinesurf, &zigcpu, getWidth(), getLength());
 					changecheck[2] = false;
-
-					gpu_obj.setVerts(zigcpu.verts);
-					gpu_obj.setNormals(zigcpu.normals);
-					gpu_obj.setUVs(zigcpu.uvs);
 				}
+				gpu_obj.setVerts(zigcpu.verts);
+				gpu_obj.setNormals(zigcpu.normals);
+				gpu_obj.setUVs(zigcpu.uvs);
 				//textures.at(selectedTexName).bind();
 				cb->updateShadingUniforms(lightPos, lightCol, diffuseCol, ambientStrength, true);
 				renderpoly(zigcpu, &gpu_obj, &sandtex);
