@@ -336,11 +336,11 @@ void sandCellImGui(CPU_Geometry& cpuGeom) {
 				ImGui::RadioButton(wind_field_type[1], &field_type, 1); ImGui::SameLine();
 				ImGui::RadioButton(wind_field_type[2], &field_type, 2);
 
-				surfaceChange |= ImGui::InputFloat("Beta", &beta);
-				surfaceChange |= ImGui::InputFloat("Wind threshold height: ", &wind_threshold_height);
-				surfaceChange |= ImGui::InputFloat("Slab size: ", &slab_size);
-				surfaceChange |= ImGui::InputInt("Number of iterations: ", &number_of_iterations_2);
-				surfaceChange |= ImGui::Checkbox("Wind", &wind);
+				ImGui::InputFloat("Beta", &beta);
+				ImGui::InputFloat("Wind threshold height: ", &wind_threshold_height);
+				ImGui::InputFloat("Slab size: ", &slab_size);
+				ImGui::InputInt("Number of iterations: ", &number_of_iterations_2);
+				wind |= ImGui::Button("Apply Wind");
 			}
 
 			// individual pillar height control

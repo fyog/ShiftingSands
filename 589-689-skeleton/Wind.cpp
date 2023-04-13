@@ -20,20 +20,6 @@ int random_number = 50;
 // - movement of variable slab sizes, the size of which should be some function of wind strength and height
 //
 
-// Random number generator to test the structure 
-//float randNumber(float _min, float _max) {
-//	// Set up the random number generator
-//	std::random_device rd;
-//	std::mt19937 gen(rd());
-//
-//	// Define the range for the random number
-//	std::uniform_int_distribution<> dis(_min, _max);
-//
-//	// Generate a random number and print it
-//	float random_number = dis(gen);
-//
-//	return random_number;
-//}
 
 // generate wind fields - three different types: linear, radial, converging
 std::vector<glm::vec3> generate_wind_field(CPU_Geometry &surface, int field_type) {
