@@ -344,7 +344,7 @@ void sandCellImGui(CPU_Geometry& cpuGeom) {
 				ImGui::InputFloat("Height of pillar", &pillarHeight, 0.f, 10.f);
 				ImGui::InputInt("Pillar X", &pillarX, 0.f, getWidth());
 				ImGui::InputInt("Pillar Y", &pillarY, 0.f, getLength());
-				surfaceChange |= ImGui::Checkbox("Apply changes", &cellMod);
+				ImGui::Checkbox("Apply", &cellMod);
 			}
 
 			ImGui::EndTabItem();
@@ -369,6 +369,20 @@ void sandCellImGui(CPU_Geometry& cpuGeom) {
 
 		ImGui::EndTabBar();
 	}
+
+	// any time there is a change to the surface parameters
+	if (surfaceChange) {
+		createCells(cpuGeom);
+	}
+
+	// otherwise, if there is a change to a specific cell, update the surface but do not redraw <------------ NOT WORKING
+	//else if (cellMod) {
+
+	if (cellMod)
+		updateCell(cpuGeom, pillarHeight, pillarX, pillarY);
+	//	//createCells(cpuGeom);
+	//	cellMod = false;
+	//}
 
 	ImGui::End();
 }
@@ -502,7 +516,7 @@ int main() {
 		//glDrawArrays(GL_LINE_STRIP, 0, GLsizei(splineob.verts.size())); 
 		//glDrawArrays(GL_TRIANGLES, 0, GLsizei(models.at(selectedModelName).numVerts())); //Commented this out to test b-spline -Reid
 		
-		if (getCellChange())
+		if (getCellChange() || cellMod)
 		{
 			setflagstrue(changecheck); //All flags will be set to true when the control points are changed
 			//we use an array of flags to check if we should redraw the objects instead of a single flag since the b-spline surface wasn't redrawing correctly when we only checked getCellChange()

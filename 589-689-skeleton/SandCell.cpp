@@ -109,8 +109,7 @@ void fillHeights(int _length, int _width, std::vector<float> &heights) {
 
 void updateCell(CPU_Geometry& cpu_geom, float height, int xc, int yc) {
 	//equalizeheights(&cpu_geom);
-	heights.at((_width * yc) + xc)= height;
-	//cpu_geom.verts[(_width * yc) + xc].y = height;
+	cpu_geom.verts[(_width * yc) + xc].y = height;
 }
 
 float& get_rand_max() {
@@ -214,7 +213,8 @@ void createCells(CPU_Geometry& cpuGeom) {
 	cpuGeom.verts.clear();
 
 	// Test value for adhesion, will need to be removed
-	int _adhesion = 10.f;
+	float _adhesion = 10.f;
+	float tempheight = 0.f;
 
 	// The idea is that each data type we want to track for each cell is pushed to a
 	// vector array. These vector arrays are index aligned, so the data should be
@@ -223,9 +223,12 @@ void createCells(CPU_Geometry& cpuGeom) {
 	for (int i = 0; i < _length; i++) {
 		for (int j = 0; j < _width; j++) {
 
-			auto cell_height = heights[_width * i + j];
-			//adhesions.push_back(_adhesion);
-			cpuGeom.verts.push_back(glm::vec3(i, cell_height, j));
+			if (randomHeights) {
+
+				// Random heights test
+				tempheight = (randNumber(0.f, random_height));
+			}
+			cpuGeom.verts.push_back(glm::vec3(i, tempheight, j));
 		}
 	}
 }
