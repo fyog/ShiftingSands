@@ -532,7 +532,7 @@ int main() {
 		if (wind) {
 
 			// generate the proper wind field for the surface
-			auto wind_field_gen = generate_wind_field(cells_cpu, wind_field_type[field_type]);
+			auto wind_field_gen = generate_wind_field(cells_cpu, field_type);
 			apply_wind(cells_cpu, heights, wind_field_gen, number_of_iterations_2);
 			setflagstrue(changecheck);
 			wind = false;

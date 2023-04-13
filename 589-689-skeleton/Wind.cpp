@@ -36,16 +36,23 @@ int random_number = 50;
 //}
 
 // generate wind fields - three different types: linear, radial, converging
-std::vector<glm::vec3> generate_wind_field(CPU_Geometry &surface, std::string type_of_field) {
+std::vector<glm::vec3> generate_wind_field(CPU_Geometry &surface, int field_type) {
 	std::vector<glm::vec3> tmp;
 
 	// parse the desired type of wind field and then generate it
-	if (type_of_field == "linear" || type_of_field == "Linear" || type_of_field == "LINEAR") {
+	// Linear
+	if (field_type == 0) {
 		for (int i = 0; i < surface.verts.size(); i++) {
 			tmp.push_back(glm::vec3{ 5.0f, 0.f, 0.f });
 		}
 	}
-	else if (type_of_field == "radial" || type_of_field == "Radial" || type_of_field == "RADIAL") {
+	// Radial
+	else if (field_type == 1) {
+		for (int i = 0; i < surface.verts.size(); i++) {
+		}
+	}
+	// Convergent
+	else if (field_type == 2) {
 		for (int i = 0; i < surface.verts.size(); i++) {
 		}
 	}

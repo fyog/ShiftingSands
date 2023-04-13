@@ -21,5 +21,5 @@ bool deposit_sand(CPU_Geometry& surface, std::vector<float> heights, int x, int 
 void apply_wind(CPU_Geometry& surface, std::vector<float> heights, std::vector<glm::vec3> wind_field,  float number_of_iterations);
 
 
-std::vector<glm::vec3> generate_wind_field(CPU_Geometry& surface, std::string type_of_field);
+std::vector<glm::vec3> generate_wind_field(CPU_Geometry& surface, int field_type);
 
