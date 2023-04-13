@@ -312,7 +312,10 @@ void sandCellImGui(CPU_Geometry& cpuGeom) {
 			// randomize cell heights
 			if (ImGui::CollapsingHeader("Random Heights")) {
 				ImGui::InputFloat("Height threshold: ", getRandomHeight());
-				surfaceChange |= ImGui::Checkbox("Randomize", &randomHeights);
+				if (ImGui::Button("Randomize")) {
+					randomHeights = true;
+					surfaceChange = true;
+				}
 			}
 
 			// avalanche behavior
