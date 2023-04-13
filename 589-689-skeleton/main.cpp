@@ -319,7 +319,7 @@ void sandCellImGui(CPU_Geometry& cpuGeom) {
 			if (ImGui::CollapsingHeader("Avalanching")) {
 				ImGui::InputFloat("Repose: ", &repose);
 				ImGui::InputFloat("Avalanching amount: ", &avalanche_amount);
-				ImGui::InputFloat("Iterations: ", &repose);
+				ImGui::InputInt("Iterations: ", &number_of_iterations);
 				//ImGui::Checkbox("Avalanche", &avalanche);
 				avalanche |= ImGui::Button("Apply Avalanche");
 			}
