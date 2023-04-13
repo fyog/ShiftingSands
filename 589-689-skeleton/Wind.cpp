@@ -64,13 +64,13 @@ std::vector<glm::vec3> generate_wind_field(CPU_Geometry &surface, int field_type
 bool deposit_sand(CPU_Geometry &surface, int x, int y) {
 
 	// check if a random number between 0 - 1 is greater than beta
-	if ((randNumber(0,100) / 100.f) > beta) {
+	//if ((randNumber(0,100) / 100.f) > beta) {
 
 		// deposit sand at the given x, y coordinates
 		float height = getHeight(surface, x, y);
 		setHeight(surface, x, y, height + slab_size);
 		return true;
-	}
+	//}
 	
 	return false;
 }
@@ -121,7 +121,7 @@ void apply_wind(CPU_Geometry &surface, std::vector<glm::vec3> wind_field, float 
 					glm::vec3 slab_deposit_distance = lift(surface, wind_field, x, y);
 
 					// attempt to deposit sand at the given x, y coordinates
-					if (!deposit_sand(surface, slab_deposit_distance.x, slab_deposit_distance.z)) {
+					if (!deposit_sand(surface, slab_deposit_distance.x + x, slab_deposit_distance.z +y)) {
 
 						// disperse sand to n nearest neighbours if the sand was not able to be deposited
 						reptation(surface, x, y);
