@@ -1,5 +1,43 @@
 #include "SandCell.h"
 
+float getHeight(std::vector<float>& heights, int x, int y) {
+
+	// check the values of x and y to prevent out of bounds error (toric domain)
+	if (x < 0) {
+		x %= (_length);
+	}
+	if (y < 0) {
+		y %= (_width);
+	}
+	if (x >= _length) {
+		x %= (_length);
+	}
+	if (y >= _width) {
+		y %= (_width);
+	}
+
+	//return 10.f;
+	return heights.at((_width)*y + x);
+}
+
+void setHeight(std::vector<float>& heights, int x, int y, float height) {
+
+	// check the values of x and y to prevent out of bounds error (toric domain)
+	if (x < 0) {
+		x %= (_length);
+	}
+	if (y < 0) {
+		y %= (_width);
+	}
+	if (x >= _length) {
+		x %= (_length);
+	}
+	if (y > _width) {
+		y %= (_width);
+	}
+
+	heights.at(_width * y + x) = height;
+}
 // X and Z range of the cells
 int _width = 4;
 int _length = 4;
@@ -48,8 +86,8 @@ float* getRandomHeight() {
 	return &random_height;
 }
 
-void updateCell(CPU_Geometry& cpu_geom, float height, int width, int length, int x, int y) {
-	cpu_geom.verts[width * y + x].y = height;
+void updateCell(CPU_Geometry& cpu_geom, float height, int x, int y) {
+	cpu_geom.verts[getWidth() * y + x].y = height;
 }
 
 // Random number generator to test the structure 

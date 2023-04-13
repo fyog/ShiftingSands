@@ -381,8 +381,7 @@ void sandCellImGui(CPU_Geometry& cpuGeom) {
 	if (cellMod)
 		updateCell(cpuGeom, pillarHeight, pillarX, pillarY);
 	//	//createCells(cpuGeom);
-	//	cellMod = false;
-	//}
+	
 
 	ImGui::End();
 }
@@ -512,7 +511,6 @@ int main() {
 		if (pillar_submenu) {
 			pillarSetup(cells_cpu, pillarHeight, pillarX, pillarY);
 		}
-
 
 		// avalanching
 		if (avalanche) {

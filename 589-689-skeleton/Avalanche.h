@@ -6,10 +6,6 @@ extern float avalanche_amount;
 
 extern int number_of_iterations;
 
-float getHeight(std::vector<float> heights, int x, int y);
-
-void setHeight(std::vector<float> &heights, int x, int y, float height);
-
 void apply_avalanching(CPU_Geometry& surface, std::vector<float> heights,  float repose, float number_of_iterations);
 
 bool check_repose_down(CPU_Geometry& surface, std::vector<float> heights, int x, int y);

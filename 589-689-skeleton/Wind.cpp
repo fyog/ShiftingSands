@@ -114,7 +114,7 @@ void reptation(CPU_Geometry surface, std::vector<float> heights, int x, int y) {
 }
 
 // applies wind behavior to the given surface (CPU_Geometry object) based on the given wind_field
-void apply_wind(CPU_Geometry surface, std::vector<float> heights, std::vector<glm::vec3> wind_field, float number_of_iterations_2) {
+void apply_wind(CPU_Geometry &surface, std::vector<float> heights, std::vector<glm::vec3> wind_field, float number_of_iterations_2) {
 	for (int i = 0; i < number_of_iterations_2; i++) {
 		for (int x = 0; x < getWidth(); x++) {
 			for (int y = 0; y < getLength(); y++) {
