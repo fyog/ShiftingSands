@@ -18,9 +18,15 @@ extern bool surfaceChange;
 extern bool cellMod;
 extern bool showCells;
 extern int renderMode;
+//float &get_rand_max();
+std::vector<float> &getHeights();
 
 extern std::vector<float> heights;
 extern std::vector<float> adhesions;
+
+float getHeight(CPU_Geometry &cells_cpu, int x, int y);
+
+void setHeight(CPU_Geometry& cells_cpu, int x, int y, float height);
 std::vector<float> getAdhesionVector();
 std::vector<float> getHeightsVector();
 int getWidth();
@@ -32,11 +38,12 @@ float* getRandomHeight();
 void sandCellImGui(CPU_Geometry& cpuGeom);
 float randNumber(float _min, float _max);
 void createCells(CPU_Geometry& cpuGeom);
-void updateCell(CPU_Geometry& cpu_geom, float height, int width, int length, int x, int y);
+void updateCell(CPU_Geometry& cpu_geom, float height, int x, int y);
+void randomizeHeights(CPU_Geometry& cpuGeom, std::vector<float> heights, float max_random_height);
 void createCells(int _width, int _height, CPU_Geometry& cpuGeom);
 void renderCells(CPU_Geometry& input_cpu);
 void renderCells(CPU_Geometry& input_cpu, int _width, int _height);
 void renderCells2Calls(CPU_Geometry& input_cpu);
 void cubesRender(CPU_Geometry& inputCPU, CPU_Geometry* outputCPU);
-void pillarSetup(CPU_Geometry& inputCPU, float _height, int width, int length, int x, int y);
+void pillarSetup(CPU_Geometry& inputCPU, float _height, int x, int y);
 void preparecellsforrender(CPU_Geometry *input_cpu, CPU_Geometry* output_cpu);
