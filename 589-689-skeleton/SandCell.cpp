@@ -3,10 +3,10 @@
 float getHeight(CPU_Geometry& cells_cpu, int x, int y) {
 
 	// check the values of x and y to prevent out of bounds error (toric domain)
-	if (x < 0) {
+	while (x < 0) {
 		x += (_width);
 	}
-	if (y < 0) {
+	while (y < 0) {
 		y += (_length);
 	}
 	if (x >= _width) {
@@ -23,10 +23,10 @@ float getHeight(CPU_Geometry& cells_cpu, int x, int y) {
 void setHeight(CPU_Geometry &cells_cpu, int x, int y, float height) {
 
 	// check the values of x and y to prevent out of bounds error (toric domain)
-	if (x < 0) {
+	while (x < 0) {
 		x += (_width);
 	}
-	if (y < 0) {
+	while (y < 0) {
 		y += (_length);
 	}
 	if (x >= _width) {
