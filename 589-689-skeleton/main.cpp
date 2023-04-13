@@ -317,9 +317,9 @@ void sandCellImGui(CPU_Geometry& cpuGeom) {
 
 			// avalanche behavior
 			if (ImGui::CollapsingHeader("Avalanching")) {
-				surfaceChange |= ImGui::InputFloat("Avalanching amount: ", &avalanche_amount);
-				surfaceChange |= ImGui::InputFloat("Iterations: ", &repose);
-				surfaceChange |= ImGui::Checkbox("Avalanche", &avalanche);
+				ImGui::InputFloat("Avalanching amount: ", &avalanche_amount);
+				ImGui::InputFloat("Iterations: ", &repose);
+				ImGui::Checkbox("Avalanche", &avalanche);
 			}
 
 			// wind behavior
