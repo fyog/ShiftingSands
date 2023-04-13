@@ -48,7 +48,7 @@ std::vector<glm::vec3> generate_wind_field(CPU_Geometry &surface, int field_type
 
 // lifts a small amount of sand from the given cell and returns the x,y coords it should travel to based on the given height and wind strength/direction at that cell, eventually when we want to
 // transport a variable amount of sand we can return a vec3 instead where the first entry is the slab size
- glm::vec2 lift(CPU_Geometry &surface, std::vector<float> heights, std::vector<glm::vec3> wind_field, int x, int y) {
+ glm::vec2 lift(CPU_Geometry &surface, std::vector<glm::vec3> wind_field, int x, int y) {
 	auto wind_strength = wind_field[getWidth() * (y - 1) + x];
 	float height = getHeight(surface, x, y);
 	setHeight(surface, x, y, height - slab_size);
@@ -61,7 +61,7 @@ std::vector<glm::vec3> generate_wind_field(CPU_Geometry &surface, int field_type
 }
 
 // attempts to deposit a sand slab at the given x, y coordinates. returns true if the depositing was successful, otherwise returns false
-bool deposit_sand(CPU_Geometry &surface, std::vector<float> heights, int x, int y) {
+bool deposit_sand(CPU_Geometry &surface, int x, int y) {
 
 	// check if a random number between 0 - 1 is greater than beta
 	if ((random_number / 100) > beta) {
@@ -77,7 +77,7 @@ bool deposit_sand(CPU_Geometry &surface, std::vector<float> heights, int x, int 
 
 // collect the given cell's immediate neighbour's x, y, z coordinates 
 // returns a vec3 where first entry x, second entry is y/height, third entry is z
-std::vector<glm::vec3> get_neighbours_heights(CPU_Geometry surface, std::vector<float> heights, int x, int y) {
+std::vector<glm::vec3> get_neighbours_heights(CPU_Geometry surface, int x, int y) {
 	std::vector<glm::vec3> tmp;
 	tmp.push_back(glm::vec3(x + 1, getHeight(surface,  x + 1, y) , y));
 	tmp.push_back(glm::vec3(x - 1, getHeight(surface,x - 1, y), y));
@@ -88,12 +88,12 @@ std::vector<glm::vec3> get_neighbours_heights(CPU_Geometry surface, std::vector<
 
 
 // applies reptation behavior to the given surface
-void reptation(CPU_Geometry &surface, std::vector<float> heights, int x, int y) {
+void reptation(CPU_Geometry &surface, int x, int y) {
 
 	int n = 2; // this value was suggested by the paper
 
 	// find neighbour's heights and store them in a vector (along with the cell's x, y coordinates)
-	auto neighbours = get_neighbours_heights(surface, heights, x, y);
+	auto neighbours = get_neighbours_heights(surface, x, y);
 
 	// sort neighbour's heights in descending order
 	//std::sort(neighbours.begin() -> x, neighbours.end() -> x, std::greater<float>());
@@ -109,7 +109,7 @@ void reptation(CPU_Geometry &surface, std::vector<float> heights, int x, int y) 
 }
 
 // applies wind behavior to the given surface (CPU_Geometry object) based on the given wind_field
-void apply_wind(CPU_Geometry &surface, std::vector<float> heights, std::vector<glm::vec3> wind_field, float number_of_iterations_2) {
+void apply_wind(CPU_Geometry &surface, std::vector<glm::vec3> wind_field, float number_of_iterations_2) {
 	for (int i = 0; i < number_of_iterations_2; i++) {
 		for (int x = 0; x < getWidth(); x++) {
 			for (int y = 0; y < getLength(); y++) {
@@ -118,13 +118,13 @@ void apply_wind(CPU_Geometry &surface, std::vector<float> heights, std::vector<g
 				if (getHeight(surface, x, y) > wind_threshold_height) {
 
 					// lift a slab of sand and return the x, y coordinates of where it should be deposited
-					glm::vec2 slab_deposit_distance = lift(surface, heights, wind_field, x, y);
+					glm::vec2 slab_deposit_distance = lift(surface, wind_field, x, y);
 
 					// attempt to deposit sand at the given x, y coordinates
-					if (!deposit_sand(surface, heights, slab_deposit_distance.x, slab_deposit_distance.y)) {
+					if (!deposit_sand(surface, slab_deposit_distance.x, slab_deposit_distance.y)) {
 
 						// disperse sand to n nearest neighbours if the sand was not able to be deposited
-						reptation(surface, heights, x, y);
+						reptation(surface, x, y);
 					}
 				}
 			}
