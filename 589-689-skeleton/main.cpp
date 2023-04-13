@@ -553,10 +553,10 @@ int main() {
 				{
 					//createCells(cells_cpu);
 					preparecellsforrender(&cells_cpu, &lerpline);
-					gpu_obj.setVerts(lerpline.verts);
+					
 					changecheck[0] = false;
 				}
-
+				gpu_obj.setVerts(lerpline.verts);
 				cb->updateShadingUniforms(lightPos, lightCol, diffuseCol, ambientStrength, false);
 				rendertest(lerpline, &gpu_obj);
 			}
@@ -567,10 +567,11 @@ int main() {
 				if (changecheck[1])
 				{
 					cubesRender(cells_cpu, &cubeobj);
-					gpu_obj.setVerts(cubeobj.verts);
+					
 
 					changecheck[1] = false;
 				}
+				gpu_obj.setVerts(cubeobj.verts);
 				cb->updateShadingUniforms(lightPos, lightCol, diffuseCol, ambientStrength, false);
 				rendertest(cubeobj, &gpu_obj);
 			}
@@ -586,10 +587,11 @@ int main() {
 					drawtexturedsurface(&splinesurf, &zigcpu, getWidth(), getLength());
 					changecheck[2] = false;
 
-					gpu_obj.setVerts(zigcpu.verts);
-					gpu_obj.setNormals(zigcpu.normals);
-					gpu_obj.setUVs(zigcpu.uvs);
+					
 				}
+				gpu_obj.setVerts(zigcpu.verts); //had to pull these out of the if statement to be able to switch
+				gpu_obj.setNormals(zigcpu.normals); //between view modes properly. don't think it will
+				gpu_obj.setUVs(zigcpu.uvs); //appreciably affect performance.
 				//textures.at(selectedTexName).bind();
 				cb->updateShadingUniforms(lightPos, lightCol, diffuseCol, ambientStrength, true);
 				renderpoly(zigcpu, &gpu_obj, &sandtex);
