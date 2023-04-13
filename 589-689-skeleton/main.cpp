@@ -555,10 +555,10 @@ int main() {
 				{
 					//createCells(cells_cpu);
 					preparecellsforrender(&cells_cpu, &lerpline);
-					gpu_obj.setVerts(lerpline.verts);
+					
 					changecheck[0] = false;
 				}
-
+				gpu_obj.setVerts(lerpline.verts);
 				cb->updateShadingUniforms(lightPos, lightCol, diffuseCol, ambientStrength, false);
 				rendertest(lerpline, &gpu_obj); 
 			}
@@ -569,10 +569,10 @@ int main() {
 				if (changecheck[1])
 				{
 					cubesRender(cells_cpu, &cubeobj);
-					gpu_obj.setVerts(cubeobj.verts);
 
 					changecheck[1] = false;
 				}
+				gpu_obj.setVerts(cubeobj.verts);
 				cb->updateShadingUniforms(lightPos, lightCol, diffuseCol, ambientStrength, false);
 				rendertest(cubeobj, &gpu_obj);
 			}
