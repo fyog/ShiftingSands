@@ -29,7 +29,7 @@
 #include "SurfaceRender.h"
 #include "Wind.h"
 
-glm::vec3 lookAtPoint = glm::vec3(0,0,0);
+glm::vec3 lookAtPoint = glm::vec3(0, 0, 0);
 float scrollSpeed = 0.01f;
 
 // EXAMPLE CALLBACKS
@@ -312,7 +312,7 @@ void sandCellImGui(CPU_Geometry& cpuGeom) {
 			// randomize cell heights
 			if (ImGui::CollapsingHeader("Random Heights")) {
 				surfaceChange |= ImGui::InputFloat("Height threshold: ", getRandomHeight());
-					surfaceChange |= ImGui::Checkbox("Randomize", &randomHeights);
+				surfaceChange |= ImGui::Checkbox("Randomize", &randomHeights);
 			}
 
 			// avalanche behavior
@@ -343,7 +343,7 @@ void sandCellImGui(CPU_Geometry& cpuGeom) {
 				ImGui::InputFloat("Height of pillar", &pillarHeight, 0.f, 10.f);
 				ImGui::InputInt("Pillar X", &pillarX, 0.f, getWidth());
 				ImGui::InputInt("Pillar Y", &pillarY, 0.f, getLength());
-				surfaceChange |= ImGui::Checkbox("Apply", &cellMod);
+				ImGui::Checkbox("Apply", &cellMod);
 			}
 
 			ImGui::EndTabItem();
@@ -372,21 +372,14 @@ void sandCellImGui(CPU_Geometry& cpuGeom) {
 
 	// any time there is a change to the surface parameters
 	if (surfaceChange) {
-
-		// if there is a mod to a certain cell update the surface
-		if (cellMod) {
-			updateCell(cpuGeom, pillarHeight, pillarX, pillarY);
-			cellMod = false;
-		}
-
 		createCells(cpuGeom);
-
 	}
 
 	// otherwise, if there is a change to a specific cell, update the surface but do not redraw <------------ NOT WORKING
 	//else if (cellMod) {
 
-	updateCell(cpuGeom, pillarHeight, pillarX, pillarY);
+	if (cellMod)
+		updateCell(cpuGeom, pillarHeight, pillarX, pillarY);
 	//	//createCells(cpuGeom);
 	//	cellMod = false;
 	//}
@@ -453,7 +446,7 @@ int main() {
 	zigcpu.verts.reserve(200000);
 	bool debug = true;
 	if (debug) std::cout << "about to call placesurfacevecs() in main()\n";
-	
+
 	placesurfacevecs(&cells_cpu, &splinesurf, getWidth(), getLength(), _order_k);
 	//if (debug) std::cout << "placesurfacevecs() successful. now doing zigzagdraw()\n";
 	//zigzagdraw(splinesurf, &zigcpu, getWidth(), getLength());
@@ -523,7 +516,7 @@ int main() {
 
 		// avalanching
 		if (avalanche) {
-			apply_avalanching(cells_cpu, heights,repose, number_of_iterations);
+			apply_avalanching(cells_cpu, heights, repose, number_of_iterations);
 			avalanche = false;
 		}
 
@@ -545,63 +538,15 @@ int main() {
 
 		//glDrawArrays(GL_LINE_STRIP, 0, GLsizei(splineob.verts.size())); 
 		//glDrawArrays(GL_TRIANGLES, 0, GLsizei(models.at(selectedModelName).numVerts())); //Commented this out to test b-spline -Reid
-		
-		if (getCellChange())
+
+		if (getCellChange() || cellMod)
 		{
 			setflagstrue(changecheck); //All flags will be set to true when the control points are changed
 			//we use an array of flags to check if we should redraw the objects instead of a single flag since the b-spline surface wasn't redrawing correctly when we only checked getCellChange()
 		}
 
-
 		// Toggle Render
 		if (getShowCells()) {
-
-			// reedraw the surface anytime there is a change to its parameters
-			if (surfaceChange) {
-
-				// recreate a specific pillar on the surface using the given height
-				if (pillar_submenu) {
-					pillarSetup(cells_cpu, pillarHeight, pillarX, pillarY);
-				}
-
-				// recreate with random heights, making sure no height is above the random_height variable
-				if (randomHeights) {
-					randomizeHeights(cells_cpu, getHeights(), get_rand_max());
-					randomHeights = false;
-				}
-
-				// avalanching
-				if (avalanche) {
-					apply_avalanching(cells_cpu, getHeights(), repose, number_of_iterations);
-					avalanche = false;
-				}
-
-				// wind effects
-				if (wind) {
-					auto wind_field_gen = generate_wind_field(wind_field_type[field_type]);
-					apply_wind(cells_cpu, getHeights(), wind_field_gen, number_of_iterations_2);
-					wind = false;
-				}
-
-				// if there was a modification to a specific cell update the surface accordingly
-				if (cellMod) {
-					updateCell(cells_cpu, pillarHeight, pillarX, pillarY);
-					cellMod = false;
-				}
-
-				//heights.size();
-				//fillHeights(_length, _width, getHeights());
-				redrawSurface(cells_cpu);
-				surfaceChange = false;
-			}
-
-			//// update the existing surface
-			//if (surfaceChange) {
-			//	if (cellMod) {
-			//		updateCell(cells_cpu, *getRandomHeight(), getWidth(), getLength(), pillarX, pillarY);
-			//	}
-			//	createCells(cells_cpu);
-			//}
 
 			// LERP Render mode
 			if (getRenderMode() == 0) {
@@ -647,12 +592,10 @@ int main() {
 					gpu_obj.setNormals(zigcpu.normals);
 					gpu_obj.setUVs(zigcpu.uvs);
 				}
-
 				//textures.at(selectedTexName).bind();
 				cb->updateShadingUniforms(lightPos, lightCol, diffuseCol, ambientStrength, true);
 				renderpoly(zigcpu, &gpu_obj, &sandtex);
 			}
-
 		}
 
 

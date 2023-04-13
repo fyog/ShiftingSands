@@ -18,7 +18,7 @@ extern bool surfaceChange;
 extern bool cellMod;
 extern bool showCells;
 extern int renderMode;
-float &get_rand_max();
+//float &get_rand_max();
 std::vector<float> getHeights();
 
 extern std::vector<float> heights;
