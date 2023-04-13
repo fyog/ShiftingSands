@@ -49,7 +49,7 @@ std::vector<glm::vec3> generate_wind_field(CPU_Geometry &surface, int field_type
 // lifts a small amount of sand from the given cell and returns the x,y coords it should travel to based on the given height and wind strength/direction at that cell, eventually when we want to
 // transport a variable amount of sand we can return a vec3 instead where the first entry is the slab size
  glm::vec2 lift(CPU_Geometry &surface, std::vector<glm::vec3> wind_field, int x, int y) {
-	auto wind_strength = wind_field[getWidth() * (y - 1) + x];
+	auto wind_strength = wind_field[getWidth() * (y) + x];
 	float height = getHeight(surface, x, y);
 	setHeight(surface, x, y, height - slab_size);
 
@@ -64,7 +64,7 @@ std::vector<glm::vec3> generate_wind_field(CPU_Geometry &surface, int field_type
 bool deposit_sand(CPU_Geometry &surface, int x, int y) {
 
 	// check if a random number between 0 - 1 is greater than beta
-	if ((random_number / 100) > beta) {
+	if ((randNumber(0,100) / 100.f) > beta) {
 
 		// deposit sand at the given x, y coordinates
 		float height = getHeight(surface, x, y);
