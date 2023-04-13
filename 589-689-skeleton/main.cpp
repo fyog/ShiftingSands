@@ -393,8 +393,6 @@ void sandCellImGui(CPU_Geometry& cpuGeom) {
 
 int main() {
 	Log::debug("Starting main");
-	int testval = -1;
-	std::cout << (testval % 9) << "\n";
 
 	// WINDOW
 	glfwInit();
