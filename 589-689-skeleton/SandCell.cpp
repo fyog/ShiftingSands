@@ -4,16 +4,16 @@ float getHeight(CPU_Geometry& cells_cpu, int x, int y) {
 
 	// check the values of x and y to prevent out of bounds error (toric domain)
 	if (x < 0) {
-		x %= (_length);
+		x += (_width);
 	}
 	if (y < 0) {
-		y %= (_width);
+		y += (_length);
 	}
-	if (x >= _length) {
-		x %= (_length);
+	if (x >= _width) {
+		x %= (_width);
 	}
-	if (y >= _width) {
-		y %= (_width);
+	if (y >= _length) {
+		y %= (_length);
 	}
 
 	//return 10.f;
@@ -24,16 +24,16 @@ void setHeight(CPU_Geometry &cells_cpu, int x, int y, float height) {
 
 	// check the values of x and y to prevent out of bounds error (toric domain)
 	if (x < 0) {
-		x %= (_length);
+		x += (_width);
 	}
 	if (y < 0) {
-		y %= (_width);
+		y += (_length);
 	}
-	if (x >= _length) {
-		x %= (_length);
+	if (x >= _width) {
+		x %= (_width);
 	}
-	if (y > _width) {
-		y %= (_width);
+	if (y >= _length) {
+		y %= (_length);
 	}
 
 	cells_cpu.verts.at(_width * y + x).y = height;

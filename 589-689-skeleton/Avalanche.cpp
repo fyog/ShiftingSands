@@ -112,7 +112,7 @@ void avalanche_down(CPU_Geometry& surface, int x, int y) {
 // avalanches to the right of the given cell
 void avalanche_right(CPU_Geometry& surface, int x, int y) {
 	float currentHeight = getHeight(surface, x, y);
-	float currentHeightRight = getHeight(surface, x, y);
+	float currentHeightRight = getHeight(surface, (x + 1), y);
 
 	// checks for bedrock
 	float max_avalanche_amount = avalanche_amount;

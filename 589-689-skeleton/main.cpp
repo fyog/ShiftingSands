@@ -388,6 +388,8 @@ void sandCellImGui(CPU_Geometry& cpuGeom) {
 
 int main() {
 	Log::debug("Starting main");
+	int testval = -1;
+	std::cout << (testval % 9) << "\n";
 
 	// WINDOW
 	glfwInit();
@@ -515,6 +517,7 @@ int main() {
 		// avalanching
 		if (avalanche) {
 			apply_avalanching(cells_cpu, repose, number_of_iterations);
+			setflagstrue(changecheck);
 			avalanche = false;
 		}
 
