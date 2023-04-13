@@ -594,6 +594,7 @@ int main() {
 				cb->updateShadingUniforms(lightPos, lightCol, diffuseCol, ambientStrength, true);
 				renderpoly(zigcpu, &gpu_obj, &sandtex);
 			}
+			cellMod = false;
 		}
 
 
