@@ -18,6 +18,10 @@ std::vector<float> getHeightsVector() {
 	return heights;
 }
 
+std::vector<float> getHeights() {
+	return heights;
+}
+
 int getWidth() {
 	return _width;
 }
@@ -44,7 +48,7 @@ float* getRandomHeight() {
 	return &random_height;
 }
 
-void updateCell(CPU_Geometry &cpu_geom, float height, int width, int length, int x, int y) {
+void updateCell(CPU_Geometry& cpu_geom, float height, int width, int length, int x, int y) {
 	cpu_geom.verts[width * y + x].y = height;
 }
 
@@ -153,7 +157,7 @@ void renderCells(CPU_Geometry& input_cpu, int _x, int _z) {
 
 // Cell render with only two draw calls (2 zig zag patterns overlayed)
 
-void preparecellsforrender(CPU_Geometry *input_cpu, CPU_Geometry* output_cpu)
+void preparecellsforrender(CPU_Geometry* input_cpu, CPU_Geometry* output_cpu)
 {
 	output_cpu->verts.clear();
 	zigzagdraw(input_cpu, output_cpu, _width, _length);
@@ -299,16 +303,29 @@ void cubesRender(CPU_Geometry& inputCPU, CPU_Geometry* outputCPU) {
 	}
 }
 
-void pillarSetup(CPU_Geometry& inputCPU, float _height, int width, int length, int x, int y) {
+// randomize surface heights
+void randomizeHeights(CPU_Geometry& cpuGeom, std::vector<float> heights, float max_random_height) {
+
+	float rand_height;
+	for (int i = 0; i < _length; i++) {
+		for (int j = 0; j < _width; j++) {
+			rand_height = randNumber(0, max_random_height);
+
+			heights[_width * i + j] = rand_height;
+		}
+	}
+}
+
+void pillarSetup(CPU_Geometry& inputCPU, float _height, int x, int y) {
 
 	//int halfX = _width / 2;
 	//int halfZ = _length / 2;
 	//int halfway = inputCPU.verts.size() / 2;
 
 	// Changes the middle point's height value to create a pillar
-	inputCPU.verts[_width*y+x] = (
-		glm::vec3(inputCPU.verts[_width*y+x].x,
-		_height,
-		inputCPU.verts[_width * y + x].z)
+	inputCPU.verts[_width * y + x] = (
+		glm::vec3(inputCPU.verts[_width * y + x].x,
+			_height,
+			inputCPU.verts[_width * y + x].z)
 		);
 }

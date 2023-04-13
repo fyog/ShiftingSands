@@ -375,7 +375,7 @@ void sandCellImGui(CPU_Geometry& cpuGeom) {
 
 		// if there is a mod to a certain cell update the surface
 		if (cellMod) {
-			updateCell(cpuGeom, pillarHeight, getWidth(), getLength(), pillarX, pillarY);
+			updateCell(cpuGeom, pillarHeight, pillarX, pillarY);
 			cellMod = false;
 		}
 
@@ -386,7 +386,7 @@ void sandCellImGui(CPU_Geometry& cpuGeom) {
 	// otherwise, if there is a change to a specific cell, update the surface but do not redraw <------------ NOT WORKING
 	//else if (cellMod) {
 
-	updateCell(cpuGeom, pillarHeight, getWidth(), getLength(), pillarX, pillarY);
+	updateCell(cpuGeom, pillarHeight, pillarX, pillarY);
 	//	//createCells(cpuGeom);
 	//	cellMod = false;
 	//}
@@ -517,20 +517,20 @@ int main() {
 
 		// recreate a specific pillar on the surface using the given height
 		if (pillar_submenu) {
-			pillarSetup(cells_cpu, pillarHeight, getWidth(), getLength(), pillarX, pillarY);
+			pillarSetup(cells_cpu, pillarHeight, pillarX, pillarY);
 		}
 
 
 		// avalanching
 		if (avalanche) {
-			apply_avalanching(&cells_cpu, heights, getWidth(), getLength(), repose, number_of_iterations);
+			apply_avalanching(cells_cpu, heights,repose, number_of_iterations);
 			avalanche = false;
 		}
 
 		// wind effects
 		if (wind) {
-			auto wind_field_gen = generate_wind_field(wind_field_type[field_type], getWidth(), getLength());
-			apply_wind(&cells_cpu, heights, wind_field_gen, getWidth(), getLength(), number_of_iterations_2);
+			auto wind_field_gen = generate_wind_field(wind_field_type[field_type]);
+			apply_wind(cells_cpu, heights, wind_field_gen, number_of_iterations_2);
 			wind = false;
 		}
 
@@ -552,8 +552,56 @@ int main() {
 			//we use an array of flags to check if we should redraw the objects instead of a single flag since the b-spline surface wasn't redrawing correctly when we only checked getCellChange()
 		}
 
+
 		// Toggle Render
 		if (getShowCells()) {
+
+			// reedraw the surface anytime there is a change to its parameters
+			if (surfaceChange) {
+
+				// recreate a specific pillar on the surface using the given height
+				if (pillar_submenu) {
+					pillarSetup(cells_cpu, pillarHeight, pillarX, pillarY);
+				}
+
+				// recreate with random heights, making sure no height is above the random_height variable
+				if (randomHeights) {
+					randomizeHeights(cells_cpu, getHeights(), get_rand_max());
+					randomHeights = false;
+				}
+
+				// avalanching
+				if (avalanche) {
+					apply_avalanching(cells_cpu, getHeights(), repose, number_of_iterations);
+					avalanche = false;
+				}
+
+				// wind effects
+				if (wind) {
+					auto wind_field_gen = generate_wind_field(wind_field_type[field_type]);
+					apply_wind(cells_cpu, getHeights(), wind_field_gen, number_of_iterations_2);
+					wind = false;
+				}
+
+				// if there was a modification to a specific cell update the surface accordingly
+				if (cellMod) {
+					updateCell(cells_cpu, pillarHeight, pillarX, pillarY);
+					cellMod = false;
+				}
+
+				//heights.size();
+				//fillHeights(_length, _width, getHeights());
+				redrawSurface(cells_cpu);
+				surfaceChange = false;
+			}
+
+			//// update the existing surface
+			//if (surfaceChange) {
+			//	if (cellMod) {
+			//		updateCell(cells_cpu, *getRandomHeight(), getWidth(), getLength(), pillarX, pillarY);
+			//	}
+			//	createCells(cells_cpu);
+			//}
 
 			// LERP Render mode
 			if (getRenderMode() == 0) {
@@ -567,7 +615,7 @@ int main() {
 				}
 
 				cb->updateShadingUniforms(lightPos, lightCol, diffuseCol, ambientStrength, false);
-				rendertest(lerpline, &gpu_obj); 
+				rendertest(lerpline, &gpu_obj);
 			}
 
 			// Cubes Render
@@ -599,10 +647,12 @@ int main() {
 					gpu_obj.setNormals(zigcpu.normals);
 					gpu_obj.setUVs(zigcpu.uvs);
 				}
+
 				//textures.at(selectedTexName).bind();
 				cb->updateShadingUniforms(lightPos, lightCol, diffuseCol, ambientStrength, true);
 				renderpoly(zigcpu, &gpu_obj, &sandtex);
 			}
+
 		}
 
 
