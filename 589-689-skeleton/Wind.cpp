@@ -48,16 +48,16 @@ std::vector<glm::vec3> generate_wind_field(CPU_Geometry &surface, int field_type
 
 // lifts a small amount of sand from the given cell and returns the x,y coords it should travel to based on the given height and wind strength/direction at that cell, eventually when we want to
 // transport a variable amount of sand we can return a vec3 instead where the first entry is the slab size
- glm::vec2 lift(CPU_Geometry &surface, std::vector<glm::vec3> wind_field, int x, int y) {
+ glm::vec3 lift(CPU_Geometry &surface, std::vector<glm::vec3> wind_field, int x, int y) {
 	auto wind_strength = wind_field[getWidth() * (y) + x];
 	float height = getHeight(surface, x, y);
 	setHeight(surface, x, y, height - slab_size);
 
 	// location of deposited slab is being calculated in very rudimentary/stupid way (discuss with group to find a better method)
-	auto mag = wind_strength.length() + height;
+	auto mag =  glm::length(wind_strength) + height;
 
 	// normalize wind direction and multiply by calculated magnitude
-	return 	mag * (wind_strength / (float) wind_strength.length()); 
+	return 	mag * (wind_strength / glm::length(wind_strength));
 }
 
 // attempts to deposit a sand slab at the given x, y coordinates. returns true if the depositing was successful, otherwise returns false
@@ -118,10 +118,10 @@ void apply_wind(CPU_Geometry &surface, std::vector<glm::vec3> wind_field, float 
 				if (getHeight(surface, x, y) > wind_threshold_height) {
 
 					// lift a slab of sand and return the x, y coordinates of where it should be deposited
-					glm::vec2 slab_deposit_distance = lift(surface, wind_field, x, y);
+					glm::vec3 slab_deposit_distance = lift(surface, wind_field, x, y);
 
 					// attempt to deposit sand at the given x, y coordinates
-					if (!deposit_sand(surface, slab_deposit_distance.x, slab_deposit_distance.y)) {
+					if (!deposit_sand(surface, slab_deposit_distance.x, slab_deposit_distance.z)) {
 
 						// disperse sand to n nearest neighbours if the sand was not able to be deposited
 						reptation(surface, x, y);
