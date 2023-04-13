@@ -10,7 +10,7 @@ float avalanche_amount = .5f;
 // applies avalanching behavior to the given surface (CPU_Geometry object)
 // currently tries to avalanche to the right, then up, then left, and then finally down - not sure this is the optimal way to do things
 void apply_avalanching(CPU_Geometry &surface, float repose, float number_of_iterations) {
-	std::cout << "heights length: " << heights.size() << "\n";
+	std::cout << "surface length: " << surface.size() << "\n";
 	for (int i = 0; i < number_of_iterations; i++) {
 		for (int x = 0; x < _length; x++) {
 			for (int y = 0; y < _width; y++) {
@@ -40,7 +40,7 @@ void apply_avalanching(CPU_Geometry &surface, float repose, float number_of_iter
 
 // checks repose of the cell below the given cell
 bool check_repose_down(CPU_Geometry &surface, int x, int y) {
-	if (getHeight(heights, x, y) - getHeight(heights, x, y - 1) > repose) {
+	if (getHeight(surface, x, y) - getHeight(surface, x, y - 1) > repose) {
 		return true;
 	}
 	return false;
@@ -48,7 +48,7 @@ bool check_repose_down(CPU_Geometry &surface, int x, int y) {
 
 // checks repose of the cell left of the given cell
 bool check_repose_left(CPU_Geometry &surface, int x, int y) {
-	if (getHeight(heights, x, y) - getHeight(heights, x - 1, y) > repose) {
+	if (getHeight(surface, x, y) - getHeight(surface, x - 1, y) > repose) {
 		return true;
 	}
 	return false;
@@ -56,7 +56,7 @@ bool check_repose_left(CPU_Geometry &surface, int x, int y) {
 
 // checks repose of the cell right of the given cell
 bool check_repose_right(CPU_Geometry &surface, int x, int y) {
-	if (getHeight(heights, x, y) - getHeight(heights, x + 1, y) > repose) {
+	if (getHeight(surface, x, y) - getHeight(surface, x + 1, y) > repose) {
 		return true;
 	}
 	return false;
@@ -64,7 +64,7 @@ bool check_repose_right(CPU_Geometry &surface, int x, int y) {
 
 // checks repose of the cell above the given cell
 bool check_repose_up(CPU_Geometry &surface,  int x, int y) {
-	if (getHeight(heights, x, y) - getHeight(heights, x, y + 1) > repose) {
+	if (getHeight(surface, x, y) - getHeight(surface, x, y + 1) > repose) {
 		return true;
 	}
 	return false;
@@ -72,54 +72,54 @@ bool check_repose_up(CPU_Geometry &surface,  int x, int y) {
 
 // avalanches above the given cell
 void avalanche_up(CPU_Geometry& surface, int x, int y) {
-	float currentHeight = getHeight(heights, x, y);
-	float currentHeightUp = getHeight(heights, x, y + 1);
+	float currentHeight = getHeight(surface, x, y);
+	float currentHeightUp = getHeight(surface, x, y + 1);
 
 	// checks for bedrock
 	float max_avalanche_amount = avalanche_amount;
 	if (currentHeight - avalanche_amount < 0) max_avalanche_amount = currentHeight;
 
-	setHeight(heights, x, y, currentHeight - max_avalanche_amount);
-	setHeight(heights, x, y + 1, currentHeightUp + max_avalanche_amount);
+	setHeight(surface, x, y, currentHeight - max_avalanche_amount);
+	setHeight(surface, x, y + 1, currentHeightUp + max_avalanche_amount);
 }
 
 // avalanches to the left of the given cell
 void avalanche_left(CPU_Geometry& surface, int x, int y) {
-	float currentHeight = getHeight(heights, x, y);
-	float currentHeightLeft = getHeight(heights, x - 1, y);
+	float currentHeight = getHeight(surface, x, y);
+	float currentHeightLeft = getHeight(surface, x - 1, y);
 
 	// checks for bedrock
 	float max_avalanche_amount = avalanche_amount;
 	if (currentHeight - avalanche_amount < 0) max_avalanche_amount = currentHeight;
 
-	setHeight(heights, x, y, currentHeight - max_avalanche_amount);
-	setHeight(heights, x - 1, y, currentHeightLeft + max_avalanche_amount);
+	setHeight(surface, x, y, currentHeight - max_avalanche_amount);
+	setHeight(surface, x - 1, y, currentHeightLeft + max_avalanche_amount);
 }
 
 // avalanches below the given cell
 void avalanche_down(CPU_Geometry& surface, int x, int y) {
-	float currentHeight = getHeight(heights, x, y);
-	float currentHeightDown = getHeight(heights, x, y - 1);
+	float currentHeight = getHeight(surface, x, y);
+	float currentHeightDown = getHeight(surface, x, y - 1);
 
 	// checks for bedrock
 	float max_avalanche_amount = avalanche_amount;
 	if (currentHeight - avalanche_amount < 0) max_avalanche_amount = currentHeight;
 
-	setHeight(heights, x, y, currentHeight - max_avalanche_amount);
-	setHeight(heights, x, y - 1, currentHeightDown + max_avalanche_amount);
+	setHeight(surface, x, y, currentHeight - max_avalanche_amount);
+	setHeight(surface, x, y - 1, currentHeightDown + max_avalanche_amount);
 }
 
 // avalanches to the right of the given cell
 void avalanche_right(CPU_Geometry& surface, int x, int y) {
-	float currentHeight = getHeight(heights, x, y);
-	float currentHeightRight = getHeight(heights, x, y);
+	float currentHeight = getHeight(surface, x, y);
+	float currentHeightRight = getHeight(surface, x, y);
 
 	// checks for bedrock
 	float max_avalanche_amount = avalanche_amount;
 	if (currentHeight - avalanche_amount < 0) max_avalanche_amount = currentHeight;
 
-	setHeight(heights, x, y, currentHeight - max_avalanche_amount);
-	setHeight(heights, x + 1, y, currentHeightRight + max_avalanche_amount);
+	setHeight(surface, x, y, currentHeight - max_avalanche_amount);
+	setHeight(surface, x + 1, y, currentHeightRight + max_avalanche_amount);
 }
 
 // diagonals?

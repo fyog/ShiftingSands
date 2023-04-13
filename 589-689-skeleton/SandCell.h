@@ -24,9 +24,9 @@ std::vector<float> &getHeights();
 extern std::vector<float> heights;
 extern std::vector<float> adhesions;
 
-float getHeight(std::vector<float> &heights, int x, int y);
+float getHeight(CPU_Geometry &cells_cpu, int x, int y);
 
-void setHeight(std::vector<float>& heights, int x, int y, float height);
+void setHeight(CPU_Geometry& cells_cpu, int x, int y, float height);
 std::vector<float> getAdhesionVector();
 std::vector<float> getHeightsVector();
 int getWidth();
