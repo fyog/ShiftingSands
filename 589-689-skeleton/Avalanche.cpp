@@ -72,7 +72,7 @@ bool check_repose_up(CPU_Geometry &surface, std::vector<float> heights, int x, i
 }
 
 // avalanches above the given cell
-void avalanche_up(CPU_Geometry surface, std::vector<float> heights, int x, int y) {
+void avalanche_up(CPU_Geometry& surface, std::vector<float>& heights, int x, int y) {
 	float currentHeight = getHeight(heights, x, y);
 	float currentHeightUp = getHeight(heights, x, y + 1);
 
@@ -85,7 +85,7 @@ void avalanche_up(CPU_Geometry surface, std::vector<float> heights, int x, int y
 }
 
 // avalanches to the left of the given cell
-void avalanche_left(CPU_Geometry surface, std::vector<float> heights, int x, int y) {
+void avalanche_left(CPU_Geometry& surface, std::vector<float>& heights, int x, int y) {
 	float currentHeight = getHeight(heights, x, y);
 	float currentHeightLeft = getHeight(heights, x - 1, y);
 
@@ -98,7 +98,7 @@ void avalanche_left(CPU_Geometry surface, std::vector<float> heights, int x, int
 }
 
 // avalanches below the given cell
-void avalanche_down(CPU_Geometry surface, std::vector<float> heights, int x, int y) {
+void avalanche_down(CPU_Geometry& surface, std::vector<float>& heights, int x, int y) {
 	float currentHeight = getHeight(heights, x, y);
 	float currentHeightDown = getHeight(heights, x, y - 1);
 
@@ -111,7 +111,7 @@ void avalanche_down(CPU_Geometry surface, std::vector<float> heights, int x, int
 }
 
 // avalanches to the right of the given cell
-void avalanche_right(CPU_Geometry surface, std::vector<float> heights, int x, int y) {
+void avalanche_right(CPU_Geometry& surface, std::vector<float>& heights, int x, int y) {
 	float currentHeight = getHeight(heights, x, y);
 	float currentHeightRight = getHeight(heights, x, y);
 
