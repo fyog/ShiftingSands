@@ -311,15 +311,20 @@ void sandCellImGui(CPU_Geometry& cpuGeom) {
 		if (ImGui::BeginTabItem("Patch Modification")) {
 			// randomize cell heights
 			if (ImGui::CollapsingHeader("Random Heights")) {
-				surfaceChange |= ImGui::InputFloat("Height threshold: ", getRandomHeight());
-				surfaceChange |= ImGui::Checkbox("Randomize", &randomHeights);
+				ImGui::InputFloat("Height threshold: ", getRandomHeight());
+				if (ImGui::Button("Randomize")) {
+					randomHeights = true;
+					surfaceChange = true;
+				}
 			}
 
 			// avalanche behavior
 			if (ImGui::CollapsingHeader("Avalanching")) {
+				ImGui::InputFloat("Repose: ", &repose);
 				ImGui::InputFloat("Avalanching amount: ", &avalanche_amount);
-				ImGui::InputFloat("Iterations: ", &repose);
-				ImGui::Checkbox("Avalanche", &avalanche);
+				ImGui::InputInt("Iterations: ", &number_of_iterations);
+				//ImGui::Checkbox("Avalanche", &avalanche);
+				avalanche |= ImGui::Button("Apply Avalanche");
 			}
 
 			// wind behavior
@@ -331,11 +336,12 @@ void sandCellImGui(CPU_Geometry& cpuGeom) {
 				ImGui::RadioButton(wind_field_type[1], &field_type, 1); ImGui::SameLine();
 				ImGui::RadioButton(wind_field_type[2], &field_type, 2);
 
-				surfaceChange |= ImGui::InputFloat("Beta", &beta);
-				surfaceChange |= ImGui::InputFloat("Wind threshold height: ", &wind_threshold_height);
-				surfaceChange |= ImGui::InputFloat("Slab size: ", &slab_size);
-				surfaceChange |= ImGui::InputInt("Number of iterations: ", &number_of_iterations_2);
-				surfaceChange |= ImGui::Checkbox("Wind", &wind);
+				ImGui::InputFloat("Beta", &beta);
+				ImGui::InputFloat("Wind mag", &wind_mag);
+				ImGui::InputFloat("Wind threshold height: ", &wind_threshold_height);
+				ImGui::InputFloat("Slab size: ", &slab_size);
+				ImGui::InputInt("Number of iterations: ", &number_of_iterations_2);
+				wind |= ImGui::Button("Apply Wind");
 			}
 
 			// individual pillar height control
@@ -343,7 +349,7 @@ void sandCellImGui(CPU_Geometry& cpuGeom) {
 				ImGui::InputFloat("Height of pillar", &pillarHeight, 0.f, 10.f);
 				ImGui::InputInt("Pillar X", &pillarX, 0.f, getWidth());
 				ImGui::InputInt("Pillar Y", &pillarY, 0.f, getLength());
-				ImGui::Checkbox("Apply", &cellMod);
+				cellMod |= ImGui::Button("Place Pillar");
 			}
 
 			ImGui::EndTabItem();
@@ -388,8 +394,6 @@ void sandCellImGui(CPU_Geometry& cpuGeom) {
 
 int main() {
 	Log::debug("Starting main");
-	int testval = -1;
-	std::cout << (testval % 9) << "\n";
 
 	// WINDOW
 	glfwInit();
@@ -507,6 +511,7 @@ int main() {
 		// recreate with random heights, making sure no height is above the random_height variable
 		if (randomHeights) {
 			//randomHeights = false; // eventually this should be uncommented and the current state of the surface should be preserved by some other means (eg. a bool passed to createCells()?)
+			randomHeights = false;
 		}
 
 		// recreate a specific pillar on the surface using the given height
@@ -516,6 +521,7 @@ int main() {
 
 		// avalanching
 		if (avalanche) {
+			setAvalancheAmount(avalanche_amount);
 			apply_avalanching(cells_cpu, repose, number_of_iterations);
 			setflagstrue(changecheck);
 			avalanche = false;
@@ -523,8 +529,13 @@ int main() {
 
 		// wind effects
 		if (wind) {
-			auto wind_field_gen = generate_wind_field(wind_field_type[field_type]);
-			apply_wind(cells_cpu, heights, wind_field_gen, number_of_iterations_2);
+
+			// generate the proper wind field for the surface
+			auto wind_field_gen = generate_wind_field(cells_cpu, field_type, wind_mag);
+			apply_wind(cells_cpu, wind_field_gen, number_of_iterations_2);
+			setAvalancheAmount(avalanche_amount);
+			apply_avalanching(cells_cpu, repose, number_of_iterations_2);
+			setflagstrue(changecheck);
 			wind = false;
 		}
 

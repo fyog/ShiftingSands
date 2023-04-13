@@ -7,6 +7,10 @@ int number_of_iterations = 1;
 
 float avalanche_amount = .5f;
 
+void setAvalancheAmount(float a) {
+	avalanche_amount = a;
+}
+
 // applies avalanching behavior to the given surface (CPU_Geometry object)
 // currently tries to avalanche to the right, then up, then left, and then finally down - not sure this is the optimal way to do things
 void apply_avalanching(CPU_Geometry &surface, float repose, float number_of_iterations) {
