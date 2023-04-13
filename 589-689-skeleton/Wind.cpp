@@ -42,12 +42,12 @@ std::vector<glm::vec3> generate_wind_field(CPU_Geometry &surface, int field_type
 	// Convergent
 	else if (field_type == 2) {
 		for (int i = 0; i < surface.verts.size(); i++) {
-	/*		if (surface.verts[i].y < _length / 2) {
-				wind_field.push_back(glm::vec3(wind_mag, 0.f, 0.f));
+			if (surface.verts[i].y < _length / 2) {
+				tmp.push_back(glm::vec3(wind_mag, 0.f, 0.f));
 			}
 			else {
-				wind_field.push_back(glm::vec3(-wind_mag, 0.f, 0.f));
-			}*/
+				tmp.push_back(glm::vec3(-wind_mag, 0.f, 0.f));
+			}
 		}
 	}
 	
