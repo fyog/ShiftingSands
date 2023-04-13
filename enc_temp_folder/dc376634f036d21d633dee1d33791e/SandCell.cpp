@@ -1,6 +1,6 @@
 #include "SandCell.h"
 
-float getHeight(CPU_Geometry& cells_cpu, int x, int y) {
+float getHeight(std::vector<float>& heights, int x, int y) {
 
 	// check the values of x and y to prevent out of bounds error (toric domain)
 	if (x < 0) {
@@ -17,10 +17,10 @@ float getHeight(CPU_Geometry& cells_cpu, int x, int y) {
 	}
 
 	//return 10.f;
-	return cells_cpu.verts.at((_width)*y + x).y;
+	return heights.at((_width)*y + x);
 }
 
-void setHeight(CPU_Geometry &cells_cpu, int x, int y, float height) {
+void setHeight(std::vector<float>& heights, int x, int y, float height) {
 
 	// check the values of x and y to prevent out of bounds error (toric domain)
 	if (x < 0) {
@@ -36,7 +36,7 @@ void setHeight(CPU_Geometry &cells_cpu, int x, int y, float height) {
 		y %= (_width);
 	}
 
-	cells_cpu.verts.at(_width * y + x).y = height;
+	heights.at(_width * y + x) = height;
 }
 // X and Z range of the cells
 int _width = 4;
