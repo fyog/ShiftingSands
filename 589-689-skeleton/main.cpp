@@ -317,6 +317,7 @@ void sandCellImGui(CPU_Geometry& cpuGeom) {
 
 			// avalanche behavior
 			if (ImGui::CollapsingHeader("Avalanching")) {
+				ImGui::InputFloat("Repose: ", &repose);
 				ImGui::InputFloat("Avalanching amount: ", &avalanche_amount);
 				ImGui::InputFloat("Iterations: ", &repose);
 				ImGui::Checkbox("Avalanche", &avalanche);
@@ -524,6 +525,8 @@ int main() {
 
 		// wind effects
 		if (wind) {
+
+			// generate the proper wind field for the surface
 			auto wind_field_gen = generate_wind_field(cells_cpu, wind_field_type[field_type]);
 			apply_wind(cells_cpu, heights, wind_field_gen, number_of_iterations_2);
 			setflagstrue(changecheck);
