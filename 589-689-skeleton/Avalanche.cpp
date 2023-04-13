@@ -10,7 +10,7 @@ float avalanche_amount = .5f;
 // applies avalanching behavior to the given surface (CPU_Geometry object)
 // currently tries to avalanche to the right, then up, then left, and then finally down - not sure this is the optimal way to do things
 void apply_avalanching(CPU_Geometry &surface, float repose, float number_of_iterations) {
-	std::cout << "surface length: " << surface.size() << "\n";
+	
 	for (int i = 0; i < number_of_iterations; i++) {
 		for (int x = 0; x < _length; x++) {
 			for (int y = 0; y < _width; y++) {
