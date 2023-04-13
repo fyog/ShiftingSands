@@ -36,24 +36,26 @@ int random_number = 50;
 //}
 
 // generate wind fields - three different types: linear, radial, converging
-std::vector<glm::vec3> generate_wind_field(std::string type_of_field) {
+std::vector<glm::vec3> generate_wind_field(CPU_Geometry &surface, std::string type_of_field) {
 	std::vector<glm::vec3> tmp;
 
 	// parse the desired type of wind field and then generate it
 	if (type_of_field == "linear" || type_of_field == "Linear" || type_of_field == "LINEAR") {
-		for (int i = 0; i < getWidth() * getLength(); i++) {
+		for (int i = 0; i < surface.verts.size(); i++) {
 			tmp.push_back(glm::vec3{ 5.0f, 0.f, 0.f });
 		}
 	}
-	else {
-		// add other types of wind fields later (eg. circular field, sine wave field, field converging from exact opposite directions)
+	else if (type_of_field == "radial" || type_of_field == "Radial" || type_of_field == "RADIAL") {
+		for (int i = 0; i < surface.verts.size(); i++) {
+		}
 	}
+	
 	return tmp;
 }
 
 // lifts a small amount of sand from the given cell and returns the x,y coords it should travel to based on the given height and wind strength/direction at that cell, eventually when we want to
 // transport a variable amount of sand we can return a vec3 instead where the first entry is the slab size
- glm::vec2 lift(CPU_Geometry surface, std::vector<float> heights, std::vector<glm::vec3> wind_field, int x, int y) {
+ glm::vec2 lift(CPU_Geometry &surface, std::vector<float> heights, std::vector<glm::vec3> wind_field, int x, int y) {
 	auto wind_strength = wind_field[getWidth() * (y - 1) + x];
 	float height = getHeight(surface, x, y);
 	setHeight(surface, x, y, height - slab_size);
@@ -66,7 +68,7 @@ std::vector<glm::vec3> generate_wind_field(std::string type_of_field) {
 }
 
 // attempts to deposit a sand slab at the given x, y coordinates. returns true if the depositing was successful, otherwise returns false
-bool deposit_sand(CPU_Geometry surface, std::vector<float> heights, int x, int y) {
+bool deposit_sand(CPU_Geometry &surface, std::vector<float> heights, int x, int y) {
 
 	// check if a random number between 0 - 1 is greater than beta
 	if ((random_number / 100) > beta) {
@@ -93,7 +95,7 @@ std::vector<glm::vec3> get_neighbours_heights(CPU_Geometry surface, std::vector<
 
 
 // applies reptation behavior to the given surface
-void reptation(CPU_Geometry surface, std::vector<float> heights, int x, int y) {
+void reptation(CPU_Geometry &surface, std::vector<float> heights, int x, int y) {
 
 	int n = 2; // this value was suggested by the paper
 

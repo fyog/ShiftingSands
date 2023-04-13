@@ -311,7 +311,7 @@ void sandCellImGui(CPU_Geometry& cpuGeom) {
 		if (ImGui::BeginTabItem("Patch Modification")) {
 			// randomize cell heights
 			if (ImGui::CollapsingHeader("Random Heights")) {
-				surfaceChange |= ImGui::InputFloat("Height threshold: ", getRandomHeight());
+				ImGui::InputFloat("Height threshold: ", getRandomHeight());
 				surfaceChange |= ImGui::Checkbox("Randomize", &randomHeights);
 			}
 
@@ -507,6 +507,7 @@ int main() {
 		// recreate with random heights, making sure no height is above the random_height variable
 		if (randomHeights) {
 			//randomHeights = false; // eventually this should be uncommented and the current state of the surface should be preserved by some other means (eg. a bool passed to createCells()?)
+			randomHeights = false;
 		}
 
 		// recreate a specific pillar on the surface using the given height
@@ -523,8 +524,9 @@ int main() {
 
 		// wind effects
 		if (wind) {
-			auto wind_field_gen = generate_wind_field(wind_field_type[field_type]);
+			auto wind_field_gen = generate_wind_field(cells_cpu, wind_field_type[field_type]);
 			apply_wind(cells_cpu, heights, wind_field_gen, number_of_iterations_2);
+			setflagstrue(changecheck);
 			wind = false;
 		}
 
