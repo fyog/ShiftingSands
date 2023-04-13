@@ -320,7 +320,8 @@ void sandCellImGui(CPU_Geometry& cpuGeom) {
 				ImGui::InputFloat("Repose: ", &repose);
 				ImGui::InputFloat("Avalanching amount: ", &avalanche_amount);
 				ImGui::InputFloat("Iterations: ", &repose);
-				ImGui::Checkbox("Avalanche", &avalanche);
+				//ImGui::Checkbox("Avalanche", &avalanche);
+				avalanche |= ImGui::Button("Apply Avalanche");
 			}
 
 			// wind behavior
@@ -344,7 +345,7 @@ void sandCellImGui(CPU_Geometry& cpuGeom) {
 				ImGui::InputFloat("Height of pillar", &pillarHeight, 0.f, 10.f);
 				ImGui::InputInt("Pillar X", &pillarX, 0.f, getWidth());
 				ImGui::InputInt("Pillar Y", &pillarY, 0.f, getLength());
-				ImGui::Checkbox("Apply", &cellMod);
+				cellMod |= ImGui::Button("Place Pillar");
 			}
 
 			ImGui::EndTabItem();
