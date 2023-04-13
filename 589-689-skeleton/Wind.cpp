@@ -7,7 +7,7 @@
 
 float slab_size = .5f;
 
-float wind_threshold_height = 1.5f;
+float wind_threshold_height = .5f;
 
 float beta = .15f; // beta is the coefficient that is used to determine whether a sand slab sticks or bounces when deposited
 
