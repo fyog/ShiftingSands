@@ -377,6 +377,11 @@ void sandCellImGui(CPU_Geometry& cpuGeom) {
 			ImGui::InputFloat("y", &lookAtPoint.y);
 			ImGui::InputFloat("z", &lookAtPoint.z);
 			ImGui::InputFloat("Scroll speed: ", &scrollSpeed);
+			ImGui::Separator();
+			if (ImGui::Button("Center Camera")) {
+				lookAtPoint.x = getWidth() / 2.f;
+				lookAtPoint.z = getLength() / 2.f;
+			}
 
 
 			ImGui::Separator();
