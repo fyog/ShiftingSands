@@ -529,12 +529,13 @@ int main() {
 
 		// wind effects
 		if (wind) {
-
 			// generate the proper wind field for the surface
 			auto wind_field_gen = generate_wind_field(cells_cpu, field_type, wind_mag);
-			apply_wind(cells_cpu, wind_field_gen, number_of_iterations_2);
-			setAvalancheAmount(avalanche_amount);
-			apply_avalanching(cells_cpu, repose, number_of_iterations_2);
+			for (int i = 0; i < number_of_iterations_2; i++) {
+				apply_wind(cells_cpu, wind_field_gen, 1);
+				setAvalancheAmount(avalanche_amount);
+				apply_avalanching(cells_cpu, repose, 1);
+			}
 			setflagstrue(changecheck);
 			wind = false;
 		}
