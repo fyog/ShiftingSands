@@ -275,6 +275,7 @@ bool showCells = true;
 int renderMode = 0;
 int field_type = 0;
 int _order_k = 4;
+bool changecheck[3];
 
 // Names of wind field types to be displayed in slider
 const char* wind_field_type[] = { "Linear", "Radial", "Converging" };
@@ -292,7 +293,10 @@ void sandCellImGui(CPU_Geometry& cpuGeom) {
 		if (ImGui::BeginTabItem("Patch Setup")) {
 			surfaceChange |= ImGui::InputInt("Length (X): ", &_length, 1, 200);
 			surfaceChange |= ImGui::InputInt("Width  (Z): ", &_width, 1, 200);
-			surfaceChange |= ImGui::InputInt("Order k of B-Spline Surface: ", &_order_k);
+			//surfaceChange |= ImGui::InputInt("Order k of B-Spline Surface: ", &_order_k);
+			if (ImGui::InputInt("Order k of B-Spline Surface: ", &_order_k)) {
+				setflagstrue(changecheck);
+			}
 
 			ImGui::Separator();
 
@@ -459,7 +463,7 @@ int main() {
 	//if (debug) std::cout << "zigzagdraw() successful\n";
 	//int knownwid = 4;
 	//int knownlen = 4;
-	bool changecheck[3];
+	
 	//for (int i = 0; i < 3; i++)
 	//{
 	//	changecheck[i] = false;
