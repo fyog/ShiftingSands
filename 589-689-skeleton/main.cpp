@@ -275,8 +275,10 @@ bool showCells = true;
 int renderMode = 0;
 int field_type = 0;
 int _order_k = 4;
+
 int wind_x, wind_y;
 glm::vec3 wind_vector;
+bool changecheck[3];
 
 // Names of wind field types to be displayed in slider
 const char* wind_field_type[] = { "Linear", "Radial", "Converging" };
@@ -294,7 +296,10 @@ void sandCellImGui(CPU_Geometry& cpuGeom) {
 		if (ImGui::BeginTabItem("Patch Setup")) {
 			surfaceChange |= ImGui::InputInt("Length (X): ", &_length, 1, 200);
 			surfaceChange |= ImGui::InputInt("Width  (Z): ", &_width, 1, 200);
-			surfaceChange |= ImGui::InputInt("Order k of B-Spline Surface: ", &_order_k);
+			//surfaceChange |= ImGui::InputInt("Order k of B-Spline Surface: ", &_order_k);
+			if (ImGui::InputInt("Order k of B-Spline Surface: ", &_order_k)) {
+				setflagstrue(changecheck);
+			}
 
 			ImGui::Separator();
 
@@ -322,8 +327,12 @@ void sandCellImGui(CPU_Geometry& cpuGeom) {
 
 			// avalanche behavior
 			if (ImGui::CollapsingHeader("Avalanching")) {
+				ImGui::Text("Height Difference needed for avalanche");
 				ImGui::InputFloat("Repose: ", &repose);
+				ImGui::Separator();
+				ImGui::Text("How much material avalanches");
 				ImGui::InputFloat("Avalanching amount: ", &avalanche_amount);
+				ImGui::Separator();
 				ImGui::InputInt("Iterations: ", &number_of_iterations);
 				//ImGui::Checkbox("Avalanche", &avalanche);
 				avalanche |= ImGui::Button("Apply Avalanche");
@@ -338,10 +347,18 @@ void sandCellImGui(CPU_Geometry& cpuGeom) {
 				ImGui::RadioButton(wind_field_type[1], &field_type, 1); ImGui::SameLine();
 				ImGui::RadioButton(wind_field_type[2], &field_type, 2);
 
+				ImGui::Text("frequency of sand bouncing to another location");
 				ImGui::InputFloat("Beta", &beta);
+				ImGui::Separator();
+				ImGui::Text("Magnitude of wind");
 				ImGui::InputFloat("Wind mag", &wind_mag);
+				ImGui::Separator();
+				ImGui::Text("Minimum height for sand to be picked up by wind");
 				ImGui::InputFloat("Wind threshold height: ", &wind_threshold_height);
+				ImGui::Separator();
+				ImGui::Text("How much sand is picked up and deposited");
 				ImGui::InputFloat("Slab size: ", &slab_size);
+				ImGui::Separator();
 				ImGui::InputInt("Number of iterations: ", &number_of_iterations_2);
 				if (ImGui::CollapsingHeader("Precise wind field control: ")) {
 					ImGui::InputInt("X:", &wind_x);
@@ -372,6 +389,11 @@ void sandCellImGui(CPU_Geometry& cpuGeom) {
 			ImGui::InputFloat("y", &lookAtPoint.y);
 			ImGui::InputFloat("z", &lookAtPoint.z);
 			ImGui::InputFloat("Scroll speed: ", &scrollSpeed);
+			ImGui::Separator();
+			if (ImGui::Button("Center Camera")) {
+				lookAtPoint.x = getWidth() / 2.f;
+				lookAtPoint.z = getLength() / 2.f;
+			}
 
 
 			ImGui::Separator();
@@ -470,7 +492,7 @@ int main() {
 	//if (debug) std::cout << "zigzagdraw() successful\n";
 	//int knownwid = 4;
 	//int knownlen = 4;
-	bool changecheck[3];
+	
 	//for (int i = 0; i < 3; i++)
 	//{
 	//	changecheck[i] = false;
@@ -540,8 +562,8 @@ int main() {
 
 		// wind effects
 		if (wind) {
-
 			// generate the proper wind field for the surface
+
 			generate_wind_field(cells_cpu, field_type, wind_mag);
 			apply_wind(cells_cpu, getWindField(), number_of_iterations_2);
 			setAvalancheAmount(avalanche_amount);
