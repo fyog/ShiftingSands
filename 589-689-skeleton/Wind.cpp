@@ -17,14 +17,22 @@ int number_of_iterations_2 = 1;
 
 int random_number = 50;
 
-// TO ADD:
-//
-// - movement of variable slab sizes, the size of which should be some function of wind strength and height
-//
+std::vector<glm::vec3> wind_field;
 
+std::vector<glm::vec3>& getWindField() {
+	return wind_field;
+}
+
+glm::vec3 getWind(int x, int y) {
+	return wind_field[_width * y + x];
+}
+
+void setWind(int x, int y, glm::vec3 wind_vector) {
+	wind_field[_width * y + x] = wind_vector;
+}
 
 // generate wind fields - three different types: linear, radial, converging
-std::vector<glm::vec3> generate_wind_field(CPU_Geometry &surface, int field_type, float wind_mag) {
+void generate_wind_field(CPU_Geometry &surface, int field_type, float wind_mag) {
 	std::vector<glm::vec3> tmp;
 
 	// parse the desired type of wind field and then generate it
@@ -51,7 +59,7 @@ std::vector<glm::vec3> generate_wind_field(CPU_Geometry &surface, int field_type
 		}
 	}
 	
-	return tmp;
+	wind_field = tmp;
 }
 
 // lifts a small amount of sand from the given cell and returns the x,y coords it should travel to based on the given height and wind strength/direction at that cell, eventually when we want to
@@ -59,6 +67,7 @@ std::vector<glm::vec3> generate_wind_field(CPU_Geometry &surface, int field_type
  glm::vec3 lift(CPU_Geometry &surface, std::vector<glm::vec3> wind_field, int x, int y) {
 	auto wind_strength = wind_field[getWidth() * (y) + x];
 	float height = getHeight(surface, x, y);
+
 	setHeight(surface, x, y, height - slab_size);
 
 	// location of deposited slab is being calculated in very rudimentary/stupid way (discuss with group to find a better method)

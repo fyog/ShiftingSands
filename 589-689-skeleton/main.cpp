@@ -275,6 +275,9 @@ bool showCells = true;
 int renderMode = 0;
 int field_type = 0;
 int _order_k = 4;
+
+int wind_x, wind_y;
+glm::vec3 wind_vector;
 bool changecheck[3];
 
 // Names of wind field types to be displayed in slider
@@ -357,6 +360,15 @@ void sandCellImGui(CPU_Geometry& cpuGeom) {
 				ImGui::InputFloat("Slab size: ", &slab_size);
 				ImGui::Separator();
 				ImGui::InputInt("Number of iterations: ", &number_of_iterations_2);
+				if (ImGui::CollapsingHeader("Precise wind field control: ")) {
+					ImGui::InputInt("X:", &wind_x);
+					ImGui::InputInt("Y: ", &wind_y);
+					ImGui::InputFloat("Wind vector x: ", &wind_vector.x);
+					ImGui::InputFloat("Wind vector y: ", &wind_vector.y);
+					ImGui::InputFloat("Wind vector z: ", &wind_vector.z);
+					surfaceChange |= ImGui::Button("Apply Changes");
+				}
+
 				wind |= ImGui::Button("Apply Wind");
 			}
 
@@ -551,12 +563,11 @@ int main() {
 		// wind effects
 		if (wind) {
 			// generate the proper wind field for the surface
-			auto wind_field_gen = generate_wind_field(cells_cpu, field_type, wind_mag);
-			for (int i = 0; i < number_of_iterations_2; i++) {
-				apply_wind(cells_cpu, wind_field_gen, 1);
-				setAvalancheAmount(avalanche_amount);
-				apply_avalanching(cells_cpu, repose, 1);
-			}
+
+			generate_wind_field(cells_cpu, field_type, wind_mag);
+			apply_wind(cells_cpu, getWindField(), number_of_iterations_2);
+			setAvalancheAmount(avalanche_amount);
+			apply_avalanching(cells_cpu, repose, number_of_iterations_2);
 			setflagstrue(changecheck);
 			wind = false;
 		}
