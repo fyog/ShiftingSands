@@ -19,6 +19,10 @@ int random_number = 50;
 
 std::vector<glm::vec3> wind_field;
 
+std::vector<glm::vec3>& getWindField() {
+	return wind_field;
+}
+
 glm::vec3 getWind(int x, int y) {
 	return wind_field[_width * y + x];
 }

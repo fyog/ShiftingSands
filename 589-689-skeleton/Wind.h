@@ -18,6 +18,8 @@ extern int number_of_iterations_2;
 
 extern std::vector<glm::vec3> wind_field;
 
+std::vector<glm::vec3>& getWindField();
+
 glm::vec3 getWind(int x, int y);
 
 void setWind(int x, int y, glm::vec3 wind_vector);
