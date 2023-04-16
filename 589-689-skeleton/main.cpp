@@ -275,6 +275,7 @@ bool showCells = true;
 int renderMode = 0;
 int field_type = 0;
 int _order_k = 4;
+bool updateWindField = false;
 
 int wind_x, wind_y;
 glm::vec3 wind_vector;
@@ -366,7 +367,7 @@ void sandCellImGui(CPU_Geometry& cpuGeom) {
 					ImGui::InputFloat("Wind vector x: ", &wind_vector.x);
 					ImGui::InputFloat("Wind vector y: ", &wind_vector.y);
 					ImGui::InputFloat("Wind vector z: ", &wind_vector.z);
-					surfaceChange |= ImGui::Button("Apply Changes");
+					updateWindField |= ImGui::Button("Apply Changes");
 				}
 
 				wind |= ImGui::Button("Apply Wind");
@@ -570,6 +571,10 @@ int main() {
 			apply_avalanching(cells_cpu, repose, number_of_iterations_2);
 			setflagstrue(changecheck);
 			wind = false;
+		}
+
+		if (updateWindField) {
+			setWind(wind_x, wind_y, wind_vector);
 		}
 
 		// Boilerplate change check -- may need to change name
