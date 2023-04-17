@@ -113,7 +113,6 @@ std::vector<glm::vec3> get_neighbours_heights(CPU_Geometry surface, int x, int y
 	return tmp;
 }
 
-
 // applies reptation behavior to the given surface
 void reptation(CPU_Geometry& surface, int x, int y) {
 
@@ -135,6 +134,87 @@ void reptation(CPU_Geometry& surface, int x, int y) {
 	setHeight(surface, entry_2.x, entry_2.z, entry_2.y + slab_size / n);
 }
 
+glm::vec3 toricindex(CPU_Geometry* surface, int x, int y)
+{
+	int xp, yp;
+	xp = x;
+	yp = y;
+	while (xp < 0) xp += getWidth();
+	while (yp < 0) yp += getLength();
+	if (xp >= getWidth()) xp %= getWidth();
+	if (yp >= getLength()) yp %= getLength();
+	return surface->verts[(getWidth() * yp) + xp];
+}
+
+bool checkwindpath(glm::vec3 windvec, glm::vec3 distvec)
+{
+	//this one's a bit strange, so i should probably explain it. we use the dot product to check the angle between
+	//the wind direction and some distance vector we get from subtracting a point from another. if distvec is in some
+	//approximate range from the wind direction (defined here about give or take 15 degrees off from it) we return true, otherwise false
+	glm::vec3 zerovec = glm::vec3(0.f, 0.f, 0.f);
+	if (distvec == zerovec || windvec == zerovec ) return false;
+	glm::vec3 normwind, normdist;
+	normwind = glm::normalize(windvec);
+	normdist = glm::normalize(distvec);
+	float dotprod = glm::dot(normwind, normdist);
+	if (dotprod > 0.95) return true; //the dot product gives cos(theta) between the two vectors, cos(0) = 1, and cos(15) = cos (-15) is approximately 0.966. setting the check value at 0.95 is close enough for our purposes.
+	return false;
+}
+
+bool checkoneshadow(glm::vec3 obvert, glm::vec3 subvert)
+{
+	if (obvert.y >= subvert.y) return true;
+	glm::vec3 flatob, flatsub, normdist, normflat;
+	flatob = glm::vec3(obvert.x, 0.f, obvert.z);
+	flatsub = glm::vec3(subvert.x, 0.f, subvert.z);
+	return checkwindpath((flatob - flatsub), (obvert - subvert));
+}
+
+bool subcheckshadow(CPU_Geometry* surface, int x, int y, int xstep, int ystep, glm::vec3 oppwind)
+{
+	float windrad = glm::length(oppwind);
+	glm::vec3 mainvert, tempvert, tempdist;
+	int xp, yp;
+	xp = x;
+	yp = y;
+	float distance;
+	mainvert = toricindex(surface, x, y);
+	tempvert = mainvert;
+	tempdist = mainvert - tempvert;
+	distance = 0.f;
+	bool returner = true;
+	while (distance < windrad && returner == true)
+	{
+		while (distance < windrad && returner == true)
+		{
+			if (checkwindpath(oppwind, tempdist)) returner = checkoneshadow(mainvert, tempvert); //if mainvert is blocked by tempvert, then returner will be set to false and the loops will break
+			xp += xstep;
+			tempvert = toricindex(surface, xp, yp);
+			tempdist = mainvert - tempvert;
+			distance = glm::length(tempdist);
+		}
+		xp = x; //reset xp for inner loop
+		yp += ystep;
+		tempvert = toricindex(surface, xp, yp);
+		tempdist = mainvert - tempvert;
+		distance = glm::length(tempdist);
+	}
+	return returner;
+}
+
+bool checkshadow(CPU_Geometry* surface, int x, int y, std::vector<glm::vec3>* wind_field)
+{
+	//If a given control point isn't in a wind-shadow, this will return true, otherwise, false.
+	glm::vec3 oppwind = (-1.f) * (wind_field->at((getWidth() * y) + x)); //the opposite direction of the wind at the cell
+	//float mag = glm::length(oppwind);
+	bool returner = true;
+	if (oppwind.x >= 0.f && oppwind.z >= 0.f) returner = subcheckshadow(surface, x, y, 1, 1, oppwind);
+	else if (oppwind.x >= 0.f && oppwind.z < 0.f) returner = subcheckshadow(surface, x, y, 1, (-1), oppwind);
+	else if (oppwind.x < 0.f && oppwind.z >= 0.f) returner = subcheckshadow(surface, x, y, (-1), 1, oppwind);
+	else if (oppwind.x < 0.f && oppwind.z < 0.f) returner = subcheckshadow(surface, x, y, (-1), (-1), oppwind);
+	return true;
+}
+
 // applies wind behavior to the given surface (CPU_Geometry object) based on the given wind_field
 void apply_wind(CPU_Geometry& surface, std::vector<glm::vec3> wind_field, float number_of_iterations_2) {
 	for (int i = 0; i < number_of_iterations_2; i++) {
@@ -142,7 +222,7 @@ void apply_wind(CPU_Geometry& surface, std::vector<glm::vec3> wind_field, float 
 			for (int y = 0; y < getLength(); y++) {
 
 				// if the current cell's height is above the wind threshold height
-				if (getHeight(surface, x, y) > wind_threshold_height) {
+				if (getHeight(surface, x, y) > wind_threshold_height && checkshadow(&surface, x, y, &wind_field)) {
 
 					// lift a slab of sand and return the x, y coordinates of where it should be deposited
 					glm::vec3 slab_deposit_distance = lift(surface, wind_field, x, y);
