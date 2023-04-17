@@ -222,9 +222,16 @@ void apply_wind(CPU_Geometry& surface, std::vector<glm::vec3> wind_field, float 
 		for (int x = 0; x < getWidth(); x++) {
 			for (int y = 0; y < getLength(); y++) {
 
-				// if the current cell's height is above the wind threshold height
-				if (getHeight(surface, x, y) > wind_threshold_height && checkshadow(&surface, x, y, &wind_field)) {
 
+				// Checks the height of the cell, compares it to the current threshold
+				// This will generate a sort of % of how likely it is to get picked up
+				// if the value is above 1 it will always get picked up
+				float adhesion_percent = (getHeight(surface, x, y)) / wind_threshold_height;
+
+				// if the value is between 1 and 0 it has that % chance of getting picked up
+				// Effectively this makes it so that sand above a certain height always gets picked up, while
+				// sand below a certain height sometimes gets picked up
+				if (adhesion_percent > (randNumber(0, 1)) && checkshadow(&surface, x, y, &wind_field)) {
 					// lift a slab of sand and return the x, y coordinates of where it should be deposited
 					glm::vec3 slab_deposit_distance = lift(surface, wind_field, x, y);
 
@@ -235,6 +242,7 @@ void apply_wind(CPU_Geometry& surface, std::vector<glm::vec3> wind_field, float 
 						reptation(surface, x, y);
 					}
 				}
+
 			}
 		}
 	}

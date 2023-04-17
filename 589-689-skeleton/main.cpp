@@ -355,7 +355,8 @@ void sandCellImGui(CPU_Geometry& cpuGeom) {
 				ImGui::Text("Magnitude of wind");
 				ImGui::InputFloat("Wind mag", &wind_mag);
 				ImGui::Separator();
-				ImGui::Text("Minimum height for sand to be picked up by wind");
+				ImGui::Text("Sand above this height will always be picked up");
+				ImGui::Text("For best results set this to the same max height of your random heights");
 				ImGui::InputFloat("Wind threshold height: ", &wind_threshold_height);
 				ImGui::Separator();
 				ImGui::Text("How much sand is picked up and deposited");
