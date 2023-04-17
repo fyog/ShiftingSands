@@ -11,6 +11,28 @@ void setAvalancheAmount(float a) {
 	avalanche_amount = a;
 }
 
+void onecellavalanche(CPU_Geometry* surface, int x, int y)
+{
+	// avalanche right if repose is above threshold
+	if (check_repose_right(*surface, x, y)) {
+		avalanche_right(*surface, x, y);
+	}
+	// avalanche up if repose is above threshold
+	else if (check_repose_up(*surface, x, y)) {
+		avalanche_up(*surface, x, y);
+	}
+
+	// avalanche left if repose is above threshold
+	else if (check_repose_left(*surface, x, y)) {
+		avalanche_left(*surface, x, y);
+	}
+
+	// avalanche down if repose is above threshold
+	else if (check_repose_down(*surface, x, y)) {
+		avalanche_down(*surface, x, y);
+	}
+}
+
 // applies avalanching behavior to the given surface (CPU_Geometry object)
 // currently tries to avalanche to the right, then up, then left, and then finally down - not sure this is the optimal way to do things
 void apply_avalanching(CPU_Geometry &surface, float repose, float number_of_iterations) {

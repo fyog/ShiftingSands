@@ -118,12 +118,12 @@ void placesurfacevecs(CPU_Geometry *control, CPU_Geometry* surface, int width, i
 	//float step = 0.01f; //Setting the step to 0.01 means every surface generated will be 101 x 101 vertices.
 	//float ustep = 0.01f;
 	//float vstep = 0.01f;
-	float ustep = 1.f / (((float) width) * 3.f);
-	float vstep = 1.f / (((float) length) * 3.f);
+	float ustep = 1.f / (((float) width) * 6.f);
+	float vstep = 1.f / (((float) length) * 6.f);
 	float u, v, i, j;
 	float finu, finv;
-	finu = ((float)width) * 3.f;
-	finv = ((float)length) * 3.f;
+	finu = ((float)width) * 6.f;
+	finv = ((float)length) * 6.f;
 
 	surface->verts.clear();
 
@@ -449,8 +449,8 @@ void placequad(CPU_Geometry *rawspline, CPU_Geometry* texsurface, int i, int j, 
 
 void drawtexturedsurface(CPU_Geometry* rawspline, CPU_Geometry* texsurface, int width, int length)
 {
-	int subwidth = (3 * width) + 1;
-	int sublength = (3 * length) + 1;
+	int subwidth = (6 * width) + 1;
+	int sublength = (6 * length) + 1;
 	texsurface->verts.clear();
 	texsurface->normals.clear();
 	texsurface->uvs.clear();
