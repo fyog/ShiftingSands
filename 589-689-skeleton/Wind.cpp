@@ -27,6 +27,10 @@ glm::vec3 getWind(int x, int y) {
 	return wind_field[getWidth() * y + x];
 }
 
+glm::vec3 getDirection(int x, int y) {
+	return glm::normalize(glm::vec3(x, 0.f, y));
+}
+
 void setWind(int x, int y, glm::vec3 wind_vector) {
 	wind_field[getWidth() * y + x] = wind_vector;
 }
@@ -44,7 +48,10 @@ void generate_wind_field(CPU_Geometry& surface, int field_type, float wind_mag) 
 	}
 	// Radial
 	else if (field_type == 1) {
-		for (int i = 0; i < surface.verts.size(); i++) {
+		for (int i = 0; i < _length; i++) {
+			for (int j = 0; j < _width; j++) {
+				tmp.push_back(getDirection(i, j));
+			}
 		}
 	}
 	// Convergent
