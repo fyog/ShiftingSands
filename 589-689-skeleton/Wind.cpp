@@ -250,7 +250,6 @@ void apply_wind(CPU_Geometry& surface, std::vector<glm::vec3> &wind_field, float
 		for (int x = 0; x < getWidth(); x++) {
 			for (int y = 0; y < getLength(); y++) {
 
-
 				// Checks the height of the cell, compares it to the current threshold
 				// This will generate a sort of % of how likely it is to get picked up
 				// if the value is above 1 it will always get picked up

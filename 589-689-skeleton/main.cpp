@@ -576,14 +576,19 @@ int main() {
 		// wind effects
 		if (wind) {
 			// generate the proper wind field for the surface
+			// WIND FIELD MOVED TO SURFACE CHANGE
+			//generate_wind_field(cells_cpu, field_type, wind_mag);
 
-			generate_wind_field(cells_cpu, field_type, wind_mag);
+			setAvalancheAmount(avalanche_amount);
 
+			int iterator = 1;
 			for (int i = 0; i < number_of_iterations_2; i++) {
+				std::cout << "Wind iteration: " << iterator << "/" << number_of_iterations_2 << std::endl;
 				apply_wind(cells_cpu, getWindField(), 1);
-				setAvalancheAmount(avalanche_amount);
 				apply_avalanching(cells_cpu, repose, 1);
+				iterator++;
 			}
+			std::cout << "Wind interation complete" << std::endl << std::endl;
 			setflagstrue(changecheck);
 			wind = false;
 		}
