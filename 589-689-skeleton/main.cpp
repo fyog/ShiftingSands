@@ -568,14 +568,22 @@ int main() {
 			avalanche = false;
 		}
 
+		// If the surface changes in size, the wind field should too
+		if (surfaceChange) {
+			generate_wind_field(cells_cpu, field_type, wind_mag);
+		}
+
 		// wind effects
 		if (wind) {
 			// generate the proper wind field for the surface
 
 			generate_wind_field(cells_cpu, field_type, wind_mag);
-			apply_wind(cells_cpu, getWindField(), number_of_iterations_2);
-			setAvalancheAmount(avalanche_amount);
-			apply_avalanching(cells_cpu, repose, number_of_iterations_2);
+
+			for (int i = 0; i < number_of_iterations_2; i++) {
+				apply_wind(cells_cpu, getWindField(), 1);
+				setAvalancheAmount(avalanche_amount);
+				apply_avalanching(cells_cpu, repose, 1);
+			}
 			setflagstrue(changecheck);
 			wind = false;
 		}
