@@ -138,13 +138,36 @@ void reptation(CPU_Geometry& surface, int x, int y) {
 glm::vec3 toricindex(CPU_Geometry* surface, int x, int y)
 {
 	int xp, yp;
+	glm::vec3 temp;
+	float xc, yc;
+	xc = 0.f;
+	yc = 0.f;
 	xp = x;
 	yp = y;
-	while (xp < 0) xp += getWidth();
-	while (yp < 0) yp += getLength();
-	if (xp >= getWidth()) xp %= getWidth();
-	if (yp >= getLength()) yp %= getLength();
-	return surface->verts[(getWidth() * yp) + xp];
+	while (xp < 0)
+	{
+		xp += getWidth();
+		xc -= 1.f;
+	}
+	while (yp < 0)
+	{
+		yp += getLength();
+		yc -= 1.f;
+	}
+	while (xp >= getWidth())
+	{
+		xp -= getWidth();
+		xc += 1.f;
+	}
+	while (yp >= getLength())
+	{
+		yp -= getLength();
+		yc += 1.f;
+	}
+	temp = surface->verts[(getWidth() * yp) + xp];
+	temp.x = temp.x + (xc * float(getWidth()));
+	temp.z = temp.z + (yc * float(getLength()));
+	return temp;
 }
 
 bool checkwindpath(glm::vec3 windvec, glm::vec3 distvec)
@@ -173,7 +196,9 @@ bool checkoneshadow(glm::vec3 obvert, glm::vec3 subvert)
 
 bool subcheckshadow(CPU_Geometry* surface, int x, int y, int xstep, int ystep, glm::vec3 oppwind)
 {
+
 	float windrad = glm::length(oppwind);
+	if (windrad > float(getWidth()) || windrad > float(getLength())) return false;
 	glm::vec3 mainvert, tempvert, tempdist;
 	int xp, yp;
 	xp = x;
