@@ -198,7 +198,7 @@ bool subcheckshadow(CPU_Geometry* surface, int x, int y, int xstep, int ystep, g
 {
 
 	float windrad = glm::length(oppwind);
-	if (windrad > float(getWidth()) || windrad > float(getLength())) return false;
+	//if (windrad > float(getWidth()) || windrad > float(getLength())) return false;
 	glm::vec3 mainvert, tempvert, tempdist;
 	int xp, yp;
 	xp = x;
