@@ -56,12 +56,15 @@ void generate_wind_field(CPU_Geometry& surface, int field_type, float wind_mag) 
 	}
 	// Convergent
 	else if (field_type == 2) {
-		for (int i = 0; i < surface.verts.size(); i++) {
-			if (surface.verts[i].y < _length / 2) {
-				tmp.push_back(glm::vec3(wind_mag, 0.f, 0.f));
-			}
-			else {
-				tmp.push_back(glm::vec3(-wind_mag, 0.f, 0.f));
+		for (int i = 0; i < _length; i++) {
+			for (int j = 0; j < _width; j++) {
+				
+				if (i < _length) {
+					tmp.push_back(glm::normalize(glm::vec3(i, 0.f, j)));
+				}
+				else {
+					tmp.push_back(glm::normalize(glm::vec3(-i, 0.f, j)));
+				}
 			}
 		}
 	}
