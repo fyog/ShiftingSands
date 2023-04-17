@@ -276,6 +276,7 @@ int renderMode = 0;
 int field_type = 0;
 int _order_k = 4;
 bool updateWindField = false;
+bool windFieldGenChange = false;
 
 int wind_x, wind_y;
 glm::vec3 wind_vector;
@@ -344,9 +345,9 @@ void sandCellImGui(CPU_Geometry& cpuGeom) {
 				ImGui::Text("Type of wind field:");
 				//ImGui::SliderInt(wind_field_type[field_type], &field_type, 0, 2);
 
-				ImGui::RadioButton(wind_field_type[0], &field_type, 0); ImGui::SameLine();
-				ImGui::RadioButton(wind_field_type[1], &field_type, 1); ImGui::SameLine();
-				ImGui::RadioButton(wind_field_type[2], &field_type, 2);
+				windFieldGenChange |= ImGui::RadioButton(wind_field_type[0], &field_type, 0); ImGui::SameLine();
+				windFieldGenChange |= ImGui::RadioButton(wind_field_type[1], &field_type, 1); ImGui::SameLine();
+				windFieldGenChange |= ImGui::RadioButton(wind_field_type[2], &field_type, 2);
 
 				ImGui::Text("frequency of sand bouncing to another location");
 				ImGui::InputFloat("Beta", &beta);
@@ -363,7 +364,13 @@ void sandCellImGui(CPU_Geometry& cpuGeom) {
 				ImGui::InputInt("Number of iterations: ", &number_of_iterations_2);
 				if (ImGui::CollapsingHeader("Precise wind field control: ")) {
 					ImGui::InputInt("X:", &wind_x);
+					if (wind_x >= getWidth()) {
+						ImGui::Text("wind_x out of range, try smaller");
+					}
 					ImGui::InputInt("Y: ", &wind_y);
+					if (wind_y >= getLength()) {
+						ImGui::Text("wind_y out of range, try smaller");
+					}
 					ImGui::InputFloat("Wind vector x: ", &wind_vector.x);
 					ImGui::InputFloat("Wind vector y: ", &wind_vector.y);
 					ImGui::InputFloat("Wind vector z: ", &wind_vector.z);
@@ -473,6 +480,8 @@ int main() {
 
 	GPU_Geometry gpu_obj;
 
+	CPU_Geometry point_cpu;
+
 	createCells(cells_cpu);
 	//preparecellsforrender(cells_cpu, &lerpline);
 	renderCells(cells_cpu);
@@ -493,6 +502,9 @@ int main() {
 	//if (debug) std::cout << "zigzagdraw() successful\n";
 	//int knownwid = 4;
 	//int knownlen = 4;
+
+	// Initialize a wind field
+	generate_wind_field(cells_cpu, field_type, wind_mag);
 	
 	//for (int i = 0; i < 3; i++)
 	//{
@@ -561,11 +573,17 @@ int main() {
 			avalanche = false;
 		}
 
+		// If the type of field changes update it
+		// if the surface changes size also update the wind field
+		if (windFieldGenChange || surfaceChange) {
+			generate_wind_field(cells_cpu, field_type, wind_mag);
+		}
+
 		// wind effects
 		if (wind) {
 			// generate the proper wind field for the surface
 
-			generate_wind_field(cells_cpu, field_type, wind_mag);
+			//generate_wind_field(cells_cpu, field_type, wind_mag);
 			apply_wind(cells_cpu, getWindField(), number_of_iterations_2);
 			setAvalancheAmount(avalanche_amount);
 			apply_avalanching(cells_cpu, repose, number_of_iterations_2);
@@ -574,7 +592,11 @@ int main() {
 		}
 
 		if (updateWindField) {
-			setWind(wind_x, wind_y, wind_vector);
+			// Only apply changes if the wind_x and wind_y are in the vector range
+			// this is to prevent the program from crashing
+			if (wind_x < getWidth() && wind_y < getLength()) {
+				setWind(wind_x, wind_y, wind_vector);
+			}			
 			updateWindField = false;
 		}
 
@@ -651,7 +673,6 @@ int main() {
 			}
 			cellMod = false;
 		}
-
 
 		glDisable(GL_FRAMEBUFFER_SRGB); // disable sRGB for things like imgui
 
