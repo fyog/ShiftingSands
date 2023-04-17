@@ -96,6 +96,7 @@ bool deposit_sand(CPU_Geometry& surface, int x, int y) {
 		// deposit sand at the given x, y coordinates
 		float height = getHeight(surface, x, y);
 		setHeight(surface, x, y, height + slab_size);
+		onecellavalanche(&surface, x, y);
 		return true;
 	}
 
