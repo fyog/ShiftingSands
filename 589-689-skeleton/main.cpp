@@ -369,7 +369,10 @@ void sandCellImGui(CPU_Geometry& cpuGeom) {
 					ImGui::InputFloat("Wind vector x: ", &wind_vector.x);
 					ImGui::InputFloat("Wind vector y: ", &wind_vector.y);
 					ImGui::InputFloat("Wind vector z: ", &wind_vector.z);
+
 					updateWindField |= ImGui::Button("Apply Changes");
+
+					ImGui::Button("Apply Changes");
 				}
 
 				wind |= ImGui::Button("Apply Wind");
