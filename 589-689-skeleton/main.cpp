@@ -275,6 +275,7 @@ bool showCells = true;
 int renderMode = 0;
 int field_type = 0;
 int _order_k = 4;
+bool updateWindField = false;
 
 int wind_x, wind_y;
 glm::vec3 wind_vector;
@@ -316,6 +317,7 @@ void sandCellImGui(CPU_Geometry& cpuGeom) {
 		}
 
 		if (ImGui::BeginTabItem("Patch Modification")) {
+
 			// randomize cell heights
 			if (ImGui::CollapsingHeader("Random Heights")) {
 				ImGui::InputFloat("Height threshold: ", getRandomHeight());
@@ -353,7 +355,8 @@ void sandCellImGui(CPU_Geometry& cpuGeom) {
 				ImGui::Text("Magnitude of wind");
 				ImGui::InputFloat("Wind mag", &wind_mag);
 				ImGui::Separator();
-				ImGui::Text("Minimum height for sand to be picked up by wind");
+				ImGui::Text("Sand above this height will always be picked up");
+				ImGui::Text("For best results set this to the same max height of your random heights");
 				ImGui::InputFloat("Wind threshold height: ", &wind_threshold_height);
 				ImGui::Separator();
 				ImGui::Text("How much sand is picked up and deposited");
@@ -366,6 +369,9 @@ void sandCellImGui(CPU_Geometry& cpuGeom) {
 					ImGui::InputFloat("Wind vector x: ", &wind_vector.x);
 					ImGui::InputFloat("Wind vector y: ", &wind_vector.y);
 					ImGui::InputFloat("Wind vector z: ", &wind_vector.z);
+
+					updateWindField |= ImGui::Button("Apply Changes");
+
 					ImGui::Button("Apply Changes");
 				}
 
@@ -383,6 +389,7 @@ void sandCellImGui(CPU_Geometry& cpuGeom) {
 			ImGui::EndTabItem();
 		}
 		if (ImGui::BeginTabItem("Camera")) {
+
 			// Framerate display, in case you need to debug performance.
 			ImGui::Text("Camera Look At Point");
 			ImGui::InputFloat("x", &lookAtPoint.x);
@@ -404,10 +411,6 @@ void sandCellImGui(CPU_Geometry& cpuGeom) {
 
 		ImGui::EndTabBar();
 	}
-
-
-
-
 
 	// any time there is a change to the surface parameters
 	if (surfaceChange) {
@@ -570,6 +573,11 @@ int main() {
 			apply_avalanching(cells_cpu, repose, number_of_iterations_2);
 			setflagstrue(changecheck);
 			wind = false;
+		}
+
+		if (updateWindField) {
+			setWind(wind_x, wind_y, wind_vector);
+			updateWindField = false;
 		}
 
 		// Boilerplate change check -- may need to change name
