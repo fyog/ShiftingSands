@@ -575,6 +575,7 @@ int main() {
 
 		if (updateWindField) {
 			setWind(wind_x, wind_y, wind_vector);
+			updateWindField = false;
 		}
 
 		// Boilerplate change check -- may need to change name
