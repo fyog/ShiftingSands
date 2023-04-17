@@ -31,7 +31,7 @@ glm::vec3 getDirection(int x, int y) {
 	return glm::normalize(glm::vec3(x, 0.f, y));
 }
 
-void setWind(int x, int y, glm::vec3 wind_vector) {
+void setWind(int x, int y, glm::vec3 &wind_vector) {
 	wind_field[getWidth() * y + x] = wind_vector;
 }
 
@@ -74,7 +74,7 @@ void generate_wind_field(CPU_Geometry& surface, int field_type, float wind_mag) 
 
 // lifts a small amount of sand from the given cell and returns the x,y coords it should travel to based on the given height and wind strength/direction at that cell, eventually when we want to
 // transport a variable amount of sand we can return a vec3 instead where the first entry is the slab size
-glm::vec3 lift(CPU_Geometry& surface, std::vector<glm::vec3> wind_field, int x, int y) {
+glm::vec3 lift(CPU_Geometry& surface, std::vector<glm::vec3> &wind_field, int x, int y) {
 	auto wind_strength = wind_field[getWidth() * (y)+x];
 	float height = getHeight(surface, x, y);
 
@@ -217,7 +217,7 @@ bool checkshadow(CPU_Geometry* surface, int x, int y, std::vector<glm::vec3>* wi
 }
 
 // applies wind behavior to the given surface (CPU_Geometry object) based on the given wind_field
-void apply_wind(CPU_Geometry& surface, std::vector<glm::vec3> wind_field, float number_of_iterations_2) {
+void apply_wind(CPU_Geometry& surface, std::vector<glm::vec3> &wind_field, float number_of_iterations_2) {
 	for (int i = 0; i < number_of_iterations_2; i++) {
 		for (int x = 0; x < getWidth(); x++) {
 			for (int y = 0; y < getLength(); y++) {
