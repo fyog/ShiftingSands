@@ -276,6 +276,10 @@ int renderMode = 0;
 int field_type = 0;
 int _order_k = 4;
 
+int wind_x, wind_y;
+glm::vec3 wind_vector;
+bool changecheck[3];
+
 // Names of wind field types to be displayed in slider
 const char* wind_field_type[] = { "Linear", "Radial", "Converging" };
 
@@ -292,7 +296,10 @@ void sandCellImGui(CPU_Geometry& cpuGeom) {
 		if (ImGui::BeginTabItem("Patch Setup")) {
 			surfaceChange |= ImGui::InputInt("Length (X): ", &_length, 1, 200);
 			surfaceChange |= ImGui::InputInt("Width  (Z): ", &_width, 1, 200);
-			surfaceChange |= ImGui::InputInt("Order k of B-Spline Surface: ", &_order_k);
+			//surfaceChange |= ImGui::InputInt("Order k of B-Spline Surface: ", &_order_k);
+			if (ImGui::InputInt("Order k of B-Spline Surface: ", &_order_k)) {
+				setflagstrue(changecheck);
+			}
 
 			ImGui::Separator();
 
@@ -311,15 +318,24 @@ void sandCellImGui(CPU_Geometry& cpuGeom) {
 		if (ImGui::BeginTabItem("Patch Modification")) {
 			// randomize cell heights
 			if (ImGui::CollapsingHeader("Random Heights")) {
-				surfaceChange |= ImGui::InputFloat("Height threshold: ", getRandomHeight());
-				surfaceChange |= ImGui::Checkbox("Randomize", &randomHeights);
+				ImGui::InputFloat("Height threshold: ", getRandomHeight());
+				if (ImGui::Button("Randomize")) {
+					randomHeights = true;
+					surfaceChange = true;
+				}
 			}
 
 			// avalanche behavior
 			if (ImGui::CollapsingHeader("Avalanching")) {
+				ImGui::Text("Height Difference needed for avalanche");
+				ImGui::InputFloat("Repose: ", &repose);
+				ImGui::Separator();
+				ImGui::Text("How much material avalanches");
 				ImGui::InputFloat("Avalanching amount: ", &avalanche_amount);
-				ImGui::InputFloat("Iterations: ", &repose);
-				ImGui::Checkbox("Avalanche", &avalanche);
+				ImGui::Separator();
+				ImGui::InputInt("Iterations: ", &number_of_iterations);
+				//ImGui::Checkbox("Avalanche", &avalanche);
+				avalanche |= ImGui::Button("Apply Avalanche");
 			}
 
 			// wind behavior
@@ -331,11 +347,29 @@ void sandCellImGui(CPU_Geometry& cpuGeom) {
 				ImGui::RadioButton(wind_field_type[1], &field_type, 1); ImGui::SameLine();
 				ImGui::RadioButton(wind_field_type[2], &field_type, 2);
 
-				surfaceChange |= ImGui::InputFloat("Beta", &beta);
-				surfaceChange |= ImGui::InputFloat("Wind threshold height: ", &wind_threshold_height);
-				surfaceChange |= ImGui::InputFloat("Slab size: ", &slab_size);
-				surfaceChange |= ImGui::InputInt("Number of iterations: ", &number_of_iterations_2);
-				surfaceChange |= ImGui::Checkbox("Wind", &wind);
+				ImGui::Text("frequency of sand bouncing to another location");
+				ImGui::InputFloat("Beta", &beta);
+				ImGui::Separator();
+				ImGui::Text("Magnitude of wind");
+				ImGui::InputFloat("Wind mag", &wind_mag);
+				ImGui::Separator();
+				ImGui::Text("Minimum height for sand to be picked up by wind");
+				ImGui::InputFloat("Wind threshold height: ", &wind_threshold_height);
+				ImGui::Separator();
+				ImGui::Text("How much sand is picked up and deposited");
+				ImGui::InputFloat("Slab size: ", &slab_size);
+				ImGui::Separator();
+				ImGui::InputInt("Number of iterations: ", &number_of_iterations_2);
+				if (ImGui::CollapsingHeader("Precise wind field control: ")) {
+					ImGui::InputInt("X:", &wind_x);
+					ImGui::InputInt("Y: ", &wind_y);
+					ImGui::InputFloat("Wind vector x: ", &wind_vector.x);
+					ImGui::InputFloat("Wind vector y: ", &wind_vector.y);
+					ImGui::InputFloat("Wind vector z: ", &wind_vector.z);
+					ImGui::Button("Apply Changes");
+				}
+
+				wind |= ImGui::Button("Apply Wind");
 			}
 
 			// individual pillar height control
@@ -343,7 +377,7 @@ void sandCellImGui(CPU_Geometry& cpuGeom) {
 				ImGui::InputFloat("Height of pillar", &pillarHeight, 0.f, 10.f);
 				ImGui::InputInt("Pillar X", &pillarX, 0.f, getWidth());
 				ImGui::InputInt("Pillar Y", &pillarY, 0.f, getLength());
-				ImGui::Checkbox("Apply", &cellMod);
+				cellMod |= ImGui::Button("Place Pillar");
 			}
 
 			ImGui::EndTabItem();
@@ -355,6 +389,11 @@ void sandCellImGui(CPU_Geometry& cpuGeom) {
 			ImGui::InputFloat("y", &lookAtPoint.y);
 			ImGui::InputFloat("z", &lookAtPoint.z);
 			ImGui::InputFloat("Scroll speed: ", &scrollSpeed);
+			ImGui::Separator();
+			if (ImGui::Button("Center Camera")) {
+				lookAtPoint.x = getWidth() / 2.f;
+				lookAtPoint.z = getLength() / 2.f;
+			}
 
 
 			ImGui::Separator();
@@ -388,8 +427,6 @@ void sandCellImGui(CPU_Geometry& cpuGeom) {
 
 int main() {
 	Log::debug("Starting main");
-	int testval = -1;
-	std::cout << (testval % 9) << "\n";
 
 	// WINDOW
 	glfwInit();
@@ -455,7 +492,7 @@ int main() {
 	//if (debug) std::cout << "zigzagdraw() successful\n";
 	//int knownwid = 4;
 	//int knownlen = 4;
-	bool changecheck[3];
+	
 	//for (int i = 0; i < 3; i++)
 	//{
 	//	changecheck[i] = false;
@@ -507,6 +544,7 @@ int main() {
 		// recreate with random heights, making sure no height is above the random_height variable
 		if (randomHeights) {
 			//randomHeights = false; // eventually this should be uncommented and the current state of the surface should be preserved by some other means (eg. a bool passed to createCells()?)
+			randomHeights = false;
 		}
 
 		// recreate a specific pillar on the surface using the given height
@@ -516,6 +554,7 @@ int main() {
 
 		// avalanching
 		if (avalanche) {
+			setAvalancheAmount(avalanche_amount);
 			apply_avalanching(cells_cpu, repose, number_of_iterations);
 			setflagstrue(changecheck);
 			avalanche = false;
@@ -523,8 +562,13 @@ int main() {
 
 		// wind effects
 		if (wind) {
-			auto wind_field_gen = generate_wind_field(wind_field_type[field_type]);
-			apply_wind(cells_cpu, heights, wind_field_gen, number_of_iterations_2);
+			// generate the proper wind field for the surface
+
+			generate_wind_field(cells_cpu, field_type, wind_mag);
+			apply_wind(cells_cpu, getWindField(), number_of_iterations_2);
+			setAvalancheAmount(avalanche_amount);
+			apply_avalanching(cells_cpu, repose, number_of_iterations_2);
+			setflagstrue(changecheck);
 			wind = false;
 		}
 

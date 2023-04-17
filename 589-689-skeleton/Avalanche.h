@@ -23,3 +23,5 @@ void avalanche_left(CPU_Geometry& surface,  int x, int y);
 void avalanche_down(CPU_Geometry& surface, int x, int y);
 
 void avalanche_right(CPU_Geometry& surface,  int x, int y);
+
+void setAvalancheAmount(float a);
