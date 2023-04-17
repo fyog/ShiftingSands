@@ -32,7 +32,10 @@ glm::vec3 getDirection(int x, int y) {
 }
 
 void setWind(int x, int y, glm::vec3 &wind_vector) {
-	wind_field[getWidth() * y + x] = wind_vector;
+	// Only apply wind field changes if the x or y are in range
+	if (x < getWidth() && y < getLength()) {
+		wind_field[getWidth() * y + x] = wind_vector;
+	}	
 }
 
 // generate wind fields - three different types: linear, radial, converging

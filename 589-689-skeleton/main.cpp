@@ -365,14 +365,19 @@ void sandCellImGui(CPU_Geometry& cpuGeom) {
 				ImGui::InputInt("Number of iterations: ", &number_of_iterations_2);
 				if (ImGui::CollapsingHeader("Precise wind field control: ")) {
 					ImGui::InputInt("X:", &wind_x);
+					if (wind_x > getWidth()) {
+						ImGui::Text("wind x out of range, please try a smaller value");
+					}
 					ImGui::InputInt("Y: ", &wind_y);
+					if (wind_y > getLength()) {
+						ImGui::Text("wind y out of range, please try a smaller value");
+					}
 					ImGui::InputFloat("Wind vector x: ", &wind_vector.x);
 					ImGui::InputFloat("Wind vector y: ", &wind_vector.y);
 					ImGui::InputFloat("Wind vector z: ", &wind_vector.z);
 
 					updateWindField |= ImGui::Button("Apply Changes");
-
-					ImGui::Button("Apply Changes");
+					ImGui::Separator();
 				}
 
 				wind |= ImGui::Button("Apply Wind");
