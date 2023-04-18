@@ -29,10 +29,10 @@ glm::vec3 getWind(int x, int y) {
 
 glm::vec3 getDirection(int x, int y) {
 
-	auto midpoint_x = _length / 2;
-	auto midpoint_y = _width / 2;
-	auto the_x = midpoint_x - x;
-	auto the_y = midpoint_y - y;
+	float midpoint_x = float(getLength()) / 2.f;
+	float midpoint_y = float(getWidth()) / 2.f;
+	float the_x = midpoint_x - float(x);
+	float the_y = midpoint_y + float(y);
 	return glm::normalize(glm::vec3(the_x, 0.f, the_y));
 }
 
@@ -99,7 +99,7 @@ glm::vec3 lift(CPU_Geometry& surface, std::vector<glm::vec3> &wind_field, int x,
 bool deposit_sand(CPU_Geometry& surface, int x, int y) {
 
 	// check if a random number between 0 - 1 is greater than beta
-	if ((randNumber(0, 100) / 100.f) > beta) {
+	if ((randNumber(0.f, 100.f) / 100.f) > beta) {
 
 		// deposit sand at the given x, y coordinates
 		float height = getHeight(surface, x, y);
@@ -125,7 +125,7 @@ std::vector<glm::vec3> get_neighbours_heights(CPU_Geometry surface, int x, int y
 // applies reptation behavior to the given surface
 void reptation(CPU_Geometry& surface, int x, int y) {
 
-	int n = 2; // this value was suggested by the paper
+	float n = 2.f; // this value was suggested by the paper
 
 	// find neighbour's heights and store them in a vector (along with the cell's x, y coordinates)
 	auto neighbours = get_neighbours_heights(surface, x, y);
@@ -263,7 +263,8 @@ void apply_wind(CPU_Geometry& surface, std::vector<glm::vec3> &wind_field, float
 				// if the value is between 1 and 0 it has that % chance of getting picked up
 				// Effectively this makes it so that sand above a certain height always gets picked up, while
 				// sand below a certain height sometimes gets picked up
-				if (adhesion_percent > (randNumber(0, 1)) && checkshadow(&surface, x, y, &wind_field)) {
+				//if (adhesion_percent > (randNumber(0, 1)) && checkshadow(&surface, x, y, &wind_field)) {
+				if (adhesion_percent > (randNumber(0, 1))) {
 					// lift a slab of sand and return the x, y coordinates of where it should be deposited
 					glm::vec3 slab_deposit_distance = lift(surface, wind_field, x, y);
 
