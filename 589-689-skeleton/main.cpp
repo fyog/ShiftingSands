@@ -354,6 +354,27 @@ void sandCellImGui(CPU_Geometry& cpuGeom) {
 
 				wind = true;
 			}
+
+			if (ImGui::Button("1000 iteration - 50x50 Radial Wind Patch")) {
+				_length = 50;
+				_width = 50;
+				renderMode = 2; // b-spline smooth
+				setRandomHeight(10.f);
+				randomHeights = true;
+				surfaceChange = true;
+
+				// Center camera
+				lookAtPoint.x = getWidth() / 2.f;
+				lookAtPoint.z = getLength() / 2.f;
+
+				field_type = 1; // radial
+				wind_threshold_height = 10.f;
+				number_of_iterations_2 = 1000;
+				repose = 1.1f;
+
+				wind = true;
+			}
+
 			if (ImGui::Button("1000 iteration - 50x50 Convergent Wind Patch")) {
 				_length = 50;
 				_width = 50;
@@ -367,25 +388,6 @@ void sandCellImGui(CPU_Geometry& cpuGeom) {
 				lookAtPoint.z = getLength() / 2.f;
 
 				field_type = 2; // convergent
-				wind_threshold_height = 10.f;
-				number_of_iterations_2 = 1000;
-				repose = 1.1f;
-
-				wind = true;
-			}
-			if (ImGui::Button("1000 iteration - 50x50 Radial Wind Patch")) {
-				_length = 50;
-				_width = 50;
-				renderMode = 2; // b-spline smooth
-				setRandomHeight(10.f);
-				randomHeights = true;
-				surfaceChange = true;
-
-				// Center camera
-				lookAtPoint.x = getWidth() / 2.f;
-				lookAtPoint.z = getLength() / 2.f;
-
-				field_type = 2; // radial
 				wind_threshold_height = 10.f;
 				number_of_iterations_2 = 1000;
 				repose = 1.1f;
