@@ -257,6 +257,15 @@ void setflagstrue(bool* flags)
 	}
 }
 
+// Calculates the total volume of sand in the scene
+float totalSandVolume(CPU_Geometry& sand_patch) {
+	float total_volume = 0;
+	for (int i = 0; i < sand_patch.verts.size(); i++) {
+		total_volume += sand_patch.verts.at(i).y;
+	}
+
+	return total_volume;
+}
 
 // ImGui variables
 bool randomHeights = false;
@@ -315,6 +324,10 @@ void sandCellImGui(CPU_Geometry& cpuGeom) {
 			}
 
 			ImGui::Separator();
+
+			ImGui::Text("Total Sand Volume: %f", totalSandVolume(cpuGeom));
+
+			ImGui::Separator();
 			ImGui::Text("Example setups");
 			if (ImGui::Button("1000 iteration - 50x50 Linear Wind Patch")) {
 				_length = 50;
@@ -355,7 +368,7 @@ void sandCellImGui(CPU_Geometry& cpuGeom) {
 				wind = true;
 			}
 
-			if (ImGui::Button("1000 iteration - 50x50 Radial Wind Patch")) {
+			if (ImGui::Button("200 iteration - 50x50 Radial Wind Patch (slow)")) {
 				_length = 50;
 				_width = 50;
 				renderMode = 2; // b-spline smooth
@@ -369,13 +382,13 @@ void sandCellImGui(CPU_Geometry& cpuGeom) {
 
 				field_type = 1; // radial
 				wind_threshold_height = 10.f;
-				number_of_iterations_2 = 1000;
+				number_of_iterations_2 = 200;
 				repose = 1.1f;
 
 				wind = true;
 			}
 
-			if (ImGui::Button("1000 iteration - 50x50 Convergent Wind Patch")) {
+			if (ImGui::Button("200 iteration - 50x50 Convergent Wind Patch (slow)")) {
 				_length = 50;
 				_width = 50;
 				renderMode = 2; // b-spline smooth
@@ -389,7 +402,7 @@ void sandCellImGui(CPU_Geometry& cpuGeom) {
 
 				field_type = 2; // convergent
 				wind_threshold_height = 10.f;
-				number_of_iterations_2 = 1000;
+				number_of_iterations_2 = 200;
 				repose = 1.1f;
 
 				wind = true;
@@ -463,6 +476,7 @@ void sandCellImGui(CPU_Geometry& cpuGeom) {
 				//}
 
 				wind |= ImGui::Button("Apply Wind");
+
 			}
 
 			// individual pillar height control
@@ -472,6 +486,9 @@ void sandCellImGui(CPU_Geometry& cpuGeom) {
 				ImGui::InputInt("Pillar Y", &pillarY, 0.f, getLength());
 				cellMod |= ImGui::Button("Place Pillar");
 			}
+
+			ImGui::Separator();
+			ImGui::Text("Total Sand Volume: %f", totalSandVolume(cpuGeom));
 
 			ImGui::EndTabItem();
 		}
