@@ -335,7 +335,7 @@ void sandCellImGui(CPU_Geometry& cpuGeom) {
 
 				wind = true;
 			}
-			if (ImGui::Button("2000 iteration - 100x100 Linear Wind Patch (slow)")) {
+			if (ImGui::Button("1000 iteration - 100x100 Linear Wind Patch (Slow)")) {
 				_length = 100;
 				_width = 100;
 				renderMode = 2; // b-spline smooth
