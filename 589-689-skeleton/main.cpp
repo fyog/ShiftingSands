@@ -677,13 +677,13 @@ int main() {
 
 			int iterator = 1;
 			for (int i = 0; i < number_of_iterations_2; i++) {
-				std::cout << "Wind iteration: " << iterator << "/" << number_of_iterations_2 << std::endl;
+				//std::cout << "Wind iteration: " << iterator << "/" << number_of_iterations_2 << std::endl;
 				apply_wind(cells_cpu, getWindField(), 1);
 				apply_avalanching(cells_cpu, repose, 1);
 				iterator++;				
 			}
 			system("cls");
-			std::cout << "Wind iteration: " << iterator << "/" << number_of_iterations_2 << std::endl;
+			//std::cout << "Wind iteration: " << iterator << "/" << number_of_iterations_2 << std::endl;
 			std::cout << "Wind interation complete" << std::endl << std::endl;
 			setflagstrue(changecheck);
 			wind = false;

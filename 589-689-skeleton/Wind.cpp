@@ -32,7 +32,7 @@ glm::vec3 getDirection(int x, int y) {
 	float midpoint_x = float(getLength()) / 2.f;
 	float midpoint_y = float(getWidth()) / 2.f;
 	float the_x = midpoint_x - float(x);
-	float the_y = midpoint_y + float(y);
+	float the_y = float(y) - midpoint_y;
 	return glm::normalize(glm::vec3(the_x, 0.f, the_y));
 }
 
