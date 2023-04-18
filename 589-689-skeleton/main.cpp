@@ -354,9 +354,30 @@ void sandCellImGui(CPU_Geometry& cpuGeom) {
 
 				wind = true;
 			}
-			if (ImGui::Button("100 iteration - 20x20 Convergent Wind Patch (Slow)")) {
-				_length = 20;
-				_width = 20;
+
+			if (ImGui::Button("1000 iteration - 50x50 Radial Wind Patch")) {
+				_length = 50;
+				_width = 50;
+				renderMode = 2; // b-spline smooth
+				setRandomHeight(10.f);
+				randomHeights = true;
+				surfaceChange = true;
+
+				// Center camera
+				lookAtPoint.x = getWidth() / 2.f;
+				lookAtPoint.z = getLength() / 2.f;
+
+				field_type = 1; // radial
+				wind_threshold_height = 10.f;
+				number_of_iterations_2 = 1000;
+				repose = 1.1f;
+
+				wind = true;
+			}
+
+			if (ImGui::Button("1000 iteration - 50x50 Convergent Wind Patch")) {
+				_length = 50;
+				_width = 50;
 				renderMode = 2; // b-spline smooth
 				setRandomHeight(10.f);
 				randomHeights = true;
@@ -368,26 +389,7 @@ void sandCellImGui(CPU_Geometry& cpuGeom) {
 
 				field_type = 2; // convergent
 				wind_threshold_height = 10.f;
-				number_of_iterations_2 = 100;
-				repose = 1.1f;
-
-				wind = true;
-			}
-			if (ImGui::Button("100 iteration - 20x20 Radial Wind Patch (Slow)")) {
-				_length = 20;
-				_width = 20;
-				renderMode = 2; // b-spline smooth
-				setRandomHeight(10.f);
-				randomHeights = true;
-				surfaceChange = true;
-
-				// Center camera
-				lookAtPoint.x = getWidth() / 2.f;
-				lookAtPoint.z = getLength() / 2.f;
-
-				field_type = 2; // radial
-				wind_threshold_height = 10.f;
-				number_of_iterations_2 = 100;
+				number_of_iterations_2 = 1000;
 				repose = 1.1f;
 
 				wind = true;
@@ -518,7 +520,7 @@ int main() {
 
 	// WINDOW
 	glfwInit();
-	Window window(800, 800, "CPSC 589/689"); // could set callbacks at construction if desired
+	Window window(800, 800, "Shifting Sands"); // could set callbacks at construction if desired
 
 	GLDebug::enable();
 
