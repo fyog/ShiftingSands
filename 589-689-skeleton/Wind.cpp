@@ -28,7 +28,12 @@ glm::vec3 getWind(int x, int y) {
 }
 
 glm::vec3 getDirection(int x, int y) {
-	return glm::normalize(glm::vec3(x, 0.f, y));
+
+	auto midpoint_x = _length / 2;
+	auto midpoint_y = _width / 2;
+	auto the_x = x - midpoint_x;
+	auto the_y = y - midpoint_y;
+	return glm::normalize(glm::vec3(the_x, 0.f, the_y));
 }
 
 void setWind(int x, int y, glm::vec3 &wind_vector) {
