@@ -83,13 +83,13 @@ void generate_wind_field(CPU_Geometry& surface, int field_type, float wind_mag) 
 // lifts a small amount of sand from the given cell and returns the x,y coords it should travel to based on the given height and wind strength/direction at that cell, eventually when we want to
 // transport a variable amount of sand we can return a vec3 instead where the first entry is the slab size
 glm::vec3 lift(CPU_Geometry& surface, std::vector<glm::vec3> &wind_field, int x, int y) {
-	auto wind_strength = wind_field[getWidth() * (y)+x];
+	glm::vec3 wind_strength = wind_field[getWidth() * (y)+x];
 	float height = getHeight(surface, x, y);
 
 	setHeight(surface, x, y, height - slab_size);
 
 	// location of deposited slab is being calculated in very rudimentary/stupid way (discuss with group to find a better method)
-	auto mag = glm::length(wind_strength) + height;
+	float mag = glm::length(wind_strength) + height;
 
 	// normalize wind direction and multiply by calculated magnitude
 	return 	mag * (wind_strength / glm::length(wind_strength));
@@ -139,8 +139,8 @@ void reptation(CPU_Geometry& surface, int x, int y) {
 	auto entry_2 = neighbours.back();
 
 	// adjust the heights of the vectors experiencing reptation 
-	setHeight(surface, entry_1.x, entry_1.z, entry_1.y + slab_size / n);
-	setHeight(surface, entry_2.x, entry_2.z, entry_2.y + slab_size / n);
+	setHeight(surface, int(entry_1.x), int(entry_1.z), entry_1.y + slab_size / n);
+	setHeight(surface, int(entry_2.x), int(entry_2.z), entry_2.y + slab_size / n);
 }
 
 glm::vec3 toricindex(CPU_Geometry* surface, int x, int y)
@@ -263,8 +263,8 @@ void apply_wind(CPU_Geometry& surface, std::vector<glm::vec3> &wind_field, float
 				// if the value is between 1 and 0 it has that % chance of getting picked up
 				// Effectively this makes it so that sand above a certain height always gets picked up, while
 				// sand below a certain height sometimes gets picked up
-				//if (adhesion_percent > (randNumber(0, 1)) && checkshadow(&surface, x, y, &wind_field)) {
-				if (adhesion_percent > (randNumber(0, 1))) {
+				if (adhesion_percent > (randNumber(0, 1)) && checkshadow(&surface, x, y, &wind_field)) {
+				//if (adhesion_percent > (randNumber(0, 1))) {
 					// lift a slab of sand and return the x, y coordinates of where it should be deposited
 					glm::vec3 slab_deposit_distance = lift(surface, wind_field, x, y);
 
