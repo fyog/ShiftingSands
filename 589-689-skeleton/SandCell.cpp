@@ -95,6 +95,10 @@ float* getRandomHeight() {
 	return &random_height;
 }
 
+void setRandomHeight(float f) {
+	random_height = f;
+}
+
 void updateCell(CPU_Geometry& cpu_geom, float height, int x, int y) {
 	//cpu_geom.verts[getWidth() * y + x].y = height;
 	setHeight(cpu_geom, x, y, height);

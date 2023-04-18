@@ -314,6 +314,85 @@ void sandCellImGui(CPU_Geometry& cpuGeom) {
 				ImGui::RadioButton(renderModeNames[2], &renderMode, 2);
 			}
 
+			ImGui::Separator();
+			ImGui::Text("Example setups");
+			if (ImGui::Button("1000 iteration - 50x50 Linear Wind Patch")) {
+				_length = 50;
+				_width = 50;
+				renderMode = 2; // b-spline smooth
+				setRandomHeight(10.f);
+				randomHeights = true;
+				surfaceChange = true;
+
+				// Center camera
+				lookAtPoint.x = getWidth() / 2.f;
+				lookAtPoint.z = getLength() / 2.f;
+
+				field_type = 0; // linear
+				wind_threshold_height = 10.f;
+				number_of_iterations_2 = 1000;
+				repose = 1.1f;
+
+				wind = true;
+			}
+			if (ImGui::Button("2000 iteration - 100x100 Linear Wind Patch (slow)")) {
+				_length = 100;
+				_width = 100;
+				renderMode = 2; // b-spline smooth
+				setRandomHeight(10.f);
+				randomHeights = true;
+				surfaceChange = true;
+
+				// Center camera
+				lookAtPoint.x = getWidth() / 2.f;
+				lookAtPoint.z = getLength() / 2.f;
+
+				field_type = 0; // linear
+				wind_threshold_height = 10.f;
+				number_of_iterations_2 = 1000;
+				repose = 1.1f;
+
+				wind = true;
+			}
+			if (ImGui::Button("100 iteration - 20x20 Convergent Wind Patch (Slow)")) {
+				_length = 20;
+				_width = 20;
+				renderMode = 2; // b-spline smooth
+				setRandomHeight(10.f);
+				randomHeights = true;
+				surfaceChange = true;
+
+				// Center camera
+				lookAtPoint.x = getWidth() / 2.f;
+				lookAtPoint.z = getLength() / 2.f;
+
+				field_type = 2; // convergent
+				wind_threshold_height = 10.f;
+				number_of_iterations_2 = 100;
+				repose = 1.1f;
+
+				wind = true;
+			}
+			if (ImGui::Button("100 iteration - 20x20 Radial Wind Patch (Slow)")) {
+				_length = 20;
+				_width = 20;
+				renderMode = 2; // b-spline smooth
+				setRandomHeight(10.f);
+				randomHeights = true;
+				surfaceChange = true;
+
+				// Center camera
+				lookAtPoint.x = getWidth() / 2.f;
+				lookAtPoint.z = getLength() / 2.f;
+
+				field_type = 2; // radial
+				wind_threshold_height = 10.f;
+				number_of_iterations_2 = 100;
+				repose = 1.1f;
+
+				wind = true;
+			}
+
 			ImGui::EndTabItem();
 		}
 

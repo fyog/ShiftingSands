@@ -35,6 +35,7 @@ bool getCellChange();
 bool getShowCells();
 int getRenderMode();
 float* getRandomHeight();
+void setRandomHeight(float f);
 void sandCellImGui(CPU_Geometry& cpuGeom);
 float randNumber(float _min, float _max);
 void createCells(CPU_Geometry& cpuGeom);
