@@ -520,7 +520,7 @@ int main() {
 
 	// WINDOW
 	glfwInit();
-	Window window(800, 800, "CPSC 589/689"); // could set callbacks at construction if desired
+	Window window(800, 800, "Shifting Sands"); // could set callbacks at construction if desired
 
 	GLDebug::enable();
 
